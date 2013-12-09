@@ -3,7 +3,16 @@ Open Source Cash Register
 
 An open source cash register written in Java.
 
-**See the Wiki for additional infos, or the README.txt file for licensing and additional information.**
+See the [Wiki](https://github.com/BernhardBln/opensourcecashregister/wiki) for additional infos.
+
+You need Apache Maven to compile the sources. 
+
+Contact information:
+   Bernhard.Streit+OSCR@gmail.com
+
+Source Code @ Github:
+   https://github.com/BernhardBln/opensourcecashregister
+   Git Clone url: git@github.com:BernhardBln/opensourcecashregister.git
 
 
 Copyright and License
