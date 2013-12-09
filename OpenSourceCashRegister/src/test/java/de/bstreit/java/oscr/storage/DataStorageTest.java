@@ -35,7 +35,7 @@ import de.bstreit.java.oscr.AbstractSpringTestWithContext;
 import de.bstreit.java.oscr.offers.ProductOffer;
 import de.bstreit.java.oscr.productconfiguration.products.Product;
 
-public class KasseDataStorageTest extends AbstractSpringTestWithContext {
+public class DataStorageTest extends AbstractSpringTestWithContext {
 
 	@Test
 	public void testDataStorage() {
