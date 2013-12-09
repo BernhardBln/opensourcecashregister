@@ -3,7 +3,7 @@ opensourcecashregister
 
 An open source cash register written in Java.
 
-See the Wiki for additional infos, or the README.txt file for licensing and additional information.
+*See the Wiki for additional infos, or the README.txt file for licensing and additional information.*
 
 Copyright (C) 2013 Bernhard Streit
 
