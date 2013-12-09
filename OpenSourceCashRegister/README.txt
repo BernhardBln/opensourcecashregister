@@ -25,6 +25,7 @@ You need Apache Maven to compile the sources.
 Contact information:
    Bernhard.Streit+OSCR@gmail.com
 
-Source Code:
-	Github   
+Source Code @ Github:
+   https://github.com/BernhardBln/opensourcecashregister
+   Git Clone url: git@github.com:BernhardBln/opensourcecashregister.git
 
