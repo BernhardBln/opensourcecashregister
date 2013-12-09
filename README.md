@@ -8,11 +8,11 @@ See the [Wiki](https://github.com/BernhardBln/opensourcecashregister/wiki) for a
 You need Apache Maven to compile the sources. 
 
 Contact information:
-   Bernhard.Streit+OSCR@gmail.com
+> Bernhard.Streit+OSCR@gmail.com
 
 Source Code @ Github:
-   https://github.com/BernhardBln/opensourcecashregister
-   Git Clone url: git@github.com:BernhardBln/opensourcecashregister.git
+> https://github.com/BernhardBln/opensourcecashregister
+> Git Clone url: git@github.com:BernhardBln/opensourcecashregister.git
 
 
 Copyright and License
