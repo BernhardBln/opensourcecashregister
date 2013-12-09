@@ -11,8 +11,7 @@ Contact information:
 > Bernhard.Streit+OSCR@gmail.com
 
 Source Code @ Github:  
-> https://github.com/BernhardBln/opensourcecashregister  
-> Git Clone url: git@github.com:BernhardBln/opensourcecashregister.git
+> https://github.com/BernhardBln/opensourcecashregister
 
 
 Copyright and License
