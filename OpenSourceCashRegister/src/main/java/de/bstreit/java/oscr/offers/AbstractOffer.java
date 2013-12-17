@@ -50,7 +50,7 @@ import com.google.common.base.Objects;
 import de.bstreit.java.oscr.base.ILabelledItem;
 import de.bstreit.java.oscr.base.finance.money.Money;
 import de.bstreit.java.oscr.base.persistence.AbstractPersistentObjectWithContinuance;
-import de.bstreit.java.oscr.productconfiguration.products.AbstractSalesItem;
+import de.bstreit.java.oscr.products.AbstractSalesItem;
 
 @Entity
 @Table(name = "Offers")

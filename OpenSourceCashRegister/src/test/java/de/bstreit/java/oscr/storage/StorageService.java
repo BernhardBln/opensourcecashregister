@@ -38,8 +38,8 @@ import com.google.common.collect.Lists;
 
 import de.bstreit.java.oscr.offers.ProductOffer;
 import de.bstreit.java.oscr.offers.dao.IProductOfferRepository;
-import de.bstreit.java.oscr.productconfiguration.dao.IProductRepository;
-import de.bstreit.java.oscr.productconfiguration.products.Product;
+import de.bstreit.java.oscr.products.Product;
+import de.bstreit.java.oscr.products.dao.IProductRepository;
 
 @Named
 public class StorageService {

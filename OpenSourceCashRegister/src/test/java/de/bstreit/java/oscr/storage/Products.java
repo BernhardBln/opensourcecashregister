@@ -28,8 +28,8 @@ package de.bstreit.java.oscr.storage;
 
 import java.util.Date;
 
-import de.bstreit.java.oscr.productconfiguration.ContainerSize;
-import de.bstreit.java.oscr.productconfiguration.products.Product;
+import de.bstreit.java.oscr.products.ContainerSize;
+import de.bstreit.java.oscr.products.Product;
 
 /**
  * @author streit

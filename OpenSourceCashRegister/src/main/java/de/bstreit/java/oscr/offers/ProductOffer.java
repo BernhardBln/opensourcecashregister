@@ -32,7 +32,7 @@ import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
 import de.bstreit.java.oscr.base.finance.money.Money;
-import de.bstreit.java.oscr.productconfiguration.products.Product;
+import de.bstreit.java.oscr.products.Product;
 
 @Entity
 @DiscriminatorValue(value = "ProductOffer")

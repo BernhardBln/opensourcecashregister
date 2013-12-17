@@ -24,7 +24,7 @@
  * See /README.txt for more information about the software and the author(s).
  * 
  */
-package de.bstreit.java.oscr.productconfiguration.tax;
+package de.bstreit.java.oscr.products.tax;
 
 import java.util.Date;
 
@@ -35,7 +35,7 @@ import javax.persistence.Entity;
 import org.hibernate.annotations.NaturalId;
 
 import de.bstreit.java.oscr.base.persistence.AbstractPersistentObjectWithContinuance;
-import de.bstreit.java.oscr.productconfiguration.products.AbstractSalesItem;
+import de.bstreit.java.oscr.products.AbstractSalesItem;
 
 /**
  * <p>

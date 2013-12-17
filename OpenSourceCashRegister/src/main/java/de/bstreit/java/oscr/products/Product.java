@@ -24,45 +24,62 @@
  * See /README.txt for more information about the software and the author(s).
  * 
  */
-package de.bstreit.java.oscr.productconfiguration;
+package de.bstreit.java.oscr.products;
 
 import java.util.Date;
 
+import javax.persistence.CascadeType;
+import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
 
-import org.hibernate.annotations.NaturalId;
-
-import de.bstreit.java.oscr.base.persistence.AbstractPersistentObjectWithContinuance;
-
+/**
+ * 
+ * @author streit
+ * 
+ */
 @Entity
-public class ContainerSize extends AbstractPersistentObjectWithContinuance {
+@DiscriminatorValue(value = "Product")
+public class Product extends AbstractSalesItem {
 
-	/** e.g. "50 ml" */
-	@NaturalId
-	private String size;
+	/**
+	 * Optional; not used in equals or hashcode
+	 */
+	@ManyToOne(cascade = CascadeType.ALL, optional = true)
+	private ContainerSize containerSize = null;
 
 
-	@SuppressWarnings("unused")
-	private ContainerSize() {
+	private Product() {
+		super(null, null, null);
 	}
 
-	public ContainerSize(String size, Date validFrom, Date validTo) {
-		super(validFrom, validTo);
-		this.size = size;
+	public Product(String name, Date validFrom, Date validTo) {
+		super(name, validFrom, validTo);
 	}
 
-	public String getSize() {
-		return size;
+	public ContainerSize getContainerSize() {
+		return containerSize;
+	}
+
+	/**
+	 * Optional: Packungsgröße setzen
+	 * 
+	 * @param containerSize
+	 */
+	public void setPackageSize(ContainerSize containerSize) {
+		this.containerSize = containerSize;
 	}
 
 	@Override
-	protected boolean additionalEqualsForSubclasses(Object obj) {
-		return size.equals(((ContainerSize) obj).size);
-	}
+	public String getLabel() {
 
-	@Override
-	protected int additionalHashcodeForSubclasses() {
-		return size.hashCode();
-	}
+		final String name = getName();
 
+		String containerSizeStr = "";
+		if (containerSize != null) {
+			containerSizeStr = "<BR>" + containerSize.getSize();
+		}
+
+		return name + containerSizeStr;
+	}
 }

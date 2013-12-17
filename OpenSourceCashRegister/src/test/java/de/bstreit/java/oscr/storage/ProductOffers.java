@@ -30,7 +30,7 @@ import java.util.Date;
 
 import de.bstreit.java.oscr.base.finance.money.Money;
 import de.bstreit.java.oscr.offers.ProductOffer;
-import de.bstreit.java.oscr.productconfiguration.products.Product;
+import de.bstreit.java.oscr.products.Product;
 
 /**
  * @author streit

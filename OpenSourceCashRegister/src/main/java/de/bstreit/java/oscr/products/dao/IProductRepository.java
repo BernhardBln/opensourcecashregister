@@ -24,13 +24,16 @@
  * See /README.txt for more information about the software and the author(s).
  * 
  */
-package de.bstreit.java.oscr.productconfiguration.dao;
+package de.bstreit.java.oscr.products.dao;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
-import de.bstreit.java.oscr.productconfiguration.tax.TaxInfo;
+import de.bstreit.java.oscr.products.Product;
 
+public interface IProductRepository extends JpaRepository<Product, Long> {
 
-public interface ITaxInfoRepository extends JpaRepository<TaxInfo, Long> {
+	@Query(value = "SCRIPT TO '/home/bernhard/sqlout/h2test.sql'", nativeQuery = true)
+	public void dumpDb();
 
 }

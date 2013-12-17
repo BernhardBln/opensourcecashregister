@@ -24,7 +24,7 @@
  * See /README.txt for more information about the software and the author(s).
  * 
  */
-package de.bstreit.java.oscr.productconfiguration.products;
+package de.bstreit.java.oscr.products;
 
 import java.util.Date;
 
@@ -32,21 +32,20 @@ import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
 /**
- * A variation modifies a product (e.g.
- * "replace cow milk by soy milk and charge 0,30 EUR extra for that")
+ * An extra can only be sold together with a product.
  * 
  * @author streit
  * 
  */
 @Entity
-@DiscriminatorValue(value = "Variation")
-public class Variation extends AbstractSalesItem {
+@DiscriminatorValue(value = "Extra")
+public class Extra extends AbstractSalesItem {
 
-	private Variation() {
+	private Extra() {
 		super(null, null, null);
 	}
 
-	public Variation(String name, Date validFrom, Date validTo) {
+	public Extra(String name, Date validFrom, Date validTo) {
 		super(name, validFrom, validTo);
 	}
 
