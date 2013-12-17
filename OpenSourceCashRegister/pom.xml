@@ -2,10 +2,10 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
-	<name>Kasse2</name>
+	<name>Open Source Cash Register</name>
 
-	<groupId>de.bstreit.java.kasse2</groupId>
-	<artifactId>kasse2</artifactId>
+	<groupId>de.bstreit.java.oscr</groupId>
+	<artifactId>oscr-app</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 
 	<properties>
@@ -13,10 +13,7 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 	</properties>
 
-	<!-- scm> <connection>scm:git:file:///e:/GIT repos/android/.git</connection> 
-		</scm -->
-
-	<parent>
+		<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>0.5.0.M5</version>
