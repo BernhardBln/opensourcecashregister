@@ -35,7 +35,30 @@ import javax.persistence.Entity;
 import org.hibernate.annotations.NaturalId;
 
 import de.bstreit.java.oscr.base.persistence.AbstractPersistentObjectWithContinuance;
+import de.bstreit.java.oscr.productconfiguration.products.AbstractSalesItem;
 
+/**
+ * <p>
+ * A tax info is an annotation for an {@link AbstractSalesItem} which helps to
+ * determine the correct VAT class for the item.
+ * </p>
+ * 
+ * <p>
+ * For example, in Germany, selling stuff to-go might be a reason to only tax
+ * the products with reduced VAT.
+ * </p>
+ * 
+ * <p>
+ * <b>Warning:</b> all information about taxes and taxation are just
+ * <b>examples</b>, they could be simply wrong, not suit your situation, be
+ * different in your country or area, or change over time - always ask your tax
+ * consultant! Do <b>not</b> simply rely on those examples when configuring your
+ * cash register! We do <b>not</b> take any responsibility or liability if you
+ * get in trouble with your local tax office!
+ * </p>
+ * 
+ * @author streit
+ */
 @Entity
 public class TaxInfo extends AbstractPersistentObjectWithContinuance {
 
