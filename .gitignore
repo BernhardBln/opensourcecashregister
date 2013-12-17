@@ -3,6 +3,9 @@
 /bin/
 target/
 libs/
+
+# OSCR-specific files
+/sandbox/
  
 # OS Files #
 .DS_Store
