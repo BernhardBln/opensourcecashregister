@@ -42,7 +42,6 @@ import org.hibernate.annotations.NaturalId;
 
 import de.bstreit.java.oscr.base.ILabelledItem;
 import de.bstreit.java.oscr.base.persistence.AbstractPersistentObjectWithContinuance;
-import de.bstreit.java.oscr.products.tax.TaxInfo;
 
 @Entity
 @Table(name = "SalesItems")

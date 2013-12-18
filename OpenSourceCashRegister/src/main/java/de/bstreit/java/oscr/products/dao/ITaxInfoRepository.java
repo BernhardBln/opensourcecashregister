@@ -28,7 +28,7 @@ package de.bstreit.java.oscr.products.dao;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import de.bstreit.java.oscr.products.tax.TaxInfo;
+import de.bstreit.java.oscr.products.TaxInfo;
 
 
 public interface ITaxInfoRepository extends JpaRepository<TaxInfo, Long> {

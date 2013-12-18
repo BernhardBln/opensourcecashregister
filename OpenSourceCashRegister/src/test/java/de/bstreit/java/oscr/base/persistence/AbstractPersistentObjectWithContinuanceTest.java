@@ -8,7 +8,7 @@ import org.junit.Test;
 import de.bstreit.java.oscr.offers.ProductOffer;
 import de.bstreit.java.oscr.products.ContainerSize;
 import de.bstreit.java.oscr.products.Product;
-import de.bstreit.java.oscr.products.tax.TaxInfo;
+import de.bstreit.java.oscr.products.TaxInfo;
 
 
 /**
