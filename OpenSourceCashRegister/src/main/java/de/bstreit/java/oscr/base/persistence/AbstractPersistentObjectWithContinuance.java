@@ -136,10 +136,10 @@ public abstract class AbstractPersistentObjectWithContinuance extends AbstractPe
 	 * the oldest one.
 	 */
 	@NaturalId
-	@Column(nullable = true, unique = true)
+	@Column(nullable = true)
 	private Date validFrom;
 
-	@Column(nullable = true, unique = true)
+	@Column(nullable = true)
 	private Date validTo;
 
 
