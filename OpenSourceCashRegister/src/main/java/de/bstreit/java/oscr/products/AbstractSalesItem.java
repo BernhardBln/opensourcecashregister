@@ -47,8 +47,9 @@ import de.bstreit.java.oscr.base.persistence.AbstractPersistentObjectWithContinu
 @Table(name = "SalesItems")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "type", discriminatorType = DiscriminatorType.STRING)
-public abstract class AbstractSalesItem extends AbstractPersistentObjectWithContinuance implements
-		ILabelledItem {
+public abstract class AbstractSalesItem extends AbstractPersistentObjectWithContinuance<AbstractSalesItem>
+    implements
+    ILabelledItem {
 
 	@NaturalId
 	private String name;
@@ -81,8 +82,8 @@ public abstract class AbstractSalesItem extends AbstractPersistentObjectWithCont
 	}
 
 	@Override
-	protected final boolean additionalEqualsForSubclasses(Object obj) {
-		return name.equals(((AbstractSalesItem) obj).getName());
+	protected final boolean additionalEqualsForSubclasses(AbstractSalesItem obj) {
+		return name.equals(obj.getName());
 	}
 
 	@Override

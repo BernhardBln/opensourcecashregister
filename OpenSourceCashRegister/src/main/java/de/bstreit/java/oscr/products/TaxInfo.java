@@ -59,7 +59,7 @@ import de.bstreit.java.oscr.base.persistence.AbstractPersistentObjectWithContinu
  * @author streit
  */
 @Entity
-public class TaxInfo extends AbstractPersistentObjectWithContinuance {
+public class TaxInfo extends AbstractPersistentObjectWithContinuance<TaxInfo> {
 
 	@NaturalId
 	@Access(AccessType.FIELD)
@@ -76,7 +76,7 @@ public class TaxInfo extends AbstractPersistentObjectWithContinuance {
 	}
 
 	@Override
-	protected boolean additionalEqualsForSubclasses(Object obj) {
+	protected boolean additionalEqualsForSubclasses(TaxInfo obj) {
 		return denotation.equals(((TaxInfo) obj).denotation);
 	}
 

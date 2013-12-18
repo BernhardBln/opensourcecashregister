@@ -57,14 +57,13 @@ import de.bstreit.java.oscr.products.AbstractSalesItem;
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "type", discriminatorType = DiscriminatorType.STRING)
 public abstract class AbstractOffer<OFFERED_ITEM extends AbstractSalesItem> extends
-		AbstractPersistentObjectWithContinuance implements
-		ILabelledItem {
+    AbstractPersistentObjectWithContinuance<AbstractOffer<OFFERED_ITEM>> implements
+    ILabelledItem {
 
 	/**
-	 * The price of this offer. This is not considered in
-	 * {@link #equals(Object)} and {@link #hashCode()} as the sales items and
-	 * the validFrom and validTo dates are already sufficient and serve as a
-	 * natural key.
+	 * The price of this offer. This is not considered in {@link #equals(Object)}
+	 * and {@link #hashCode()} as the sales items and the validFrom and validTo
+	 * dates are already sufficient and serve as a natural key.
 	 */
 	@Type(type = "de.bstreit.java.oscr.base.finance.money.MoneyType")
 	@Columns(columns = { @Column(name = "priceValue"), @Column(name = "priceCurrency") })
@@ -100,9 +99,8 @@ public abstract class AbstractOffer<OFFERED_ITEM extends AbstractSalesItem> exte
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
-	protected final boolean additionalEqualsForSubclasses(Object obj) {
-		return Objects.equal(offeredItem, ((AbstractOffer<OFFERED_ITEM>) obj).offeredItem);
+	protected final boolean additionalEqualsForSubclasses(AbstractOffer<OFFERED_ITEM> obj) {
+		return Objects.equal(offeredItem, obj.offeredItem);
 	}
 
 	@Override

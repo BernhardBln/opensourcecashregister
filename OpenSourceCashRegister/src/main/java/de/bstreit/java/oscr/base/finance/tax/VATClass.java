@@ -38,7 +38,7 @@ import com.google.common.base.Objects;
 import de.bstreit.java.oscr.base.persistence.AbstractPersistentObjectWithContinuance;
 
 @Entity
-public class VATClass extends AbstractPersistentObjectWithContinuance {
+public class VATClass extends AbstractPersistentObjectWithContinuance<VATClass> {
 
 	@NaturalId
 	private String designation;
@@ -68,8 +68,8 @@ public class VATClass extends AbstractPersistentObjectWithContinuance {
 
 
 	@Override
-	protected boolean additionalEqualsForSubclasses(Object obj) {
-		return Objects.equal(designation, ((VATClass) obj).designation);
+	protected boolean additionalEqualsForSubclasses(VATClass obj) {
+		return Objects.equal(designation, obj.designation);
 	}
 
 	@Override

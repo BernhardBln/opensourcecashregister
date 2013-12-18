@@ -35,7 +35,7 @@ import org.hibernate.annotations.NaturalId;
 import de.bstreit.java.oscr.base.persistence.AbstractPersistentObjectWithContinuance;
 
 @Entity
-public class ContainerSize extends AbstractPersistentObjectWithContinuance {
+public class ContainerSize extends AbstractPersistentObjectWithContinuance<ContainerSize> {
 
 	/** e.g. "50 ml" */
 	@NaturalId
@@ -56,8 +56,8 @@ public class ContainerSize extends AbstractPersistentObjectWithContinuance {
 	}
 
 	@Override
-	protected boolean additionalEqualsForSubclasses(Object obj) {
-		return size.equals(((ContainerSize) obj).size);
+	protected boolean additionalEqualsForSubclasses(ContainerSize obj) {
+		return size.equals(obj.size);
 	}
 
 	@Override

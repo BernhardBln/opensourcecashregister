@@ -66,9 +66,9 @@ import org.hibernate.annotations.NaturalId;
  * rather through archiving the object and inserting a new one. We archive an
  * object by setting a non-null {@link #validTо} date and inserting a new object
  * whose {@link #validFrom} is larger to the {@link #validTo} of the former one.
- * Hence, if we wanted to change the price of the Espresso in the exeample above
+ * Hence, if we wanted to change the price of the Espresso in the example above
  * from 1,30 to 1,40, we change the {@link #validTо} date (assume that today we
- * have the 1st of Dezember 2013) and insert a new item:
+ * have the 1st of December 2013) and insert a new item:
  * </p>
  * 
  * <pre>
@@ -97,7 +97,7 @@ import org.hibernate.annotations.NaturalId;
  * </ul>
  * </p>
  * <p>
- * Best practise: only include immutable fields for the hash code calculation,
+ * Best practice: only include immutable fields for the hash code calculation,
  * and let them be a subset of the fields used for equality comparison.
  * </p>
  * 
@@ -124,12 +124,18 @@ import org.hibernate.annotations.NaturalId;
  * </li>
  * </ul>
  * 
+ * @param <SUB_TYPE_IMPL_ADD_EQUALS_HASHCODE>
+ *          The class where
+ *          {@link #additionalEqualsForSubclasses(AbstractPersistentObjectWithContinuance)}
+ *          is implemented. Avoids an unnecessary cast in the implementation of
+ *          that method, as we already check here that the other object that is
+ *          compared to this one has exactly the same type.
  * 
  * @author streit
- * 
  */
 @MappedSuperclass
-public abstract class AbstractPersistentObjectWithContinuance extends AbstractPersistentObject {
+public abstract class AbstractPersistentObjectWithContinuance<SUB_TYPE_IMPL_ADD_EQUALS_HASHCODE extends AbstractPersistentObjectWithContinuance<SUB_TYPE_IMPL_ADD_EQUALS_HASHCODE>>
+    extends AbstractPersistentObject {
 
 	/**
 	 * The validFrom date is nullable, but only one item can have the value null,
@@ -177,10 +183,11 @@ public abstract class AbstractPersistentObjectWithContinuance extends AbstractPe
 		}
 
 		// From here on, we know that the obj has exactly the same type as this!
-		final AbstractPersistentObjectWithContinuance castedObj = (AbstractPersistentObjectWithContinuance) obj;
+		@SuppressWarnings("unchecked")
+		final SUB_TYPE_IMPL_ADD_EQUALS_HASHCODE castedObj = (SUB_TYPE_IMPL_ADD_EQUALS_HASHCODE) obj;
 
 		return new EqualsBuilder()
-		    .appendSuper(additionalEqualsForSubclasses(obj)) // here, we do
+		    .appendSuper(additionalEqualsForSubclasses(castedObj)) // here, we do
 		    // not add
 		    // super, but the equality
 		    // of additional fields from
@@ -199,28 +206,35 @@ public abstract class AbstractPersistentObjectWithContinuance extends AbstractPe
 	/**
 	 * <p>
 	 * To avoid that in subclasses the equals method is overridden without taking
-	 * the validFrom and validTo fields into account, we finalise the equals
-	 * method and force subclasses to implement the additionalEquals method to
-	 * remind them to provide the equality for the <b>additional</b> fields they
-	 * introduce.
+	 * the validFrom field into account, we finalise the equals method and force
+	 * subclasses to implement the additionalEquals method to remind them to
+	 * provide the equality for the <b>additional</b> fields they introduce.
 	 * </p>
 	 * 
 	 * <p>
-	 * Example: if we have a subclass A that introduces a field x, instances of A
-	 * have the fields id, validFrom, validTo and x. A would then be required to
-	 * compare the equality of x in additionalEquals(), or to simply return true
-	 * if x should not be considered in equals.
+	 * Example: if we have a subclass A that introduces a field "x" which is part
+	 * of the natural key of the class and hence should be used in
+	 * {@link #equals(Object)}, instances of A have the fields "id", "validFrom",
+	 * "validTo" and "x". A would then be required to compare the equality of "x"
+	 * in additionalEquals().
+	 * </p>
+	 * 
+	 * <p>
+	 * In case a class does not introduce any additional fields which should be
+	 * compared, they simply return true here, but that case should be avoided as
+	 * all objects should have a natural key that can be used in
+	 * {@link #equals(Object)}, and only comparing validTo is probably not
+	 * sufficient.
 	 * </p>
 	 * 
 	 * @param obj
-	 *          the object to compare with. It is guaranteed to have the same type
-	 *          as this object.
+	 *          the object to compare with.
 	 * @return if the additional fields introduced by subclasses (excluding
 	 *         validFrom and validTo!) are equal to the ones of the given object
 	 *         or simply true, if the subclass didn't introduce any field that
 	 *         should be considered in equals.
 	 */
-	protected abstract boolean additionalEqualsForSubclasses(Object obj);
+	protected abstract boolean additionalEqualsForSubclasses(SUB_TYPE_IMPL_ADD_EQUALS_HASHCODE obj);
 
 	@Override
 	public final int hashCode() {
