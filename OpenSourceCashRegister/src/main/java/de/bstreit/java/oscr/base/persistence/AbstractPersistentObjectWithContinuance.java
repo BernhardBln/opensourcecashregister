@@ -27,12 +27,12 @@
 package de.bstreit.java.oscr.base.persistence;
 
 import java.util.Date;
-import java.util.Objects;
 
 import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.hibernate.annotations.NaturalId;
 
 /**
@@ -79,11 +79,26 @@ import org.hibernate.annotations.NaturalId;
  * </pre>
  * 
  * <p>
- * For {@link #hashCode()}, only the field {@link #validFrom} is used, as it is
- * immutable and two instances do not have the same {@link #validTо} date (see
- * next paragraph). For equals, however, {@link #validFrom} <b>and</b>
- * {@link #validTо} are being used. That does not break the contract of
- * {@link #hashCode()}.
+ * For {@link #equals(Object)} and {@link #hashCode()}, only the field
+ * {@link #validFrom} is used, as it is immutable and two instances do not have
+ * the same {@link #validFrom} date (see next paragraph). Via
+ * {@link #additionalEqualsForSubclasses(Object)} and
+ * {@link #additionalHashcodeForSubclasses()}, subclasses can add values that
+ * can be considered in {@link #equals(Object)} and {@link #hashCode()}.
+ * </p>
+ * <p>
+ * Subclasses should make sure, however, that their choice of values does not
+ * break the contract of {@link #hashCode()}, which, in short is:
+ * <ul>
+ * <li>the hash code of an object should not change as long as the properties
+ * considered in equals do not change</li>
+ * <li>two instances that are equal have to produce the same hash code, but two
+ * instances that have the same hash code need not be equal</li>
+ * </ul>
+ * </p>
+ * <p>
+ * Best practise: only include immutable fields for the hash code calculation,
+ * and let them be a subset of the fields used for equality comparison.
  * </p>
  * 
  * <p>
@@ -116,12 +131,15 @@ import org.hibernate.annotations.NaturalId;
 @MappedSuperclass
 public abstract class AbstractPersistentObjectWithContinuance extends AbstractPersistentObject {
 
+	/**
+	 * The validFrom date is nullable, but only one item can have the value null,
+	 * the oldest one.
+	 */
 	@NaturalId
-	@Column(nullable = false)
+	@Column(nullable = true, unique = true)
 	private Date validFrom;
 
-	@NaturalId
-	@Column(nullable = true)
+	@Column(nullable = true, unique = true)
 	private Date validTo;
 
 
@@ -146,7 +164,7 @@ public abstract class AbstractPersistentObjectWithContinuance extends AbstractPe
 	public void setValidTo(Date validTo) {
 		if (this.validTo != null) {
 			throw new IllegalStateException(
-					"It is not allowed to overwrite an existing, non-null validTo date!");
+			    "It is not allowed to overwrite an existing, non-null validTo date!");
 		}
 		this.validTo = validTo;
 	}
@@ -162,17 +180,16 @@ public abstract class AbstractPersistentObjectWithContinuance extends AbstractPe
 		final AbstractPersistentObjectWithContinuance castedObj = (AbstractPersistentObjectWithContinuance) obj;
 
 		return new EqualsBuilder()
-				.appendSuper(additionalEqualsForSubclasses(obj)) // here, we do
-																	// not add
-				// super, but the equality
-				// of additional fields from
-				// subclasses. This should
-				// always work as we only
-				// compare objects of the
-				// same type.
-				.append(validFrom, castedObj.validFrom)
-				.append(validTo, castedObj.validTo)
-				.build();
+		    .appendSuper(additionalEqualsForSubclasses(obj)) // here, we do
+		    // not add
+		    // super, but the equality
+		    // of additional fields from
+		    // subclasses. This should
+		    // always work as we only
+		    // compare objects of the
+		    // same type.
+		    .append(validFrom, castedObj.validFrom)
+		    .build();
 	}
 
 	private boolean hasDifferentType(Object obj) {
@@ -181,23 +198,23 @@ public abstract class AbstractPersistentObjectWithContinuance extends AbstractPe
 
 	/**
 	 * <p>
-	 * To avoid that in subclasses the equals method is overridden without
-	 * taking the validFrom and validTo fields into account, we finalise the
-	 * equals method and force subclasses to implement the additionalEquals
-	 * method to remind them to provide the equality for the <b>additional</b>
-	 * fields they introduce.
+	 * To avoid that in subclasses the equals method is overridden without taking
+	 * the validFrom and validTo fields into account, we finalise the equals
+	 * method and force subclasses to implement the additionalEquals method to
+	 * remind them to provide the equality for the <b>additional</b> fields they
+	 * introduce.
 	 * </p>
 	 * 
 	 * <p>
-	 * Example: if we have a subclass A that introduces a field x, instances of
-	 * A have the fields id, validFrom, validTo and x. A would then be required
-	 * to compare the equality of x in additionalEquals(), or to simply return
-	 * true if x should not be considered in equals.
+	 * Example: if we have a subclass A that introduces a field x, instances of A
+	 * have the fields id, validFrom, validTo and x. A would then be required to
+	 * compare the equality of x in additionalEquals(), or to simply return true
+	 * if x should not be considered in equals.
 	 * </p>
 	 * 
 	 * @param obj
-	 *            the object to compare with. It is guaranteed to have the same
-	 *            type as this object.
+	 *          the object to compare with. It is guaranteed to have the same type
+	 *          as this object.
 	 * @return if the additional fields introduced by subclasses (excluding
 	 *         validFrom and validTo!) are equal to the ones of the given object
 	 *         or simply true, if the subclass didn't introduce any field that
@@ -208,7 +225,20 @@ public abstract class AbstractPersistentObjectWithContinuance extends AbstractPe
 	@Override
 	public final int hashCode() {
 		// no NOT consider validTo, as this might change over time!
-		return Objects.hash(validFrom);
+		final HashCodeBuilder builder = new HashCodeBuilder();
+
+		appendChildHashcodeIfSet(builder);
+		builder.append(validFrom);
+
+		return builder.toHashCode();
+	}
+
+
+	private void appendChildHashcodeIfSet(final HashCodeBuilder builder) {
+		final int subclassHashcode = additionalHashcodeForSubclasses();
+		if (subclassHashcode != 0) {
+			builder.appendSuper(subclassHashcode);
+		}
 	}
 
 	/**
