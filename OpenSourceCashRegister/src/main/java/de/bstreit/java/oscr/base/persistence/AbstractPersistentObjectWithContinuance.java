@@ -195,7 +195,7 @@ public abstract class AbstractPersistentObjectWithContinuance<SUB_TYPE_IMPL_ADD_
 		    // always work as we only
 		    // compare objects of the
 		    // same type.
-		    .append(validFrom, castedObj.validFrom)
+		    .append(validFrom, ((AbstractPersistentObjectWithContinuance<?>) castedObj).validFrom)
 		    .build();
 	}
 
