@@ -16,8 +16,27 @@ Source Code @ Github:
 > https://github.com/BernhardBln/opensourcecashregister
 
 
+Notice: 
+-------
+
+In this project (in the source code, in sample files, README files etc.)
+you will find some information about taxes, tax classes, taxation, product 
+pricing etc.
+
+All those information are just examples, they could simply be wrong, not suit 
+your individual situation, be different in your country or area, or change over
+time.
+
+Do not rely on those information when setting up the software for production 
+use, or for any other purpose - always ask a certified tax consultant!
+
+We do not take any responsibility or liability if you get in trouble with your
+local tax office or loose money because you pay more VAT to the tax office than
+you actually need!
+
 Copyright and License
 ---------------------
+
 
 Copyright (C) 2013, 2014 Bernhard Streit
 

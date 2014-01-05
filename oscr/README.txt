@@ -21,15 +21,27 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 -------------------------------------------------------------------------------
 
+Notice: 
+
+In this project (in the source code, in sample files, README files etc.)
+you will find some information about taxes, tax classes, taxation, product 
+pricing etc.
+
+All those information are just examples, they could simply be wrong, not suit 
+your individual situation, be different in your country or area, or change over
+time.
+
+Do not rely on those information when setting up the software for production 
+use, or for any other purpose - always ask a certified tax consultant!
+
+We do not take any responsibility or liability if you get in trouble with your
+local tax office or loose money because you pay more VAT to the tax office than
+you actually need!
+
+-------------------------------------------------------------------------------
+
 This is a Maven Multi Module project. You need Apache Maven to compile the 
 sources; I use the version 3.0.4. 
-
-
-We try to stick to the git flow
-  http://nvie.com/posts/a-successful-git-branching-model/
-and use the atlassian maven jgitflow plugin
-  https://bitbucket.org/atlassian/maven-jgitflow-plugin
-  
 
 How to get this project into eclipse?
 =====================================
