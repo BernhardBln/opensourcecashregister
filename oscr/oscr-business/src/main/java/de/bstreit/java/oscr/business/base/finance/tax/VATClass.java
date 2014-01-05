@@ -37,43 +37,58 @@ import com.google.common.base.Objects;
 
 import de.bstreit.java.oscr.business.base.persistence.AbstractPersistentObjectWithContinuance;
 
+/**
+ * <p>
+ * <b>Warning:</b> all information about taxes, tax classes and taxation that
+ * you find in this project are just <b>examples</b>, they could simply be
+ * <b>wrong</b>, not suit your individual situation, be different in your
+ * country or area, or change over time - always ask a certified tax consultant!
+ * Do <b>not</b> simply rely on those examples when configuring your cash
+ * register for production use or for any other purpose! We do <b>not</b> take
+ * any responsibility or liability if you get in trouble with your local tax
+ * office or loose money because you pay more VAT to the tax office than you
+ * actually need!
+ * </p>
+ * 
+ * @author streit
+ */
 @Entity
 public class VATClass extends AbstractPersistentObjectWithContinuance<VATClass> {
 
-	@NaturalId
-	private String designation;
+  @NaturalId
+  private String designation;
 
-	/** the tax rate, e.g. "19" for 19% */
-	private BigDecimal taxRate;
-
-
-	@SuppressWarnings("unused")
-	private VATClass() {
-		// for hibernate
-	}
-
-	public VATClass(String designation, BigDecimal rate, Date validFrom, Date validTo) {
-		super(validFrom, validTo);
-		this.designation = designation;
-		this.taxRate = rate;
-	}
-
-	public String getName() {
-		return designation;
-	}
-
-	public BigDecimal getRate() {
-		return taxRate;
-	}
+  /** the tax rate, e.g. "19" for 19% */
+  private BigDecimal taxRate;
 
 
-	@Override
-	protected boolean additionalEqualsForSubclasses(VATClass obj) {
-		return Objects.equal(designation, obj.designation);
-	}
+  @SuppressWarnings("unused")
+  private VATClass() {
+    // for hibernate
+  }
 
-	@Override
-	protected int additionalHashcodeForSubclasses() {
-		return Objects.hashCode(designation);
-	}
+  public VATClass(String designation, BigDecimal rate, Date validFrom, Date validTo) {
+    super(validFrom, validTo);
+    this.designation = designation;
+    this.taxRate = rate;
+  }
+
+  public String getName() {
+    return designation;
+  }
+
+  public BigDecimal getRate() {
+    return taxRate;
+  }
+
+
+  @Override
+  protected boolean additionalEqualsForSubclasses(VATClass obj) {
+    return Objects.equal(designation, obj.designation);
+  }
+
+  @Override
+  protected int additionalHashcodeForSubclasses() {
+    return Objects.hashCode(designation);
+  }
 }

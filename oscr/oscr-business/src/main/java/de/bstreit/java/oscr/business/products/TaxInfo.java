@@ -43,18 +43,20 @@ import de.bstreit.java.oscr.business.base.persistence.AbstractPersistentObjectWi
  * </p>
  * 
  * <p>
- * For example, in Germany, selling stuff to-go might be a reason to only tax
- * the products with reduced VAT.
+ * For example, currently, in Germany, selling stuff to-go might be a reason to
+ * only tax the products with reduced VAT.
  * </p>
  * 
  * <p>
- * <b>Warning:</b> all information about taxes and taxation are just
- * <b>examples</b>, they could be simply wrong, not suit your situation, be
- * different in your country or area, or change over time - always ask your tax
- * consultant! Do <b>not</b> simply rely on those examples when configuring your
- * cash register! We do <b>not</b> take any responsibility or liability if you
- * get in trouble with your local tax office or loose money because you pay more
- * VAT to the tax office than you actually need!
+ * <b>Warning:</b> all information about taxes, tax classes and taxation that
+ * you find in this project are just <b>examples</b>, they could simply be
+ * <b>wrong</b>, not suit your individual situation, be different in your
+ * country or area, or change over time - always ask a certified tax consultant!
+ * Do <b>not</b> simply rely on those examples when configuring your cash
+ * register for production use or for any other purpose! We do <b>not</b> take
+ * any responsibility or liability if you get in trouble with your local tax
+ * office or loose money because you pay more VAT to the tax office than you
+ * actually need!
  * </p>
  * 
  * @author streit
