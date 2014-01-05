@@ -51,6 +51,9 @@ import de.bstreit.java.oscr.SpringConfiguration;
 @Named
 public class LoadInitialDataApp {
 
+  static {
+  }
+
   @Inject
   private Database database;
   @Inject
@@ -62,12 +65,18 @@ public class LoadInitialDataApp {
 
 
   public static void main(String[] args) throws BeansException, SQLException {
+    System.out.println("Loading...");
+
     try (
         final AbstractApplicationContext context = new AnnotationConfigApplicationContext(
             SpringConfiguration.class)) {
 
       context.getBean(LoadInitialDataApp.class).start();
 
+    } catch (RuntimeException e) {
+      if (!"Aborted".equals(e.getMessage())) {
+        throw e;
+      }
     }
   }
 
