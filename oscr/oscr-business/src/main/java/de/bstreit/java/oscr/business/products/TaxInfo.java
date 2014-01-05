@@ -53,7 +53,8 @@ import de.bstreit.java.oscr.business.base.persistence.AbstractPersistentObjectWi
  * different in your country or area, or change over time - always ask your tax
  * consultant! Do <b>not</b> simply rely on those examples when configuring your
  * cash register! We do <b>not</b> take any responsibility or liability if you
- * get in trouble with your local tax office!
+ * get in trouble with your local tax office or loose money because you pay more
+ * VAT to the tax office than you actually need!
  * </p>
  * 
  * @author streit
@@ -61,28 +62,28 @@ import de.bstreit.java.oscr.business.base.persistence.AbstractPersistentObjectWi
 @Entity
 public class TaxInfo extends AbstractPersistentObjectWithContinuance<TaxInfo> {
 
-	@NaturalId
-	@Access(AccessType.FIELD)
-	private String denotation;
+  @NaturalId
+  @Access(AccessType.FIELD)
+  private String denotation;
 
 
-	@SuppressWarnings("unused")
-	private TaxInfo() {
-	}
+  @SuppressWarnings("unused")
+  private TaxInfo() {
+  }
 
-	public TaxInfo(String denotation, Date validFrom, Date validTo) {
-		super(validFrom, validTo);
-		this.denotation = denotation;
-	}
+  public TaxInfo(String denotation, Date validFrom, Date validTo) {
+    super(validFrom, validTo);
+    this.denotation = denotation;
+  }
 
-	@Override
-	protected boolean additionalEqualsForSubclasses(TaxInfo obj) {
-		return denotation.equals(((TaxInfo) obj).denotation);
-	}
+  @Override
+  protected boolean additionalEqualsForSubclasses(TaxInfo obj) {
+    return denotation.equals(((TaxInfo) obj).denotation);
+  }
 
-	@Override
-	protected int additionalHashcodeForSubclasses() {
-		return denotation.hashCode();
-	}
+  @Override
+  protected int additionalHashcodeForSubclasses() {
+    return denotation.hashCode();
+  }
 
 }

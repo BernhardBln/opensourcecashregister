@@ -2,14 +2,7 @@
 /build/
 /bin/
 target/
-*/target/
-*/*/target/
 libs/
-
-# OSCR-specific files
-sandbox/
-*/sandbox/
-*/*/sandbox/
  
 # OS Files #
 .DS_Store
@@ -74,8 +67,6 @@ tmp/**/*
 local.properties
 .classpath
 .settings/
-*/.settings/
-*/*/.settings/
 .loadpath
 /src/main/resources/rebel.xml
 # External tool builders

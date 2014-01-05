@@ -21,6 +21,7 @@
 		<module>oscr-gui-swing</module>
 		<module>oscr-starter-production</module>
 		<module>oscr-starter-sandbox</module>
+                <module>oscr-initial-data</module>
 	</modules>
 	
 	<dependencies>

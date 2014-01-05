@@ -20,8 +20,8 @@
  *  
  * --------------------------------------------------------------------------
  *  
- * See /licenses/gpl-3.txt for a copy of the GNU GPL.
- * See /README.txt for more information about the software and the author(s).
+ * See oscr/licenses/gpl-3.txt for a copy of the GNU GPL.
+ * See oscr/README.txt for more information about the software and the author(s).
  * 
  */
 package de.bstreit.java.oscr;
