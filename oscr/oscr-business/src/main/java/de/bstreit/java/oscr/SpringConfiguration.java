@@ -1,7 +1,7 @@
 /*
  * Open Source Cash Register
  * 
- * Copyright (C) 2013 Bernhard Streit
+ * Copyright (C) 2013, 2014 Bernhard Streit
  * 
  * This file is part of the Open Source Cash Register program.
  * 

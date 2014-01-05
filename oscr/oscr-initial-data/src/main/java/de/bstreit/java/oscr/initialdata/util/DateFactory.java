@@ -1,7 +1,7 @@
 /*
  * Open Source Cash Register
  * 
- * Copyright (C) 2013 Bernhard Streit
+ * Copyright (C) 2013, 2014 Bernhard Streit
  * 
  * This file is part of the Open Source Cash Register program.
  * 
@@ -20,8 +20,8 @@
  *  
  * --------------------------------------------------------------------------
  *  
- * See /licenses/gpl-3.txt for a copy of the GNU GPL.
- * See /README.txt for more information about the software and the author(s).
+ * See oscr/licenses/gpl-3.txt for a copy of the GNU GPL.
+ * See oscr/README.txt for more information about the software and the author(s).
  * 
  */
 package de.bstreit.java.oscr.initialdata.util;

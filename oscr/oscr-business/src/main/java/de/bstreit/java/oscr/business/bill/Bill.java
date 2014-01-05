@@ -1,7 +1,7 @@
 /*
  * Open Source Cash Register
  * 
- * Copyright (C) 2013-2013 Bernhard Streit
+ * Copyright (C) 2013, 2014 Bernhard Streit
  * 
  * This file is part of the Open Source Cash Register program.
  * 
@@ -20,8 +20,8 @@
  *  
  * --
  *  
- * See /licenses/gpl-3.txt for a copy of the GNU GPL.
- * See /README.txt for more information about the software and the author(s).
+ * See oscr/licenses/gpl-3.txt for a copy of the GNU GPL.
+ * See oscr/README.txt for more information about the software and the author(s).
  * 
  */
 package de.bstreit.java.oscr.business.bill;
@@ -43,20 +43,20 @@ import de.bstreit.java.oscr.business.base.persistence.AbstractPersistentObject;
 @Entity
 public class Bill extends AbstractPersistentObject {
 
-	@OneToMany(cascade = CascadeType.ALL)
-	private List<BillItem> billItems_lazy;
+  @OneToMany(cascade = CascadeType.ALL)
+  private List<BillItem> billItems_lazy;
 
 
-	public void addBillItem(BillItem item) {
-		getBillItems().add(item);
-	}
+  public void addBillItem(BillItem item) {
+    getBillItems().add(item);
+  }
 
-	private List<BillItem> getBillItems() {
-		if (billItems_lazy == null) {
-			billItems_lazy = new ArrayList<BillItem>();
-		}
+  private List<BillItem> getBillItems() {
+    if (billItems_lazy == null) {
+      billItems_lazy = new ArrayList<BillItem>();
+    }
 
-		return billItems_lazy;
-	}
+    return billItems_lazy;
+  }
 
 }
