@@ -1,7 +1,7 @@
 /*
  * Open Source Cash Register
  * 
- * Copyright (C) 2013 Bernhard Streit
+ * Copyright (C) 2013-2013 Bernhard Streit
  * 
  * This file is part of the Open Source Cash Register program.
  * 
@@ -18,35 +18,29 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *  
- * --------------------------------------------------------------------------
+ * --
  *  
  * See /licenses/gpl-3.txt for a copy of the GNU GPL.
  * See /README.txt for more information about the software and the author(s).
  * 
  */
-package de.bstreit.java.oscr.base.persistence;
+package de.bstreit.java.oscr.bill;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.MappedSuperclass;
+import javax.persistence.ManyToOne;
+
+import de.bstreit.java.oscr.offers.ProductOffer;
+
 
 /**
- * Superclass for persistent objects that have an ID. The id is <b>not</b> used
- * in {@link #equals(Object)} or {@link #hashCode()}! It is printed out,
- * however, in the {@link #toString()} method.
+ * Represents an item on the bill. Items can only be of type
+ * {@link ProductOffer}, as Extras and Variations
  * 
  * @author streit
  */
-@MappedSuperclass
-public abstract class AbstractPersistentObject {
+//@Entity
+public class BillItem {
 
-	@Id
-	@GeneratedValue
-	private Long id;
+	@ManyToOne
+	private ProductOffer offer;
 
-
-	@Override
-	public String toString() {
-		return super.toString() + "[id=" + id + "]";
-	}
 }

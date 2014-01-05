@@ -28,8 +28,6 @@ package de.bstreit.java.oscr.offers;
 
 import java.util.Date;
 
-import javax.persistence.Access;
-import javax.persistence.AccessType;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
@@ -67,16 +65,14 @@ public abstract class AbstractOffer<OFFERED_ITEM extends AbstractSalesItem> exte
 	 */
 	@Type(type = "de.bstreit.java.oscr.base.finance.money.MoneyType")
 	@Columns(columns = { @Column(name = "priceValue"), @Column(name = "priceCurrency") })
-	@Access(AccessType.FIELD)
+	// @Access(AccessType.FIELD)
 	private final Money price;
 
 	/**
-	 * The items contained in this offer. An item can appear more than once. The
-	 * number of occurrences is considered in the {@link #equals(Object)}/
-	 * {@link #hashCode()} methods.
+	 * The item contained in this offer.
 	 */
 	@NaturalId
-	@Access(AccessType.FIELD)
+	// @Access(AccessType.FIELD)
 	@ManyToOne(targetEntity = AbstractSalesItem.class, cascade = CascadeType.ALL)
 	private OFFERED_ITEM offeredItem;
 

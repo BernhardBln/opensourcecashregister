@@ -1,7 +1,7 @@
 /*
  * Open Source Cash Register
  * 
- * Copyright (C) 2013 Bernhard Streit
+ * Copyright (C) 2013-2013 Bernhard Streit
  * 
  * This file is part of the Open Source Cash Register program.
  * 
@@ -18,35 +18,45 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *  
- * --------------------------------------------------------------------------
+ * --
  *  
  * See /licenses/gpl-3.txt for a copy of the GNU GPL.
  * See /README.txt for more information about the software and the author(s).
  * 
  */
-package de.bstreit.java.oscr.base.persistence;
+package de.bstreit.java.oscr.bill;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.MappedSuperclass;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.OneToMany;
+
+import de.bstreit.java.oscr.base.persistence.AbstractPersistentObject;
+
 
 /**
- * Superclass for persistent objects that have an ID. The id is <b>not</b> used
- * in {@link #equals(Object)} or {@link #hashCode()}! It is printed out,
- * however, in the {@link #toString()} method.
  * 
  * @author streit
  */
-@MappedSuperclass
-public abstract class AbstractPersistentObject {
+@Entity
+public class Bill extends AbstractPersistentObject {
 
-	@Id
-	@GeneratedValue
-	private Long id;
+	@OneToMany(cascade = CascadeType.ALL)
+	private List<BillItem> billItems_lazy;
 
 
-	@Override
-	public String toString() {
-		return super.toString() + "[id=" + id + "]";
+	public void addBillItem(BillItem item) {
+		getBillItems().add(item);
 	}
+
+	private List<BillItem> getBillItems() {
+		if (billItems_lazy == null) {
+			billItems_lazy = new ArrayList<BillItem>();
+		}
+
+		return billItems_lazy;
+	}
+
 }
