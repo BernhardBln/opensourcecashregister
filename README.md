@@ -5,6 +5,8 @@ An open source cash register written in Java.
 
 See the [Wiki](https://github.com/BernhardBln/opensourcecashregister/wiki) for additional infos.
 
+**More infos on how to get this application on your pc and running: refer to [oscr/README.txt](https://github.com/BernhardBln/opensourcecashregister/blob/master/oscr/README.txt)**
+
 You need Apache Maven to compile the sources. 
 
 Contact information:  
@@ -17,7 +19,7 @@ Source Code @ Github:
 Copyright and License
 ---------------------
 
-Copyright (C) 2013 Bernhard Streit
+Copyright (C) 2013, 2014 Bernhard Streit
 
 Open Source Cash Register is free software: you can redistribute it 
 and/or modify it under the terms of the GNU General Public License 
@@ -30,4 +32,6 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 See the GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program. If not, see <http://www.gnu.org/licenses/
+along with this program. If not, see <http://www.gnu.org/licenses/>
+
+--> See oscr/licenses/gpl-3.txt for a copy of the GNU GPL.

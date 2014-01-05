@@ -1,6 +1,6 @@
 Open Source Cash Register
 
-Copyright (C) 2013 Bernhard Streit
+Copyright (C) 2013, 2014 Bernhard Streit
 
 This file is part of the Open Source Cash Register program.
 
@@ -35,7 +35,9 @@ How to get this project into eclipse?
 =====================================
 
 1. I suggest to clone this project using git. Alternatively, you can download 
-   the sources from github.
+   the sources from github. To clone, use this command:
+   
+      git clone https://github.com/BernhardBln/opensourcecashregister.git
 
 2. Import the main project (oscr) into an eclipse workspace using "Import" - 
    "Maven" - "Existing Maven Projects". 
