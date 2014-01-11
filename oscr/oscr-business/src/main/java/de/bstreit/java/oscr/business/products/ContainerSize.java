@@ -30,6 +30,8 @@ import java.util.Date;
 
 import javax.persistence.Entity;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.hibernate.annotations.NaturalId;
 
 import de.bstreit.java.oscr.business.base.persistence.AbstractPersistentObjectWithContinuance;
@@ -37,32 +39,32 @@ import de.bstreit.java.oscr.business.base.persistence.AbstractPersistentObjectWi
 @Entity
 public class ContainerSize extends AbstractPersistentObjectWithContinuance<ContainerSize> {
 
-	/** e.g. "50 ml" */
-	@NaturalId
-	private String size;
+  /** e.g. "50 ml" */
+  @NaturalId
+  private String size;
 
 
-	@SuppressWarnings("unused")
-	private ContainerSize() {
-	}
+  @SuppressWarnings("unused")
+  private ContainerSize() {
+  }
 
-	public ContainerSize(String size, Date validFrom, Date validTo) {
-		super(validFrom, validTo);
-		this.size = size;
-	}
+  public ContainerSize(String size, Date validFrom, Date validTo) {
+    super(validFrom, validTo);
+    this.size = size;
+  }
 
-	public String getSize() {
-		return size;
-	}
+  public String getSize() {
+    return size;
+  }
 
-	@Override
-	protected boolean additionalEqualsForSubclasses(ContainerSize obj) {
-		return size.equals(obj.size);
-	}
+  @Override
+  protected void additionalEqualsForSubclasses(EqualsBuilder equalsBuilder, ContainerSize otherObject) {
+    equalsBuilder.append(size, otherObject.size);
+  }
 
-	@Override
-	protected int additionalHashcodeForSubclasses() {
-		return size.hashCode();
-	}
+  @Override
+  protected void additionalHashcodeForSubclasses(HashCodeBuilder builder) {
+    builder.append(size);
+  }
 
 }

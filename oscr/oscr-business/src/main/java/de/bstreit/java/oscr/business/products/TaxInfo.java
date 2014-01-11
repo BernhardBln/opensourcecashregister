@@ -32,6 +32,8 @@ import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.Entity;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.hibernate.annotations.NaturalId;
 
 import de.bstreit.java.oscr.business.base.persistence.AbstractPersistentObjectWithContinuance;
@@ -78,14 +80,16 @@ public class TaxInfo extends AbstractPersistentObjectWithContinuance<TaxInfo> {
     this.denotation = denotation;
   }
 
+
   @Override
-  protected boolean additionalEqualsForSubclasses(TaxInfo obj) {
-    return denotation.equals(((TaxInfo) obj).denotation);
+  protected void additionalEqualsForSubclasses(EqualsBuilder equalsBuilder, TaxInfo otherObject) {
+    equalsBuilder.append(denotation, otherObject.denotation);
+
   }
 
   @Override
-  protected int additionalHashcodeForSubclasses() {
-    return denotation.hashCode();
+  protected void additionalHashcodeForSubclasses(HashCodeBuilder builder) {
+    builder.append(denotation);
   }
 
 }

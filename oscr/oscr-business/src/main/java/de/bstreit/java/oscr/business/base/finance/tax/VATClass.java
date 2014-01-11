@@ -31,9 +31,9 @@ import java.util.Date;
 
 import javax.persistence.Entity;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.hibernate.annotations.NaturalId;
-
-import com.google.common.base.Objects;
 
 import de.bstreit.java.oscr.business.base.persistence.AbstractPersistentObjectWithContinuance;
 
@@ -81,14 +81,14 @@ public class VATClass extends AbstractPersistentObjectWithContinuance<VATClass> 
     return taxRate;
   }
 
-
   @Override
-  protected boolean additionalEqualsForSubclasses(VATClass obj) {
-    return Objects.equal(designation, obj.designation);
+  protected void additionalEqualsForSubclasses(EqualsBuilder equalsBuilder, VATClass otherObject) {
+    equalsBuilder.append(designation, otherObject.designation);
   }
 
   @Override
-  protected int additionalHashcodeForSubclasses() {
-    return Objects.hashCode(designation);
+  protected void additionalHashcodeForSubclasses(HashCodeBuilder builder) {
+    builder.append(designation);
   }
+
 }

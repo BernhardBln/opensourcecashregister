@@ -38,7 +38,8 @@ import org.hibernate.annotations.NaturalId;
 /**
  * <p>
  * Superclass for persistent objects that are valid within a certain time range.
- * For example:
+ * For example, consider the change of the price of an offer in the course of
+ * time:
  * </p>
  * 
  * <pre>
@@ -48,17 +49,27 @@ import org.hibernate.annotations.NaturalId;
  * </pre>
  * 
  * <p>
- * Objects of this type are expected to be immutable (except for the
- * {@link #validTо} field, which is allowed to change only once from
- * <code>null</code> to a non-null {@link Date}), as they represent an actual
- * object in a certain range of time.
+ * Objects of this type are expected to be immutable on the {@link #validFrom}
+ * field, and on at least one additional identifier which together form the
+ * natural key of those objects. For example, there cannot be two espresso
+ * offers with different prices at the same time; but it is allowed that an
+ * espresso and an cappuccino offer exist simultaneously. The fields forming the
+ * natural key (including {@link #validFrom}) are used in equals and hashcode.
  * </p>
  * 
  * <p>
- * That means, for every point in time, there must be not more than one object
- * whose {@link #validFrom} - {@link #validTо} date range covers that point. It
- * is, however, allowed that for a certain point in time, there is no object at
- * all whose validity time range is covering that point.
+ * The {@link #validTо} field is allowed to change only once from
+ * <code>null</code> to a non-null {@link Date}). This can be seen as archiving
+ * an item.
+ * </p>
+ * 
+ * <p>
+ * In order to have a consistent history, for every point in time, there must
+ * not be more than one object with the same natural key whose
+ * {@link #validFrom} - {@link #validTо} date range covers that point. (But this
+ * is currently <b>not</b> checked by this class!) It is, however, allowed that
+ * for a certain point in time, there is no object at all whose validity time
+ * range is covering that point.
  * </p>
  * 
  * <p>
@@ -103,26 +114,31 @@ import org.hibernate.annotations.NaturalId;
  * 
  * <p>
  * For all objects of a given type, there should not be more than one object
- * with {@link #validFrom} set to <code>null</code>, and there should not be any
- * object with {@link #validTо} set to null, and it there should be an ordering
- * of all objects o1, ..., on such that holds
+ * with {@link #validFrom} set to <code>null</code>, and there should not be
+ * more than one object with {@link #validTо} set to null, and it there should
+ * be an ordering of all objects o1, ..., on such that holds
  * </p>
  * 
  * <ul>
  * <li>
- * <code>o<sub>1</sub>.validFrom == null || o<sub>1</sub>.validFrom &lt; o<sub>1</sub>.validTo</code>
+ * <code>o<sub>1</sub>.validFrom == null || o<sub>1</sub>.validFrom &le; o<sub>1</sub>.validTo</code>
  * </li>
- * <li><code>o<sub>1</sub>.validTo &le; o<sub>2</sub>.validFrom &lt;
+ * <li><code>o<sub>1</sub>.validTo &lt; o<sub>2</sub>.validFrom &le;
  * o<sub>2</sub>.validTo</code></li>
- * <li><code>o<sub>2</sub>.validTo &le; o<sub>3</sub>.validFrom &lt;
+ * <li><code>o<sub>2</sub>.validTo &lt; o<sub>3</sub>.validFrom &le;
  * o<sub>3</sub>.validTo</code></li>
  * <li>...</li>
  * <li>
- * <code>o<sub>n-1</sub>.validTo &le; o<sub>n</sub>.validFrom</code></li>
+ * <code>o<sub>n-1</sub>.validTo &lt; o<sub>n</sub>.validFrom</code></li>
  * <li>
- * <code>o<sub>n</sub>.validFrom &lt; o<sub>n</sub>.validTo || o<sub>n</sub>.validTo == null</code>
+ * <code>o<sub>n</sub>.validFrom &le; o<sub>n</sub>.validTo || o<sub>n</sub>.validTo == null</code>
  * </li>
  * </ul>
+ * 
+ * <p>
+ * If n==1, it is allowed that both {@link #validFrom} and {@link #validTo} are
+ * set to null.
+ * </p>
  * 
  * @param <SUB_TYPE_IMPL_ADD_EQUALS_HASHCODE>
  *          The class where
@@ -137,132 +153,128 @@ import org.hibernate.annotations.NaturalId;
 public abstract class AbstractPersistentObjectWithContinuance<SUB_TYPE_IMPL_ADD_EQUALS_HASHCODE extends AbstractPersistentObjectWithContinuance<SUB_TYPE_IMPL_ADD_EQUALS_HASHCODE>>
     extends AbstractPersistentObject {
 
-	/**
-	 * The validFrom date is nullable, but only one item can have the value null,
-	 * the oldest one.
-	 */
-	@NaturalId
-	@Column(nullable = true)
-	private Date validFrom;
+  /**
+   * The validFrom date is nullable, but only one item can have the value null,
+   * the oldest one.
+   */
+  @NaturalId
+  @Column(nullable = true)
+  private Date validFrom;
 
-	@Column(nullable = true)
-	private Date validTo;
-
-
-	/** Only to be used by hibernate! */
-	protected AbstractPersistentObjectWithContinuance() {
-	}
-
-	public AbstractPersistentObjectWithContinuance(Date validFrom, Date validTo) {
-		super();
-		this.validFrom = validFrom;
-		this.validTo = validTo;
-	}
-
-	public Date getValidFrom() {
-		return validFrom;
-	}
-
-	public Date getValidTo() {
-		return validTo;
-	}
-
-	public void setValidTo(Date validTo) {
-		if (this.validTo != null) {
-			throw new IllegalStateException(
-			    "It is not allowed to overwrite an existing, non-null validTo date!");
-		}
-		this.validTo = validTo;
-	}
+  @Column(nullable = true)
+  private Date validTo;
 
 
-	@Override
-	public final boolean equals(Object obj) {
-		if (obj == null || hasDifferentType(obj)) {
-			return false;
-		}
+  /** Only to be used by hibernate! */
+  protected AbstractPersistentObjectWithContinuance() {
+  }
 
-		// From here on, we know that the obj has exactly the same type as this!
-		@SuppressWarnings("unchecked")
-		final SUB_TYPE_IMPL_ADD_EQUALS_HASHCODE castedObj = (SUB_TYPE_IMPL_ADD_EQUALS_HASHCODE) obj;
+  public AbstractPersistentObjectWithContinuance(Date validFrom, Date validTo) {
+    super();
+    this.validFrom = validFrom;
+    this.validTo = validTo;
+  }
 
-		return new EqualsBuilder()
-		    .appendSuper(additionalEqualsForSubclasses(castedObj)) // here, we do
-		    // not add
-		    // super, but the equality
-		    // of additional fields from
-		    // subclasses. This should
-		    // always work as we only
-		    // compare objects of the
-		    // same type.
-		    .append(validFrom, ((AbstractPersistentObjectWithContinuance<?>) castedObj).validFrom)
-		    .build();
-	}
+  public Date getValidFrom() {
+    return validFrom;
+  }
 
-	private boolean hasDifferentType(Object obj) {
-		return !getClass().equals(obj.getClass());
-	}
+  public Date getValidTo() {
+    return validTo;
+  }
 
-	/**
-	 * <p>
-	 * To avoid that in subclasses the equals method is overridden without taking
-	 * the validFrom field into account, we finalise the equals method and force
-	 * subclasses to implement the additionalEquals method to remind them to
-	 * provide the equality for the <b>additional</b> fields they introduce.
-	 * </p>
-	 * 
-	 * <p>
-	 * Example: if we have a subclass A that introduces a field "x" which is part
-	 * of the natural key of the class and hence should be used in
-	 * {@link #equals(Object)}, instances of A have the fields "id", "validFrom",
-	 * "validTo" and "x". A would then be required to compare the equality of "x"
-	 * in additionalEquals().
-	 * </p>
-	 * 
-	 * <p>
-	 * In case a class does not introduce any additional fields which should be
-	 * compared, they simply return true here, but that case should be avoided as
-	 * all objects should have a natural key that can be used in
-	 * {@link #equals(Object)}, and only comparing validTo is probably not
-	 * sufficient.
-	 * </p>
-	 * 
-	 * @param obj
-	 *          the object to compare with.
-	 * @return if the additional fields introduced by subclasses (excluding
-	 *         validFrom and validTo!) are equal to the ones of the given object
-	 *         or simply true, if the subclass didn't introduce any field that
-	 *         should be considered in equals.
-	 */
-	protected abstract boolean additionalEqualsForSubclasses(SUB_TYPE_IMPL_ADD_EQUALS_HASHCODE obj);
-
-	@Override
-	public final int hashCode() {
-		// no NOT consider validTo, as this might change over time!
-		final HashCodeBuilder builder = new HashCodeBuilder();
-
-		appendChildHashcodeIfSet(builder);
-		builder.append(validFrom);
-
-		return builder.toHashCode();
-	}
+  public void setValidTo(Date validTo) {
+    if (this.validTo != null) {
+      throw new IllegalStateException(
+          "It is not allowed to overwrite an existing, non-null validTo date!");
+    }
+    this.validTo = validTo;
+  }
 
 
-	private void appendChildHashcodeIfSet(final HashCodeBuilder builder) {
-		final int subclassHashcode = additionalHashcodeForSubclasses();
-		if (subclassHashcode != 0) {
-			builder.appendSuper(subclassHashcode);
-		}
-	}
+  @Override
+  public final boolean equals(Object obj) {
+    if (obj == null || hasDifferentType(obj)) {
+      return false;
+    }
 
-	/**
-	 * Same principle as in {@link #additionalEqualsForSubclasses(Object)}.
-	 * 
-	 * @return the hashcode for all additional fields introduced by subclasses
-	 *         (excluding validFrom and validTo!) that should be considered by
-	 *         {@link #hashCode()}, or 0 if there are no fields whose hashcode
-	 *         should be considered.
-	 */
-	protected abstract int additionalHashcodeForSubclasses();
+    // From here on, we know that the obj has exactly the same type as this
+    // object!
+    @SuppressWarnings("unchecked")
+    final SUB_TYPE_IMPL_ADD_EQUALS_HASHCODE castedObj = (SUB_TYPE_IMPL_ADD_EQUALS_HASHCODE) obj;
+
+    return performEquals(castedObj);
+  }
+
+  private boolean hasDifferentType(Object obj) {
+    return !getClass().equals(obj.getClass());
+  }
+
+  private boolean performEquals(SUB_TYPE_IMPL_ADD_EQUALS_HASHCODE obj) {
+    final EqualsBuilder equalsBuilder = new EqualsBuilder();
+
+    final AbstractPersistentObjectWithContinuance<?> objSuper = obj;
+    equalsBuilder.append(validFrom, objSuper.validFrom);
+
+    additionalEqualsForSubclasses(equalsBuilder, obj);
+
+    return equalsBuilder.build();
+  }
+
+  /**
+   * <p>
+   * To avoid that in subclasses the equals method is overridden without taking
+   * the validFrom field into account, we finalise the equals method and force
+   * subclasses to implement the additionalEquals method to remind them to
+   * provide the equality for the <b>additional</b> fields they introduce.
+   * </p>
+   * 
+   * <p>
+   * Example: if we have a subclass A that introduces a field "x" which is part
+   * of the natural key of the class and hence should be used in
+   * {@link #equals(Object)}, instances of A have the fields "id", "validFrom",
+   * "validTo" and "x". A would then be required to compare the equality of "x"
+   * in additionalEquals().
+   * </p>
+   * 
+   * <p>
+   * In case a class does not introduce any additional fields which should be
+   * compared, they simply implement an empty
+   * {@link #additionalEqualsForSubclasses(EqualsBuilder)} method, but that case
+   * should be avoided as all objects should have a natural key that can be used
+   * in {@link #equals(Object)}, and only comparing validTo is probably not
+   * sufficient.
+   * </p>
+   * 
+   * @param equalsBuilder
+   *          Subclasses should add values from fields which are part of the
+   *          natural key to this builder.
+   * @param otherObject
+   *          the other object to compare with
+   */
+  protected abstract void additionalEqualsForSubclasses(EqualsBuilder equalsBuilder,
+      SUB_TYPE_IMPL_ADD_EQUALS_HASHCODE otherObject);
+
+  @Override
+  public final int hashCode() {
+    // no NOT consider validTo, as this might change over time!
+    final HashCodeBuilder builder = new HashCodeBuilder();
+
+    builder.append(validFrom);
+    additionalHashcodeForSubclasses(builder);
+
+    return builder.toHashCode();
+  }
+
+  /**
+   * Same principle as in {@link #additionalEqualsForSubclasses(Object)}. If
+   * there are no fields whole hash code should be considered, just leave the
+   * implementation of this method empty.
+   * 
+   * @param builder
+   *          Subclasses should add the fields which are part of the hash code
+   *          to this builder.
+   */
+  protected abstract void additionalHashcodeForSubclasses(HashCodeBuilder builder);
 
 }

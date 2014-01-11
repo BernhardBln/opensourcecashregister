@@ -39,11 +39,11 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.hibernate.annotations.Columns;
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.Type;
-
-import com.google.common.base.Objects;
 
 import de.bstreit.java.oscr.business.base.ILabelledItem;
 import de.bstreit.java.oscr.business.base.finance.money.Money;
@@ -95,13 +95,13 @@ public abstract class AbstractOffer<OFFERED_ITEM extends AbstractSalesItem> exte
   }
 
   @Override
-  protected final boolean additionalEqualsForSubclasses(AbstractOffer<OFFERED_ITEM> obj) {
-    return Objects.equal(offeredItem, obj.offeredItem);
+  protected final void additionalEqualsForSubclasses(EqualsBuilder builder, AbstractOffer<OFFERED_ITEM> obj) {
+    builder.append(offeredItem, obj.offeredItem);
   }
 
   @Override
-  protected final int additionalHashcodeForSubclasses() {
-    return offeredItem.hashCode();
+  protected final void additionalHashcodeForSubclasses(HashCodeBuilder builder) {
+    builder.append(offeredItem);
   }
 
 

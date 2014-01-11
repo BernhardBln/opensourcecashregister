@@ -38,6 +38,8 @@ import javax.persistence.InheritanceType;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.hibernate.annotations.NaturalId;
 
 import de.bstreit.java.oscr.business.base.ILabelledItem;
@@ -51,44 +53,44 @@ public abstract class AbstractSalesItem extends AbstractPersistentObjectWithCont
     implements
     ILabelledItem {
 
-	@NaturalId
-	private String name;
+  @NaturalId
+  private String name;
 
-	@ManyToOne(cascade = CascadeType.ALL)
-	@Column(nullable = true)
-	private transient TaxInfo taxInfo;
+  @ManyToOne(cascade = CascadeType.ALL)
+  @Column(nullable = true)
+  private transient TaxInfo taxInfo;
 
 
-	protected AbstractSalesItem(String name, Date validFrom, Date validTo) {
-		super(validFrom, validTo);
-		this.name = name;
-	}
+  protected AbstractSalesItem(String name, Date validFrom, Date validTo) {
+    super(validFrom, validTo);
+    this.name = name;
+  }
 
-	public TaxInfo getTaxInfo() {
-		return taxInfo;
-	}
+  public TaxInfo getTaxInfo() {
+    return taxInfo;
+  }
 
-	public String getName() {
-		return name;
-	}
+  public String getName() {
+    return name;
+  }
 
-	public void setTaxInfo(TaxInfo taxInfo) {
-		this.taxInfo = taxInfo;
-	}
+  public void setTaxInfo(TaxInfo taxInfo) {
+    this.taxInfo = taxInfo;
+  }
 
-	@Override
-	public String getLabel() {
-		return name;
-	}
+  @Override
+  public String getLabel() {
+    return name;
+  }
 
-	@Override
-	protected final boolean additionalEqualsForSubclasses(AbstractSalesItem obj) {
-		return name.equals(obj.getName());
-	}
+  @Override
+  protected final void additionalEqualsForSubclasses(EqualsBuilder builder, AbstractSalesItem obj) {
+    builder.append(name, obj.name);
+  }
 
-	@Override
-	protected final int additionalHashcodeForSubclasses() {
-		return name.hashCode();
-	}
+  @Override
+  protected final void additionalHashcodeForSubclasses(HashCodeBuilder builder) {
+    builder.append(name);
+  }
 
 }
