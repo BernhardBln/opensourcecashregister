@@ -26,21 +26,31 @@
  */
 package de.bstreit.java.oscr.initialdata.initialdata.offers;
 
+import javax.inject.Named;
+
 import de.bstreit.java.oscr.business.base.finance.money.Money;
-import de.bstreit.java.oscr.initialdata.initialdata.ValidityDates;
-import de.bstreit.java.oscr.initialdata.initialdata.products.Extras;
 import de.bstreit.java.oscr.business.offers.ExtraOffer;
 import de.bstreit.java.oscr.business.products.Extra;
+import de.bstreit.java.oscr.initialdata.AbstractDataContainer;
+import de.bstreit.java.oscr.initialdata.initialdata.ValidityDates;
+import de.bstreit.java.oscr.initialdata.initialdata.products.Extras;
 
-public class ExtraOffers {
+@Named
+public class ExtraOffers extends AbstractDataContainer<ExtraOffer> {
 
-	public static final ExtraOffer MILCH = create(Extras.MILCH, new Money("0.30", "EUR"));
-	public static final ExtraOffer SIRUP = create(Extras.SIRUP, new Money("0.20", "EUR"));
+  public static final ExtraOffer MILCH = create(Extras.MILCH, new Money("0.30", "EUR"));
+  public static final ExtraOffer SIRUP = create(Extras.SIRUP, new Money("0.20", "EUR"));
 
 
-	private static ExtraOffer create(Extra extra, Money price) {
-		return new ExtraOffer(extra, price, ValidityDates.VALID_FROM_DATE,
-				ValidityDates.VALID_TO_DATE);
-	}
+  private static ExtraOffer create(Extra extra, Money price) {
+    return new ExtraOffer(extra, price, ValidityDates.VALID_FROM_DATE,
+        ValidityDates.VALID_TO_DATE);
+  }
+
+
+  @Override
+  public Class<ExtraOffer> getType() {
+    return ExtraOffer.class;
+  }
 
 }

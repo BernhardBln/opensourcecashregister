@@ -26,24 +26,33 @@
  */
 package de.bstreit.java.oscr.initialdata.initialdata.offers;
 
+import javax.inject.Named;
+
 import de.bstreit.java.oscr.business.base.finance.money.Money;
-import de.bstreit.java.oscr.initialdata.initialdata.ValidityDates;
-import de.bstreit.java.oscr.initialdata.initialdata.products.Variations;
 import de.bstreit.java.oscr.business.offers.VariationOffer;
 import de.bstreit.java.oscr.business.products.Variation;
+import de.bstreit.java.oscr.initialdata.AbstractDataContainer;
+import de.bstreit.java.oscr.initialdata.initialdata.ValidityDates;
+import de.bstreit.java.oscr.initialdata.initialdata.products.Variations;
+
+@Named
+public class VariationOffers extends AbstractDataContainer<VariationOffer> {
+
+  public static final VariationOffer SOJA = create(Variations.SOJA, new Money("0.30", "EUR"));
+  public static final VariationOffer LAKTOSEFREI = create(Variations.LAKTOSEFREI, new Money("0.20", "EUR"));
+  public static final VariationOffer KOFFEINFREI = create(Variations.KOFFEINFREI, new Money("0.20", "EUR"));
 
 
-public class VariationOffers {
+  private static VariationOffer create(Variation variation, Money price) {
+    final VariationOffer variationOffer = new VariationOffer(variation, price,
+        ValidityDates.VALID_FROM_DATE, ValidityDates.VALID_TO_DATE);
+    return variationOffer;
+  }
 
-	public static final VariationOffer SOJA = create(Variations.SOJA, new Money("0.30", "EUR"));
-	public static final VariationOffer LAKTOSEFREI = create(Variations.LAKTOSEFREI, new Money("0.20", "EUR"));
-	public static final VariationOffer KOFFEINFREI = create(Variations.KOFFEINFREI, new Money("0.20", "EUR"));
 
-
-	private static VariationOffer create(Variation variation, Money price) {
-		final VariationOffer variationOffer = new VariationOffer(variation, price,
-				ValidityDates.VALID_FROM_DATE, ValidityDates.VALID_TO_DATE);
-		return variationOffer;
-	}
+  @Override
+  public Class<VariationOffer> getType() {
+    return VariationOffer.class;
+  }
 
 }

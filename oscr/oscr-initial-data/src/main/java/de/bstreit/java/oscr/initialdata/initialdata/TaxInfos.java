@@ -26,7 +26,10 @@
  */
 package de.bstreit.java.oscr.initialdata.initialdata;
 
+import javax.inject.Named;
+
 import de.bstreit.java.oscr.business.products.TaxInfo;
+import de.bstreit.java.oscr.initialdata.AbstractDataContainer;
 
 /**
  * <p>
@@ -43,7 +46,8 @@ import de.bstreit.java.oscr.business.products.TaxInfo;
  * 
  * @author streit
  */
-public class TaxInfos {
+@Named
+public class TaxInfos extends AbstractDataContainer<TaxInfo> {
 
 
   /**
@@ -51,5 +55,11 @@ public class TaxInfos {
    */
   public static final TaxInfo toGo = new TaxInfo("Außer-Haus-Verkauf", ValidityDates.VALID_FROM_DATE,
       ValidityDates.VALID_TO_DATE);
+
+
+  @Override
+  public Class<TaxInfo> getType() {
+    return TaxInfo.class;
+  }
 
 }

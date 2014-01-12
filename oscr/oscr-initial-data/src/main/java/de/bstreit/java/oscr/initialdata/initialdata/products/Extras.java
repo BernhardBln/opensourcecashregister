@@ -26,22 +26,24 @@
  */
 package de.bstreit.java.oscr.initialdata.initialdata.products;
 
-import de.bstreit.java.oscr.initialdata.initialdata.ValidityDates;
 import de.bstreit.java.oscr.business.products.Extra;
+import de.bstreit.java.oscr.initialdata.AbstractDataContainer;
+import de.bstreit.java.oscr.initialdata.initialdata.ValidityDates;
+import de.bstreit.java.oscr.initialdata.initialdata.offers.ExtraOffers;
 
+/**
+ * This does not need to extend {@link AbstractDataContainer}, since all
+ * elements are referenced by the {@link ExtraOffers} class and - via
+ * propagation - automatically saved as well.
+ * 
+ * @author Bernhard Streit
+ */
 public class Extras {
 
-	public static final Extra MILCH = new Extra("Milch", ValidityDates.VALID_FROM_DATE,
-			ValidityDates.VALID_TO_DATE);
+  public static final Extra MILCH = new Extra("Milch", ValidityDates.VALID_FROM_DATE,
+      ValidityDates.VALID_TO_DATE);
 
-	public static final Extra SIRUP = new Extra("Sirup", ValidityDates.VALID_FROM_DATE,
-			ValidityDates.VALID_TO_DATE);
-
-	//
-	// private static Extra createExtra(String name, TaxInfo taxInfo) {
-	// final Extra extra = new Extra(name);
-	// extra.setTaxInfo(taxInfo);
-	// return extra;
-	// }
+  public static final Extra SIRUP = new Extra("Sirup", ValidityDates.VALID_FROM_DATE,
+      ValidityDates.VALID_TO_DATE);
 
 }

@@ -28,7 +28,10 @@ package de.bstreit.java.oscr.initialdata.initialdata;
 
 import java.math.BigDecimal;
 
+import javax.inject.Named;
+
 import de.bstreit.java.oscr.business.base.finance.tax.VATClass;
+import de.bstreit.java.oscr.initialdata.AbstractDataContainer;
 
 /**
  * 
@@ -48,11 +51,18 @@ import de.bstreit.java.oscr.business.base.finance.tax.VATClass;
  * 
  * @author streit
  */
-public class VATClasses {
+@Named
+public class VATClasses extends AbstractDataContainer<VATClass> {
 
   public static final VATClass normalTax = new VATClass("Normaler Steuersatz", new BigDecimal("19"),
       ValidityDates.VALID_FROM_DATE, ValidityDates.VALID_TO_DATE);
 
   public static final VATClass reducedTax = new VATClass("Ermäßigter Steuersatz", new BigDecimal("7"),
       ValidityDates.VALID_FROM_DATE, ValidityDates.VALID_TO_DATE);
+
+
+  @Override
+  public Class<VATClass> getType() {
+    return VATClass.class;
+  }
 }

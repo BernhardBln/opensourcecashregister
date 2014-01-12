@@ -26,14 +26,18 @@
  */
 package de.bstreit.java.oscr.initialdata.initialdata.products;
 
-import de.bstreit.java.oscr.initialdata.initialdata.ContainerSizes;
-import de.bstreit.java.oscr.initialdata.initialdata.ValidityDates;
 import de.bstreit.java.oscr.business.products.ContainerSize;
 import de.bstreit.java.oscr.business.products.Product;
+import de.bstreit.java.oscr.initialdata.AbstractDataContainer;
+import de.bstreit.java.oscr.initialdata.initialdata.ContainerSizes;
+import de.bstreit.java.oscr.initialdata.initialdata.ValidityDates;
 
 /**
- * @author streit
+ * This does not need to extend {@link AbstractDataContainer}, since all
+ * elements are referenced by the {@link ProductOffers} class and - via
+ * propagation - automatically saved as well.
  * 
+ * @author Bernhard Streit
  */
 public class Products {
 

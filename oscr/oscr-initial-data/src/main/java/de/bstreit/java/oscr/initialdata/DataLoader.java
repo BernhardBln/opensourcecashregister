@@ -26,117 +26,29 @@
  */
 package de.bstreit.java.oscr.initialdata;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.transaction.annotation.Transactional;
-
-import de.bstreit.java.oscr.business.base.finance.tax.VATClass;
-import de.bstreit.java.oscr.business.base.finance.tax.dao.IVATClassRepository;
-import de.bstreit.java.oscr.business.offers.ExtraOffer;
-import de.bstreit.java.oscr.business.offers.ProductOffer;
-import de.bstreit.java.oscr.business.offers.VariationOffer;
-import de.bstreit.java.oscr.business.offers.dao.IExtraOfferRepository;
-import de.bstreit.java.oscr.business.offers.dao.IProductOfferRepository;
-import de.bstreit.java.oscr.business.offers.dao.IVariationOfferRepository;
-import de.bstreit.java.oscr.business.products.ContainerSize;
-import de.bstreit.java.oscr.business.products.TaxInfo;
-import de.bstreit.java.oscr.business.products.dao.IContainerSizeRepository;
-import de.bstreit.java.oscr.business.products.dao.ITaxInfoRepository;
-import de.bstreit.java.oscr.initialdata.initialdata.ContainerSizes;
-import de.bstreit.java.oscr.initialdata.initialdata.TaxInfos;
-import de.bstreit.java.oscr.initialdata.initialdata.VATClasses;
-import de.bstreit.java.oscr.initialdata.initialdata.offers.ExtraOffers;
-import de.bstreit.java.oscr.initialdata.initialdata.offers.ProductOffers;
-import de.bstreit.java.oscr.initialdata.initialdata.offers.VariationOffers;
 
 @Named
 public class DataLoader {
 
   @Inject
-  private IProductOfferRepository productOfferRepository;
-
-  @Inject
-  private IExtraOfferRepository extraOfferRepository;
-
-  @Inject
-  private IVariationOfferRepository variationOfferRepository;
-
-  @Inject
-  private IVATClassRepository vatClassRepository;
-
-  @Inject
-  private ITaxInfoRepository taxInfoRepository;
-
-  @Inject
-  private IContainerSizeRepository containerSizeRepository;
+  private ConfigurableApplicationContext context;
 
 
   @Transactional
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   public void populateDatabase() {
-    saveEntities(getEntitiesOfType(ContainerSize.class, ContainerSizes.class),
-        containerSizeRepository);
-    saveEntities(getEntitiesOfType(VATClass.class, VATClasses.class), vatClassRepository);
-    saveEntities(getEntitiesOfType(TaxInfo.class, TaxInfos.class), taxInfoRepository);
+    final Map<String, AbstractDataContainer> dataContainer = context
+        .getBeansOfType(AbstractDataContainer.class);
 
-    saveEntities(getEntitiesOfType(ProductOffer.class, ProductOffers.class),
-        productOfferRepository);
-    saveEntities(getEntitiesOfType(ExtraOffer.class, ExtraOffers.class),
-        extraOfferRepository);
-    saveEntities(getEntitiesOfType(VariationOffer.class, VariationOffers.class),
-        variationOfferRepository);
-  }
-
-  private <TYPE> Collection<TYPE> getEntitiesOfType(Class<TYPE> expectedClassType, Class<?> classInstances) {
-    final Field[] declaredFields = classInstances.getDeclaredFields();
-    final List<TYPE> entities = new ArrayList<TYPE>();
-
-    for (Field field : declaredFields) {
-
-      if (isConstantAndOfType(expectedClassType, field)) {
-        addEntityFromField(expectedClassType, entities, field);
-      }
-
+    for (AbstractDataContainer container : dataContainer.values()) {
+      container.repository.save(container.getEntitiesOfType());
     }
-
-    return entities;
-
-  }
-
-  private <TYPE> void addEntityFromField(Class<TYPE> expectedClassType, final List<TYPE> values, Field f) {
-    try {
-      values.add(expectedClassType.cast(f.get(null)));
-
-    } catch (IllegalArgumentException | IllegalAccessException e) {
-      // Not expected
-      throw new RuntimeException(
-          "Unexpected exception caught while gathering static instances", e);
-    }
-  }
-
-  private <TYPE> boolean isConstantAndOfType(Class<TYPE> expectedClassType, Field f) {
-    final int modifiers = f.getModifiers();
-
-    final boolean isConstant = Modifier.isStatic(modifiers)
-        && Modifier.isFinal(modifiers)
-        && Modifier.isPublic(modifiers);
-
-    final boolean correctType = f.getType().equals(expectedClassType);
-
-    return isConstant && correctType;
-  }
-
-  private <TYPE> void saveEntities(Collection<TYPE> allEntities,
-      JpaRepository<TYPE, ?> repository) {
-
-    repository.save(allEntities);
-
   }
 }

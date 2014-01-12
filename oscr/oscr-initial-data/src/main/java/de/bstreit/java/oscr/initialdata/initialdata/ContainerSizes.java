@@ -26,16 +26,27 @@
  */
 package de.bstreit.java.oscr.initialdata.initialdata;
 
+import javax.inject.Named;
+
 import de.bstreit.java.oscr.business.products.ContainerSize;
+import de.bstreit.java.oscr.initialdata.AbstractDataContainer;
 
-public class ContainerSizes {
+@Named
+public class ContainerSizes extends AbstractDataContainer<ContainerSize> {
 
-	public static final ContainerSize CUP_100_ML = create("Cup 100 ml");
-	public static final ContainerSize CUP_200_ML = create("Cup 200 ml");
-	public static final ContainerSize CUP_300_ML = create("Cup 300 ml");
+  @Override
+  public Class<ContainerSize> getType() {
+    return ContainerSize.class;
+  }
 
 
-	private static ContainerSize create(String name) {
-		return new ContainerSize(name, ValidityDates.VALID_FROM_DATE, ValidityDates.VALID_TO_DATE);
-	}
+  public static final ContainerSize CUP_100_ML = create("Cup 100 ml");
+  public static final ContainerSize CUP_200_ML = create("Cup 200 ml");
+  public static final ContainerSize CUP_300_ML = create("Cup 300 ml");
+
+
+  private static ContainerSize create(String name) {
+    return new ContainerSize(name, ValidityDates.VALID_FROM_DATE, ValidityDates.VALID_TO_DATE);
+  }
+
 }

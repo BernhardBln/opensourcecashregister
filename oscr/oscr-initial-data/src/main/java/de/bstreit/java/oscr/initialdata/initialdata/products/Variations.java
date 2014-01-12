@@ -26,10 +26,18 @@
  */
 package de.bstreit.java.oscr.initialdata.initialdata.products;
 
-import de.bstreit.java.oscr.initialdata.initialdata.ValidityDates;
 import de.bstreit.java.oscr.business.products.Variation;
+import de.bstreit.java.oscr.initialdata.AbstractDataContainer;
+import de.bstreit.java.oscr.initialdata.initialdata.ValidityDates;
+import de.bstreit.java.oscr.initialdata.initialdata.offers.VariationOffers;
 
-
+/**
+ * This does not need to extend {@link AbstractDataContainer}, since all
+ * elements are referenced by the {@link VariationOffers} class and - via
+ * propagation - automatically saved as well.
+ * 
+ * @author Bernhard Streit
+ */
 public class Variations {
 
   public static final Variation SOJA = new Variation("Soja", ValidityDates.VALID_FROM_DATE,
