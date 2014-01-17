@@ -8,15 +8,15 @@ import de.bstreit.java.oscr.SpringConfiguration;
 
 public class SwingStarter {
 
+  private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SwingStarter.class);
+
+
   public static void main(String[] args) {
 
-    try (final ConfigurableApplicationContext context = getContext()) {
+    final ConfigurableApplicationContext context = getContext();
 
-      final AppController controller = context.getBean(AppController.class);
-      controller.startApplication();
-
-    }
-
+    final AppController controller = context.getBean(AppController.class);
+    controller.startApplication();
   }
 
 
