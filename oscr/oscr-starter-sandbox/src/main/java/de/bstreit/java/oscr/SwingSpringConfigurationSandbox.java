@@ -40,7 +40,7 @@ import org.springframework.orm.jpa.vendor.Database;
  * @author streit
  */
 @Configuration
-public class SpringConfigurationSandbox {
+public class SwingSpringConfigurationSandbox {
 
   @Bean
   public DataSource dataSource() {
