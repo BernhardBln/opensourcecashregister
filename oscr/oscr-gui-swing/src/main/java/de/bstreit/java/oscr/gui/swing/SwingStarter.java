@@ -1,5 +1,7 @@
 package de.bstreit.java.oscr.gui.swing;
 
+import java.awt.EventQueue;
+
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
@@ -13,11 +15,21 @@ public class SwingStarter {
 
   public static void main(String[] args) {
 
-    // Context wird im onClose des Hauptfensters geschlossen
     final ConfigurableApplicationContext context = getContext();
+    final SwingAppController controller = context.getBean(SwingAppController.class);
 
-    final AppController controller = context.getBean(AppController.class);
-    controller.startApplication();
+    EventQueue.invokeLater(new Runnable() {
+
+      public void run() {
+        try {
+          controller.showMainwindow();
+
+        } catch (Exception e) {
+          logger.warn("Uncaught exception from mainWindow.show()", e);
+        }
+      }
+    });
+
   }
 
 

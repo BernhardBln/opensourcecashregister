@@ -104,5 +104,9 @@ public abstract class AbstractOffer<OFFERED_ITEM extends AbstractSalesItem> exte
     builder.append(offeredItem);
   }
 
+  public OFFERED_ITEM getOfferedItem() {
+    return offeredItem;
+  }
+
 
 }

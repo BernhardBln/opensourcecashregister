@@ -30,7 +30,9 @@ import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 
 import de.bstreit.java.oscr.business.base.persistence.AbstractPersistentObject;
+import de.bstreit.java.oscr.business.offers.ExtraOffer;
 import de.bstreit.java.oscr.business.offers.ProductOffer;
+import de.bstreit.java.oscr.business.offers.VariationOffer;
 
 
 /**
@@ -44,5 +46,40 @@ public class BillItem extends AbstractPersistentObject {
 
   @ManyToOne
   private ProductOffer offer;
+
+
+  @SuppressWarnings("unused")
+  private BillItem() {
+    // For Hibernate
+  }
+
+  public BillItem(ProductOffer offer) {
+    this.offer = offer;
+  }
+
+  /**
+   * @param variationOffer
+   */
+  public void setVariationOffer(VariationOffer variationOffer) {
+    // TODO Auto-generated method stub
+
+  }
+
+  /**
+   * @param extraOffer
+   */
+  public void addExtraOffer(ExtraOffer extraOffer) {
+    // TODO Auto-generated method stub
+
+  }
+
+
+  /**
+   * @return the {@link #offer}
+   */
+  public ProductOffer getOffer() {
+    return offer;
+  }
+
 
 }

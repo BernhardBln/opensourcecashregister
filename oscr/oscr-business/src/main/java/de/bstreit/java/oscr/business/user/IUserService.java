@@ -1,7 +1,7 @@
 /*
  * Open Source Cash Register
  * 
- * Copyright (C) 2013, 2014 Bernhard Streit
+ * Copyright (C) 2013-2014 Bernhard Streit
  * 
  * This file is part of the Open Source Cash Register program.
  * 
@@ -18,28 +18,27 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *  
- * --------------------------------------------------------------------------
+ * --
  *  
- * See oscr/licenses/gpl-3.txt for a copy of the GNU GPL.
- * See oscr/README.txt for more information about the software and the author(s).
+ * See /licenses/gpl-3.txt for a copy of the GNU GPL.
+ * See /README.txt for more information about the software and the author(s).
  * 
  */
-package de.bstreit.java.oscr.business.products.dao;
+package de.bstreit.java.oscr.business.user;
 
-import java.util.List;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-
-import de.bstreit.java.oscr.business.products.Product;
-
-public interface IProductRepository extends JpaRepository<Product, Long> {
+/**
+ * Provide access to users.
+ * 
+ * @author streit
+ */
+public interface IUserService {
 
   /**
-   * Find all by name (archived and current)
    * 
-   * @param string
-   * @return
+   * @return the user object from database that corresponds to the currently
+   *         logged in user
    */
-  public List<Product> findByName(String name);
+  public User getCurrentUser();
 
 }

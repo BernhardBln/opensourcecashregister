@@ -27,13 +27,19 @@
 package de.bstreit.java.oscr.business.bill;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
-import de.bstreit.java.oscr.business.base.persistence.AbstractPersistentObject;
+import com.fasterxml.uuid.EthernetAddress;
+import com.fasterxml.uuid.Generators;
+import com.fasterxml.uuid.impl.TimeBasedGenerator;
+import com.google.common.collect.ImmutableList;
 
 
 /**
@@ -41,22 +47,77 @@ import de.bstreit.java.oscr.business.base.persistence.AbstractPersistentObject;
  * @author streit
  */
 @Entity
-public class Bill extends AbstractPersistentObject {
+public class Bill {
+
+
+  private static final TimeBasedGenerator uuidGenerator;
+
+  static {
+    uuidGenerator = Generators.timeBasedGenerator(EthernetAddress.fromInterface());
+  }
+
+  @Id
+  @Column(length = 36)
+  private String id = uuidGenerator.generate().toString();
 
   @OneToMany(cascade = CascadeType.ALL)
-  private List<BillItem> billItems_lazy;
+  private List<BillItem> billItems = new ArrayList<BillItem>();
+
+  /** The date when the bill was closed and paid. */
+  @Column(nullable = false)
+  private Date billClosed;
 
 
   public void addBillItem(BillItem item) {
-    getBillItems().add(item);
+    billItems.add(item);
   }
 
-  private List<BillItem> getBillItems() {
-    if (billItems_lazy == null) {
-      billItems_lazy = new ArrayList<BillItem>();
-    }
 
-    return billItems_lazy;
+  /**
+   * @return the {@link #billClosed}
+   */
+  public Date getBillClosed() {
+    return billClosed;
   }
+
+
+  /**
+   * @param billClosed
+   *          the {@link #billClosed} to set
+   */
+  public void setBillClosed(Date billClosed) {
+    this.billClosed = billClosed;
+  }
+
+  public List<BillItem> getBillItems() {
+    return ImmutableList.copyOf(billItems);
+  }
+
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((id == null) ? 0 : id.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    Bill other = (Bill) obj;
+    if (id == null) {
+      if (other.id != null)
+        return false;
+    } else if (!id.equals(other.id))
+      return false;
+    return true;
+  }
+
 
 }

@@ -26,10 +26,16 @@
  */
 package de.bstreit.java.oscr.business.offers.dao;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import de.bstreit.java.oscr.business.offers.ProductOffer;
+import de.bstreit.java.oscr.business.products.Product;
 
 public interface IProductOfferRepository extends JpaRepository<ProductOffer, Long> {
+
+
+  public List<ProductOffer> findByOfferedItem(Product product);
 
 }
