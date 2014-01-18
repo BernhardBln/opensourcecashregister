@@ -1,21 +1,61 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  
-  <parent>
-    <groupId>de.bstreit.java.oscr</groupId>
-    <artifactId>oscr</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-  </parent>
-  
-  <artifactId>oscr-gui-swing</artifactId>
-  <name>Open Source Cash Register - Swing GUI</name>
-  
-  <dependencies>
-  	<dependency>
-  		<groupId>de.bstreit.java.oscr</groupId>
-  		<artifactId>oscr-business</artifactId>
-  		<version>${project.version}</version>
-  	</dependency>
-  </dependencies>
-  
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>de.bstreit.java.oscr</groupId>
+		<artifactId>oscr</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>oscr-gui-swing</artifactId>
+	<name>Open Source Cash Register - Swing GUI</name>
+
+	<properties>
+		<jdal.version>2.0-SNAPSHOT</jdal.version>
+		<!--jdal.version>2.0.M1</jdal.version -->
+	</properties>
+
+<!-- 	<repositories>
+		<repository>
+			<id>jdal</id>
+			<name>JDAL Repository</name>
+			<url>http://www.jdal.org/repo</url>
+		</repository>
+	</repositories> -->
+
+	<dependencies>
+
+		<dependency>
+			<groupId>de.bstreit.java.oscr</groupId>
+			<artifactId>oscr-business</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
+		<!--dependency>
+			<groupId>org.jdal</groupId>
+			<artifactId>jdal-swing</artifactId>
+			<version>${jdal.version}</version>
+
+			<exclusions>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-log4j12</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>log4j</groupId>
+					<artifactId>log4j</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.jboss.logging</groupId>
+					<artifactId>jboss-logging</artifactId>
+				</exclusion>
+			</exclusions>
+
+		</dependency-->
+
+		 
+
+	</dependencies>
+
 </project>
