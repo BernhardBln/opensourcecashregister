@@ -54,7 +54,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
  * @author streit
  */
 @Configuration
-@ComponentScan(basePackageClasses = SpringConfiguration.class)
+@ComponentScan
 @EnableJpaRepositories
 @EnableTransactionManagement
 public class SpringConfiguration {
@@ -97,5 +97,6 @@ public class SpringConfiguration {
   public PlatformTransactionManager transactionManager() {
     return new JpaTransactionManager();
   }
+
 
 }
