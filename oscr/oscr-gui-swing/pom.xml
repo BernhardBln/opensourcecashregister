@@ -13,7 +13,7 @@
 
 	<properties>
 		<jdal.version>2.0-SNAPSHOT</jdal.version>
-		<!--jdal.version>2.0.M1</jdal.version -->
+		<jdal.version>2.0.M1</jdal.version>
 	</properties>
 
 <!-- 	<repositories>
