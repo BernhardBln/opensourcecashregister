@@ -41,6 +41,8 @@ import com.fasterxml.uuid.Generators;
 import com.fasterxml.uuid.impl.TimeBasedGenerator;
 import com.google.common.collect.ImmutableList;
 
+import de.bstreit.java.oscr.business.user.User;
+
 
 /**
  * 
@@ -50,25 +52,47 @@ import com.google.common.collect.ImmutableList;
 public class Bill {
 
 
-  private static final TimeBasedGenerator uuidGenerator;
+  private static final TimeBasedGenerator timeBasedUuidGenerator;
 
   static {
-    uuidGenerator = Generators.timeBasedGenerator(EthernetAddress.fromInterface());
+    timeBasedUuidGenerator = Generators.timeBasedGenerator(EthernetAddress.fromInterface());
   }
 
   @Id
   @Column(length = 36)
-  private String id = uuidGenerator.generate().toString();
+  private String id;
 
   @OneToMany(cascade = CascadeType.ALL)
-  private List<BillItem> billItems = new ArrayList<BillItem>();
+  private List<BillItem> billItems;
+
+  /** The date when the bill was opened. */
+  @Column(nullable = false)
+  private Date billOpened;
 
   /** The date when the bill was closed and paid. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   private Date billClosed;
 
+  @Column(nullable = false)
+  private User seller;
 
-  public void addBillItem(BillItem item) {
+
+  private Bill() {
+    // For hibernate
+  }
+
+  public Bill(User seller) {
+    this.seller = seller;
+
+    billItems = new ArrayList<BillItem>();
+    billOpened = new Date();
+
+    // We need the id early, so we use an uuid which tries to be unique until
+    // the end of all times.
+    id = timeBasedUuidGenerator.generate().toString();
+  }
+
+  void addBillItem(BillItem item) {
     billItems.add(item);
   }
 
@@ -85,7 +109,7 @@ public class Bill {
    * @param billClosed
    *          the {@link #billClosed} to set
    */
-  public void setBillClosed(Date billClosed) {
+  void setBillClosed(Date billClosed) {
     this.billClosed = billClosed;
   }
 
