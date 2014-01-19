@@ -45,7 +45,7 @@ import de.bstreit.java.oscr.business.base.persistence.AbstractPersistentObjectWi
  * </p>
  * 
  * <p>
- * For example, currently, in Germany, selling stuff to-go might be a reason to
+ * For example, currently, in Germany, selling food to-go might be a reason to
  * only tax the products with reduced VAT.
  * </p>
  * 
