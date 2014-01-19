@@ -20,13 +20,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.views.AbstractView;
 
-import de.bstreit.java.oscr.business.bill.Bill;
 import de.bstreit.java.oscr.business.offers.ProductOffer;
 import de.bstreit.java.oscr.business.offers.dao.IProductOfferRepository;
 import de.bstreit.java.oscr.business.products.Product;
 import de.bstreit.java.oscr.business.products.dao.IProductRepository;
-import de.bstreit.java.oscr.gui.formatting.BillFormatter;
-import de.bstreit.java.oscr.gui.swing.SwingAppController;
 
 @Named
 public class MainWindow implements IBillDisplay {
@@ -44,17 +41,15 @@ public class MainWindow implements IBillDisplay {
   private IProductRepository productRep;
 
   @Inject
-  private SwingAppController appController;
+  private MainWindowController appController;
 
-  @Inject
-  private BillFormatter billFormatter;
 
   private JTextPane billView;
 
 
   @Override
-  public void updateBill(Bill bill) {
-    billView.setText(billFormatter.formatBill(bill));
+  public void printBill(String billAsText) {
+    billView.setText(billAsText);
   }
 
   /**

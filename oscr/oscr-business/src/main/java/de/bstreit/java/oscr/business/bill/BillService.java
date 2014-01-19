@@ -26,7 +26,12 @@
  */
 package de.bstreit.java.oscr.business.bill;
 
+import java.util.Set;
+
 import javax.inject.Inject;
+import javax.inject.Named;
+
+import com.google.common.collect.Sets;
 
 import de.bstreit.java.oscr.business.bill.dao.IBillRepository;
 import de.bstreit.java.oscr.business.offers.ExtraOffer;
@@ -36,9 +41,13 @@ import de.bstreit.java.oscr.business.user.IUserService;
 
 
 /**
+ * For the bill management. Creates new bills, keeps one bill as "active" (i.e.
+ * the one currently displayed and manipulated by a view), can return all open
+ * bills (e.g. for people sitting at tables) and adds elements to the bill.
  * 
- * @author streit
+ * @author Bernhard Streit
  */
+@Named
 public class BillService {
 
   @Inject
@@ -47,10 +56,22 @@ public class BillService {
   @Inject
   private IUserService userProvider;
 
-  private Bill bill;
+  private final Set<IBillChangedListener> billChangedListener = Sets.newHashSet();
 
-  private BillItem lastAddedItem = null;
+  private Bill currentBill;
 
+  private BillItem lastAddedItem;
+
+
+  public void addBillChangedListener(IBillChangedListener listener) {
+    billChangedListener.add(listener);
+  }
+
+  private void fireBillChangedEvent() {
+    for (IBillChangedListener listener : billChangedListener) {
+      listener.billChanged(currentBill);
+    }
+  }
 
   /**
    * Add a product offer to a bill. Creates a new bill if there is no open bill
@@ -59,15 +80,17 @@ public class BillService {
    * @param productOffer
    */
   public void addProductOffer(ProductOffer productOffer) {
-    if (bill == null) {
-      bill = new Bill();
+    if (currentBill == null) {
+      currentBill = new Bill(userProvider.getCurrentUser());
       lastAddedItem = null;
     }
 
     final BillItem billItem = new BillItem(productOffer);
-    bill.addBillItem(billItem);
-
+    currentBill.addBillItem(billItem);
+    currentBill = billRepository.save(currentBill);
     lastAddedItem = billItem;
+
+    fireBillChangedEvent();
   }
 
   /**
@@ -78,11 +101,13 @@ public class BillService {
    *           when there is no open bill or the bill is empty
    */
   public void addExtraOffer(ExtraOffer extraOffer) {
-    if (bill == null || lastAddedItem == null) {
+    if (currentBill == null || lastAddedItem == null) {
       throw new NoOpenBillException("Cannot add extra offer '" + extraOffer + "' - no open bill available!");
     }
 
     lastAddedItem.addExtraOffer(extraOffer);
+
+    fireBillChangedEvent();
   }
 
   /**
@@ -93,11 +118,14 @@ public class BillService {
    *           when there is no open bill or the bill is empty
    */
   public void setVariationOffer(VariationOffer variationOffer) {
-    if (bill == null || lastAddedItem == null) {
+    if (currentBill == null || lastAddedItem == null) {
       throw new NoOpenBillException("Cannot set variation '" + variationOffer + "' - no open bill available!");
     }
 
     lastAddedItem.setVariationOffer(variationOffer);
+
+    fireBillChangedEvent();
   }
+
 
 }

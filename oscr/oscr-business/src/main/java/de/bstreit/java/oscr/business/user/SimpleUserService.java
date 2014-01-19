@@ -27,6 +27,7 @@
 package de.bstreit.java.oscr.business.user;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import de.bstreit.java.oscr.business.user.dao.IUserRepository;
 
@@ -37,6 +38,7 @@ import de.bstreit.java.oscr.business.user.dao.IUserRepository;
  * 
  * @author Bernhard Streit
  */
+@Named
 public class SimpleUserService implements IUserService {
 
   @Inject
