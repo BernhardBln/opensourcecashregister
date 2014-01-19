@@ -27,15 +27,35 @@
 package de.bstreit.java.oscr.business.storage;
 
 import java.util.List;
+import java.util.Locale;
 
+import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import de.bstreit.java.oscr.business.AbstractSpringTestWithContext;
+import de.bstreit.java.oscr.business.base.finance.money.Money;
 import de.bstreit.java.oscr.business.offers.ProductOffer;
 import de.bstreit.java.oscr.business.products.Product;
 
 public class DataStorageTest extends AbstractSpringTestWithContext {
+
+  private static final Locale defaultLocale = Locale.getDefault();
+
+
+  @BeforeClass
+  public static void setDefaultLocale() {
+    Locale.setDefault(Locale.GERMANY);
+    Money.resetNumberFormatter();
+  }
+
+  @AfterClass
+  public static void restoreLocale() {
+    // reset locale for next test
+    Locale.setDefault(defaultLocale);
+    Money.resetNumberFormatter();
+  }
 
   @Test
   public void testDataStorage() {

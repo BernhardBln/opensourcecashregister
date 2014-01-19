@@ -123,7 +123,7 @@ public class Money implements Serializable {
    * Ugly - find a better way! Helps in case the system locale was changed by
    * the program.
    */
-  static void resetNumberFormatter() {
+  public static void resetNumberFormatter() {
     nf = NumberFormat.getCurrencyInstance();
   }
 }
