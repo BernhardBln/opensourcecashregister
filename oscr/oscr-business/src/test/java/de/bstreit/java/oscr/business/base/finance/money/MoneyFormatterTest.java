@@ -41,12 +41,14 @@ public class MoneyFormatterTest {
   @BeforeClass
   public static void setDefaultLocale() {
     Locale.setDefault(Locale.GERMANY);
+    Money.resetNumberFormatter();
   }
 
   @AfterClass
   public static void restoreLocale() {
     // reset locale for next test
     Locale.setDefault(defaultLocale);
+    Money.resetNumberFormatter();
   }
 
   @Test
