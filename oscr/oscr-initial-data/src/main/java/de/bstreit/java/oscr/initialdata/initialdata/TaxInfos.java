@@ -28,7 +28,7 @@ package de.bstreit.java.oscr.initialdata.initialdata;
 
 import javax.inject.Named;
 
-import de.bstreit.java.oscr.business.products.TaxInfo;
+import de.bstreit.java.oscr.business.taxation.TaxInfo;
 import de.bstreit.java.oscr.initialdata.AbstractDataContainer;
 
 /**

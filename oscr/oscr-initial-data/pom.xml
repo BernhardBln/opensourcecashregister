@@ -15,7 +15,7 @@
   	<dependency>
   		<groupId>de.bstreit.java.oscr</groupId>
   		<artifactId>oscr-business</artifactId>
-  		<version>0.0.1-SNAPSHOT</version>
+  		<version>${project.version}</version>
   	</dependency>
   </dependencies>
 </project>
