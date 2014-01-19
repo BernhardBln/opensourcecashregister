@@ -24,11 +24,11 @@
  * See oscr/README.txt for more information about the software and the author(s).
  * 
  */
-package de.bstreit.java.oscr.business.products.dao;
+package de.bstreit.java.oscr.business.taxation.dao;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import de.bstreit.java.oscr.business.products.TaxInfo;
+import de.bstreit.java.oscr.business.taxation.TaxInfo;
 
 
 public interface ITaxInfoRepository extends JpaRepository<TaxInfo, Long> {

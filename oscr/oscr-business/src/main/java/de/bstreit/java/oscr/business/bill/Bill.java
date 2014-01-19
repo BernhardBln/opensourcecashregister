@@ -34,6 +34,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
 import com.fasterxml.uuid.EthernetAddress;
@@ -73,7 +74,7 @@ public class Bill {
   @Column(nullable = true)
   private Date billClosed;
 
-  @Column(nullable = false)
+  @ManyToOne(optional = false)
   private User seller;
 
 

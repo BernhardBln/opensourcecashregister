@@ -24,7 +24,7 @@
  * See oscr/README.txt for more information about the software and the author(s).
  * 
  */
-package de.bstreit.java.oscr.business.products;
+package de.bstreit.java.oscr.business.taxation;
 
 import java.util.Date;
 
@@ -37,6 +37,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.hibernate.annotations.NaturalId;
 
 import de.bstreit.java.oscr.business.base.persistence.AbstractPersistentObjectWithContinuance;
+import de.bstreit.java.oscr.business.products.AbstractSalesItem;
 
 /**
  * <p>
@@ -46,7 +47,8 @@ import de.bstreit.java.oscr.business.base.persistence.AbstractPersistentObjectWi
  * 
  * <p>
  * For example, currently, in Germany, selling food to-go might be a reason to
- * only tax the products with reduced VAT.
+ * only tax the products with reduced VAT. Hence we would create a "sold to go"
+ * tax info instance which gets mapped later to reduced VAT.
  * </p>
  * 
  * <p>

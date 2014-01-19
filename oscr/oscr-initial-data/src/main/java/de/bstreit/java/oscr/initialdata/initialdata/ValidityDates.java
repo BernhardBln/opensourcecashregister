@@ -32,7 +32,7 @@ import de.bstreit.java.oscr.initialdata.util.DateFactory;
 
 public class ValidityDates {
 
-	public static final Date VALID_FROM_DATE = DateFactory.getDateWithTimeMidnight(2013, 7, 15);
-	public static final Date VALID_TO_DATE = null;
+  public static final Date VALID_FROM_DATE = DateFactory.getDateWithTimeMidnight(2014, 1, 1);
+  public static final Date VALID_TO_DATE = null;
 
 }
