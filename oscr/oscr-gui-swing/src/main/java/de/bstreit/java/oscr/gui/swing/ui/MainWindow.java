@@ -6,6 +6,7 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -78,7 +79,8 @@ public class MainWindow implements IBillDisplay {
     JButton button = new JButton("Single Espresso");
     // get sample product - remove later!
     final Product product = productRep.findByName("Espresso").get(0);
-    final ProductOffer offer = productOfferRep.findByOfferedItem(product).get(0);
+    final List<ProductOffer> espressoOffers = productOfferRep.findByOfferedItem(product);
+    final ProductOffer offer = espressoOffers.get(espressoOffers.size() - 1);
     button.addActionListener(new ActionListener() {
 
       public void actionPerformed(ActionEvent e) {
@@ -123,6 +125,12 @@ public class MainWindow implements IBillDisplay {
     controlButtonsPanel.setLayout(new GridLayout(3, 1, 0, 0));
 
     JButton payButton = new JButton("Pay");
+    payButton.addActionListener(new ActionListener() {
+
+      public void actionPerformed(ActionEvent e) {
+        appController.closeBill();
+      }
+    });
     payButton.setMinimumSize(new Dimension(0, 40));
     controlButtonsPanel.add(payButton);
 

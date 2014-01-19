@@ -41,4 +41,9 @@ public class MainWindowController implements IBillChangedListener {
   public void billChanged(Bill bill) {
     billDisplay.printBill(billFormatter.formatBill(bill));
   }
+
+
+  public void closeBill() {
+    billService.closeBill();
+  }
 }
