@@ -28,9 +28,12 @@ package de.bstreit.java.oscr.initialdata.initialdata.products;
 
 import de.bstreit.java.oscr.business.products.ContainerSize;
 import de.bstreit.java.oscr.business.products.Product;
+import de.bstreit.java.oscr.business.products.TaxInfo;
 import de.bstreit.java.oscr.initialdata.AbstractDataContainer;
 import de.bstreit.java.oscr.initialdata.initialdata.ContainerSizes;
+import de.bstreit.java.oscr.initialdata.initialdata.TaxInfos;
 import de.bstreit.java.oscr.initialdata.initialdata.ValidityDates;
+import de.bstreit.java.oscr.initialdata.initialdata.offers.ProductOffers;
 
 /**
  * This does not need to extend {@link AbstractDataContainer}, since all
@@ -82,9 +85,22 @@ public class Products {
   public static final Product APFELSCHORLE = addProduct("Apfelschorle");
   public static final Product ICED_TEA = addProduct("Iced Tea");
 
+  public static final Product HARIO_V60_PAPER_FILTER_01_WHITE = addProduct("Hario V60 Papierfilter 01 weiß",
+      TaxInfos.NON_FOOD);
+
 
   private static Product addProduct(String productName) {
     return new Product(productName, ValidityDates.VALID_FROM_DATE, ValidityDates.VALID_TO_DATE);
+  }
+
+  private static Product addProduct(String productName, TaxInfo taxInfo) {
+    final Product product = new Product(productName, ValidityDates.VALID_FROM_DATE,
+        ValidityDates.VALID_TO_DATE);
+
+    product.setTaxInfo(taxInfo);
+
+    return product;
+
   }
 
   private static Product addProduct(String productName, ContainerSize packageSize) {
