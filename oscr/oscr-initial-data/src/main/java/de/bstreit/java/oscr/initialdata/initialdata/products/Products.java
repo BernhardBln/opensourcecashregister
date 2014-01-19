@@ -28,7 +28,7 @@ package de.bstreit.java.oscr.initialdata.initialdata.products;
 
 import de.bstreit.java.oscr.business.products.ContainerSize;
 import de.bstreit.java.oscr.business.products.Product;
-import de.bstreit.java.oscr.business.products.TaxInfo;
+import de.bstreit.java.oscr.business.taxation.TaxInfo;
 import de.bstreit.java.oscr.initialdata.AbstractDataContainer;
 import de.bstreit.java.oscr.initialdata.initialdata.ContainerSizes;
 import de.bstreit.java.oscr.initialdata.initialdata.TaxInfos;
@@ -97,7 +97,7 @@ public class Products {
     final Product product = new Product(productName, ValidityDates.VALID_FROM_DATE,
         ValidityDates.VALID_TO_DATE);
 
-    product.setTaxInfo(taxInfo);
+    product.setOverridingTaxInfo(taxInfo);
 
     return product;
 
