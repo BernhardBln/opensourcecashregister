@@ -74,17 +74,15 @@ public class Bill {
   @Column(nullable = true)
   private Date billClosed;
 
-  @ManyToOne(optional = false)
-  private User seller;
+  /**
+   * The user who was logged in when the bill was closed. This is not
+   * necessarily the person that opened the bill, but that received the payment.
+   */
+  @ManyToOne(optional = true)
+  private User cashier;
 
 
-  private Bill() {
-    // For hibernate
-  }
-
-  public Bill(User seller) {
-    this.seller = seller;
-
+  public Bill() {
     billItems = new ArrayList<BillItem>();
     billOpened = new Date();
 
@@ -107,11 +105,13 @@ public class Bill {
 
 
   /**
+   * Invoked when an open bill is getting paid and hence closed.
+   * 
    * @param billClosed
-   *          the {@link #billClosed} to set
    */
-  void setBillClosed(Date billClosed) {
-    this.billClosed = billClosed;
+  void closeBill(User cashier) {
+    this.billClosed = new Date();
+    this.cashier = cashier;
   }
 
   public List<BillItem> getBillItems() {

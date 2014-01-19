@@ -81,15 +81,19 @@ public class BillService {
    */
   public void addProductOffer(ProductOffer productOffer) {
     if (currentBill == null) {
-      currentBill = new Bill(userProvider.getCurrentUser());
+      currentBill = new Bill();
       lastAddedItem = null;
     }
 
     final BillItem billItem = new BillItem(productOffer);
     currentBill.addBillItem(billItem);
-    currentBill = billRepository.save(currentBill);
+
+    saveBill();
+
+    // only keep reference if saveBill was successful
     lastAddedItem = billItem;
 
+    // fire events after lastAddedItem was changed - just in case...
     fireBillChangedEvent();
   }
 
@@ -107,6 +111,8 @@ public class BillService {
 
     lastAddedItem.addExtraOffer(extraOffer);
 
+    saveBill();
+
     fireBillChangedEvent();
   }
 
@@ -123,8 +129,28 @@ public class BillService {
     }
 
     lastAddedItem.setVariationOffer(variationOffer);
+    saveBill();
 
     fireBillChangedEvent();
+  }
+
+  public void closeBill() {
+    if (currentBill == null) {
+      throw new NoOpenBillException("Cannot close bill - no open bill available!");
+    }
+
+    currentBill.closeBill(userProvider.getCurrentUser());
+
+    saveBill();
+
+    currentBill = null;
+    lastAddedItem = null;
+
+    fireBillChangedEvent();
+  }
+
+  private void saveBill() {
+    currentBill = billRepository.save(currentBill);
   }
 
 
