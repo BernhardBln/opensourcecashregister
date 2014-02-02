@@ -34,6 +34,16 @@ We do not take any responsibility or liability if you get in trouble with your
 local tax office or loose money because you pay more VAT to the tax office than
 you actually need!
 
+Also, take into consideration that this software does not have any official 
+certification. Hence it is very likely that you cannot use it as a replacement 
+for a real certified electronic cash register which meets all criteria defined
+by the law in the country (and time) you life in. If you want to use this software
+in a shop, make sure you contact a lawyer and/or a tax consultant and/or the 
+authorities in order to find out if it is possible or not.
+
+Again - you are using this at your own risk, and we do not take any responsibility 
+or liability in case you get in trouble with the local authorities!
+
 Copyright and License
 ---------------------
 
