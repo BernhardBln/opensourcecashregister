@@ -8,6 +8,8 @@ import de.bstreit.java.oscr.business.bill.Bill;
 import de.bstreit.java.oscr.business.bill.BillService;
 import de.bstreit.java.oscr.business.bill.IBillChangedListener;
 import de.bstreit.java.oscr.business.offers.ProductOffer;
+import de.bstreit.java.oscr.business.taxation.TaxInfo;
+import de.bstreit.java.oscr.business.taxation.dao.ITaxInfoRepository;
 import de.bstreit.java.oscr.gui.formatting.BillFormatter;
 
 @Named
@@ -22,10 +24,19 @@ public class MainWindowController implements IBillChangedListener {
   @Inject
   private BillService billService;
 
+  @Inject
+  private ITaxInfoRepository taxInfoRepository;
+
+  private TaxInfo toGoTaxInfo;
+
+  private TaxInfo inHouseTaxInfo;
+
 
   @PostConstruct
   private void initController() {
     billService.addBillChangedListener(this);
+    toGoTaxInfo = taxInfoRepository.findByDenotationAndValidToIsNull("to go");
+    inHouseTaxInfo = taxInfoRepository.findByDenotationAndValidToIsNull("inhouse");
   }
 
 
@@ -45,5 +56,14 @@ public class MainWindowController implements IBillChangedListener {
 
   public void closeBill() {
     billService.closeBill();
+  }
+
+
+  public void setBillToGo(boolean togo) {
+    if (togo) {
+      billService.setGlobalTaxInfo(toGoTaxInfo);
+    } else {
+      billService.setGlobalTaxInfo(inHouseTaxInfo);
+    }
   }
 }

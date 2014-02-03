@@ -42,7 +42,7 @@ import de.bstreit.java.oscr.initialdata.initialdata.products.Products;
 @Named
 public class ProductOffers extends AbstractDataContainer<ProductOffer> {
 
-  public static final ProductOffer ESPRESSO = addProductOffer(Products.ESPRESSO, new Money("1.10", "EUR"));
+  public static final ProductOffer ESPRESSO = addProductOffer(Products.ESPRESSO, new Money("1.07", "EUR"));
   public static final ProductOffer DOUBLE_ESPRESSO = addProductOffer(Products.DOUBLE_ESPRESSO, new Money(
       "1.40", "EUR"));
 
@@ -55,7 +55,7 @@ public class ProductOffers extends AbstractDataContainer<ProductOffer> {
   public static final ProductOffer DOUBLE_ESPRESSO_MACCHIATO = addProductOffer(
       Products.DOUBLE_ESPRESSO_MACCHIATO, new Money("2.00", "EUR"));
 
-  public static final ProductOffer CAPPUCCINO = addProductOffer(Products.CAPPUCCINO, new Money("1.80",
+  public static final ProductOffer CAPPUCCINO = addProductOffer(Products.CAPPUCCINO, new Money("2.38",
       "EUR"));
   public static final ProductOffer DOUBLE_CAPPUCCINO = addProductOffer(Products.DOUBLE_CAPPUCCINO,
       new Money("2.30", "EUR"));
@@ -92,6 +92,9 @@ public class ProductOffers extends AbstractDataContainer<ProductOffer> {
   public static final ProductOffer APFELSCHORLE = addProductOffer(Products.APFELSCHORLE, new Money("2.30",
       "EUR"));
   public static final ProductOffer ICED_TEA = addProductOffer(Products.ICED_TEA, new Money("2.30", "EUR"));
+
+  public static final ProductOffer HARIO_V60_PAPER_FILTER_01_WHITE = addProductOffer(
+      Products.HARIO_V60_PAPER_FILTER_01_WHITE, new Money("7.10", "EUR"));
 
 
   private static ProductOffer addProductOffer(Product product, Money price) {

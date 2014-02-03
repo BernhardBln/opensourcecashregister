@@ -83,6 +83,13 @@ public class TaxInfo extends AbstractPersistentObjectWithContinuance<TaxInfo> {
   }
 
 
+  /**
+   * @return the {@link #denotation}
+   */
+  public String getDenotation() {
+    return denotation;
+  }
+
   @Override
   protected void additionalEqualsForSubclasses(EqualsBuilder equalsBuilder, TaxInfo otherObject) {
     equalsBuilder.append(denotation, otherObject.denotation);

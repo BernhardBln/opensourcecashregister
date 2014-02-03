@@ -26,20 +26,13 @@
  */
 package de.bstreit.java.oscr.business.products.dao;
 
-import java.util.List;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import de.bstreit.java.oscr.business.products.Product;
 
 public interface IProductRepository extends JpaRepository<Product, Long> {
 
-  /**
-   * Find all by name (archived and current)
-   * 
-   * @param string
-   * @return
-   */
-  public List<Product> findByName(String name);
+  /** Find currently active product by name */
+  public Product findByNameAndValidToIsNull(String name);
 
 }

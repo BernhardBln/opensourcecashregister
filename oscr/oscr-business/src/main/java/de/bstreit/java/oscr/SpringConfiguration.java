@@ -26,6 +26,9 @@
  */
 package de.bstreit.java.oscr;
 
+import java.util.Currency;
+import java.util.Locale;
+
 import javax.inject.Inject;
 import javax.sql.DataSource;
 
@@ -98,5 +101,14 @@ public class SpringConfiguration {
     return new JpaTransactionManager();
   }
 
+  /**
+   * TODO [11]: Maybe make this a setting that is saved in the database?
+   * 
+   * @return the default currency
+   */
+  @Bean
+  public Currency getDefaultCurrency() {
+    return Currency.getInstance(Locale.getDefault());
+  }
 
 }
