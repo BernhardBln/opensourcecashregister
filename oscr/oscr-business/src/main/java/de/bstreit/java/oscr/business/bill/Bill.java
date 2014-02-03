@@ -26,8 +26,11 @@
  */
 package de.bstreit.java.oscr.business.bill;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -42,6 +45,7 @@ import com.fasterxml.uuid.Generators;
 import com.fasterxml.uuid.impl.TimeBasedGenerator;
 import com.google.common.collect.ImmutableList;
 
+import de.bstreit.java.oscr.business.taxation.TaxInfo;
 import de.bstreit.java.oscr.business.user.User;
 
 
@@ -50,8 +54,7 @@ import de.bstreit.java.oscr.business.user.User;
  * @author streit
  */
 @Entity
-public class Bill {
-
+public class Bill implements Iterable<BillItem> {
 
   private static final TimeBasedGenerator timeBasedUuidGenerator;
 
@@ -59,12 +62,20 @@ public class Bill {
     timeBasedUuidGenerator = Generators.timeBasedGenerator(EthernetAddress.fromInterface());
   }
 
+
   @Id
   @Column(length = 36)
-  private String id;
+  private String id = timeBasedUuidGenerator.generate().toString();
+
+  /**
+   * An optional description of the bill, can help to identify an opened bill
+   * (e.g. "table 3")
+   */
+  @Column(nullable = true)
+  private String description;
 
   @OneToMany(cascade = CascadeType.ALL)
-  private List<BillItem> billItems;
+  private List<BillItem> billItems = new ArrayList<BillItem>();
 
   /** The date when the bill was opened. */
   @Column(nullable = false)
@@ -75,6 +86,15 @@ public class Bill {
   private Date billClosed;
 
   /**
+   * The global tax info. Must not be null; default value must be set within the
+   * app
+   */
+  // TODO [10]: check which cascade types we really need here. Same at
+  // AbstractSalesItem.overridingTaxInfo
+  @ManyToOne(cascade = { CascadeType.REFRESH }, optional = false)
+  private TaxInfo globalTaxInfo;
+
+  /**
    * The user who was logged in when the bill was closed. This is not
    * necessarily the person that opened the bill, but that received the payment.
    */
@@ -82,19 +102,36 @@ public class Bill {
   private User cashier;
 
 
-  public Bill() {
-    billItems = new ArrayList<BillItem>();
-    billOpened = new Date();
+  Bill(TaxInfo defaultGlobalTaxInfo, Date billOpeningDate) {
+    checkNotNull(defaultGlobalTaxInfo);
+    setGlobalTaxInfo(defaultGlobalTaxInfo);
+    billOpened = billOpeningDate;
+  }
 
-    // We need the id early, so we use an uuid which tries to be unique until
-    // the end of all times.
-    id = timeBasedUuidGenerator.generate().toString();
+  private Bill() {
+
   }
 
   void addBillItem(BillItem item) {
     billItems.add(item);
   }
 
+
+  /**
+   * @return the {@link #globalTaxInfo}
+   */
+  public TaxInfo getGlobalTaxInfo() {
+    return globalTaxInfo;
+  }
+
+
+  /**
+   * @param globalTaxInfo
+   *          the {@link #globalTaxInfo} to set
+   */
+  public void setGlobalTaxInfo(TaxInfo globalTaxInfo) {
+    this.globalTaxInfo = globalTaxInfo;
+  }
 
   /**
    * @return the {@link #billClosed}
@@ -108,9 +145,10 @@ public class Bill {
    * Invoked when an open bill is getting paid and hence closed.
    * 
    * @param billClosed
+   * @param billClosingDate
    */
-  void closeBill(User cashier) {
-    this.billClosed = new Date();
+  void closeBill(User cashier, Date billClosingDate) {
+    this.billClosed = billClosingDate;
     this.cashier = cashier;
   }
 
@@ -142,6 +180,11 @@ public class Bill {
     } else if (!id.equals(other.id))
       return false;
     return true;
+  }
+
+  @Override
+  public Iterator<BillItem> iterator() {
+    return getBillItems().iterator();
   }
 
 

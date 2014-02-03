@@ -33,4 +33,6 @@ import de.bstreit.java.oscr.business.taxation.TaxInfo;
 
 public interface ITaxInfoRepository extends JpaRepository<TaxInfo, Long> {
 
+  public TaxInfo findByDenotationAndValidToIsNull(String denotation);
+
 }

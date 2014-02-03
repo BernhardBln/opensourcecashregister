@@ -6,7 +6,6 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -16,6 +15,9 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTextPane;
+import javax.swing.JToggleButton;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +25,6 @@ import org.w3c.dom.views.AbstractView;
 
 import de.bstreit.java.oscr.business.offers.ProductOffer;
 import de.bstreit.java.oscr.business.offers.dao.IProductOfferRepository;
-import de.bstreit.java.oscr.business.products.Product;
 import de.bstreit.java.oscr.business.products.dao.IProductRepository;
 
 @Named
@@ -78,13 +79,11 @@ public class MainWindow implements IBillDisplay {
 
     JButton button = new JButton("Single Espresso");
     // get sample product - remove later!
-    final Product product = productRep.findByName("Espresso").get(0);
-    final List<ProductOffer> espressoOffers = productOfferRep.findByOfferedItem(product);
-    final ProductOffer offer = espressoOffers.get(espressoOffers.size() - 1);
+    final ProductOffer espressoOffer = productOfferRep.findActiveOfferByProductName("Espresso");
     button.addActionListener(new ActionListener() {
 
       public void actionPerformed(ActionEvent e) {
-        appController.addToBill(offer);
+        appController.addToBill(espressoOffer);
       }
     });
     button.setMinimumSize(new Dimension(0, 40));
@@ -96,8 +95,7 @@ public class MainWindow implements IBillDisplay {
 
 
     // get sample product - remove later!
-    final Product cappu = productRep.findByName("Cappuccino").get(0);
-    final ProductOffer cappuOffer = productOfferRep.findByOfferedItem(cappu).get(0);
+    final ProductOffer cappuOffer = productOfferRep.findActiveOfferByProductName("Cappuccino");
     JButton button_2 = new JButton("Single Cappuccino");
     button_2.addActionListener(new ActionListener() {
 
@@ -109,6 +107,13 @@ public class MainWindow implements IBillDisplay {
     drinksPanel.add(button_2);
 
     JButton button_3 = new JButton("Double Cappuccino");
+    final ProductOffer hario = productOfferRep.findActiveOfferByProductName("Hario V60 Papierfilter 01 weiß");
+    button_3.addActionListener(new ActionListener() {
+
+      public void actionPerformed(ActionEvent e) {
+        appController.addToBill(hario);
+      }
+    });
     button_3.setMinimumSize(new Dimension(0, 40));
     drinksPanel.add(button_3);
 
@@ -134,9 +139,15 @@ public class MainWindow implements IBillDisplay {
     payButton.setMinimumSize(new Dimension(0, 40));
     controlButtonsPanel.add(payButton);
 
-    JButton btnCancel = new JButton("Cancel");
-    btnCancel.setMinimumSize(new Dimension(0, 40));
-    controlButtonsPanel.add(btnCancel);
+    final JToggleButton btnToGo = new JToggleButton("To go");
+    btnToGo.addChangeListener(new ChangeListener() {
+
+      public void stateChanged(ChangeEvent e) {
+        appController.setBillToGo(btnToGo.isSelected());
+      }
+    });
+    btnToGo.setMinimumSize(new Dimension(0, 40));
+    controlButtonsPanel.add(btnToGo);
 
     JButton btnKassenstand = new JButton("Balance");
     btnKassenstand.setMinimumSize(new Dimension(0, 40));

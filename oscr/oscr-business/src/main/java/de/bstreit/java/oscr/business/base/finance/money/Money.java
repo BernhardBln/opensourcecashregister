@@ -26,6 +26,8 @@
  */
 package de.bstreit.java.oscr.business.base.finance.money;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -35,7 +37,11 @@ import java.util.Objects;
 
 import com.google.common.base.Preconditions;
 
+import de.bstreit.java.oscr.business.base.finance.tax.VATClass;
+
 public class Money implements Serializable {
+
+  private static final BigDecimal HUNDRED = new BigDecimal("100");
 
   private static transient NumberFormat nf = NumberFormat.getCurrencyInstance();
 
@@ -126,4 +132,62 @@ public class Money implements Serializable {
   public static void resetNumberFormatter() {
     nf = NumberFormat.getCurrencyInstance();
   }
+
+  public Money add(Money otherMoney) {
+    checkNotNull(otherMoney);
+    assertSameCurrency(otherMoney, "Cannot sum up two prices with different currencies!");
+
+    final BigDecimal newValue = amount.add(otherMoney.getAmount());
+
+    return new Money(newValue, currency);
+  }
+
+
+  public Money subtract(Money otherMoney) {
+    checkNotNull(otherMoney);
+    assertSameCurrency(otherMoney, "Cannot subtract two prices with different currencies!");
+
+    final BigDecimal newValue = amount.subtract(otherMoney.getAmount());
+
+    return new Money(newValue, currency);
+  }
+
+
+  /**
+   * @param otherMoney
+   * @param message
+   *          TODO
+   */
+  private void assertSameCurrency(Money otherMoney, String message) {
+    if (!currency.equals(otherMoney.getCurrency())) {
+      throw new DifferentCurrenciesException(message);
+    }
+  }
+
+  /**
+   * <p>
+   * Assuming this to be a gross value, calculate the corresponding net value
+   * for the given vatClass.
+   * </p>
+   * 
+   * <pre>
+   * gross = net * (100 + vatRate)
+   * net = gross / (1 + vatRate / 100)
+   * </pre>
+   * 
+   * @param vatClass
+   * @return the net value of this price
+   */
+  public Money getNet(VATClass vatClass) {
+    final BigDecimal vatRateDivBy100 = vatClass.getRate().divide(HUNDRED);
+    final BigDecimal divider = BigDecimal.ONE.add(vatRateDivBy100);
+    final BigDecimal netValue = amount.divide(divider, RoundingMode.HALF_UP);
+    return new Money(netValue, currency);
+  }
+
+  public Money getVAT(VATClass vatClass) {
+    final BigDecimal netValue = amount.multiply(vatClass.getRate()).divide(HUNDRED);
+    return new Money(netValue, currency);
+  }
+
 }

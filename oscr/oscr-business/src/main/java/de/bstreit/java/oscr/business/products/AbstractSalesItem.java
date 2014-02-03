@@ -29,7 +29,6 @@ package de.bstreit.java.oscr.business.products;
 import java.util.Date;
 
 import javax.persistence.CascadeType;
-import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.DiscriminatorType;
 import javax.persistence.Entity;
@@ -83,9 +82,8 @@ public abstract class AbstractSalesItem extends AbstractPersistentObjectWithCont
    * "reduced vat".
    * </p>
    */
-  @ManyToOne(cascade = CascadeType.ALL)
-  @Column(nullable = true)
-  private transient TaxInfo overridingTaxInfo;
+  @ManyToOne(cascade = CascadeType.ALL, optional = true)
+  private TaxInfo overridingTaxInfo;
 
 
   protected AbstractSalesItem(String name, Date validFrom, Date validTo) {

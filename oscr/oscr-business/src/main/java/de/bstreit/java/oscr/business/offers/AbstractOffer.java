@@ -59,14 +59,20 @@ public abstract class AbstractOffer<OFFERED_ITEM extends AbstractSalesItem> exte
     ILabelledItem {
 
   /**
-   * The price of this offer. This is not considered in {@link #equals(Object)}
-   * and {@link #hashCode()} as the sales items and the validFrom and validTo
-   * dates are already sufficient and serve as a natural key.
+   * <p>
+   * The gross price of this offer. Since this is fixed, the net price will vary
+   * depending on the vat class.
+   * </p>
+   * <p>
+   * This is not considered in {@link #equals(Object)} and {@link #hashCode()}
+   * as the sales items and the validFrom and validTo dates are already
+   * sufficient and serve as a natural key.
+   * </p>
    */
   @Type(type = "de.bstreit.java.oscr.business.base.finance.money.MoneyType")
   @Columns(columns = { @Column(name = "priceValue"), @Column(name = "priceCurrency") })
   // @Access(AccessType.FIELD)
-  private final Money price;
+  private final Money priceGross;
 
   /**
    * The item contained in this offer.
@@ -80,18 +86,18 @@ public abstract class AbstractOffer<OFFERED_ITEM extends AbstractSalesItem> exte
   private transient String label = null;
 
 
-  AbstractOffer(OFFERED_ITEM item, Money price, Date validFrom, Date validТо) {
+  AbstractOffer(OFFERED_ITEM item, Money priceGross, Date validFrom, Date validТо) {
     super(validFrom, validТо);
     this.offeredItem = item;
-    this.price = price;
+    this.priceGross = priceGross;
   }
 
-  public Money getPrice() {
-    return price;
+  public Money getPriceGross() {
+    return priceGross;
   }
 
   public String getLabel() {
-    return offeredItem.getLabel() + "<BR>" + getPrice().toString();
+    return offeredItem.getLabel() + "<BR>" + getPriceGross().toString();
   }
 
   @Override
