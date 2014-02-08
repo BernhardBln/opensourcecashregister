@@ -23,7 +23,11 @@ import de.bstreit.java.oscr.business.base.date.ICurrentDateProvider;
 public class FixDateProvider implements ICurrentDateProvider {
 
   private Date[] dates;
+
   private int idx = 0;
+
+  /** If true, start over with idx = 0 after we used the last date */
+  private boolean repeat = false;
 
 
   /**
@@ -32,7 +36,7 @@ public class FixDateProvider implements ICurrentDateProvider {
    * 
    * @param dates
    */
-  public FixDateProvider(Date... dates) {
+  private FixDateProvider(Date... dates) {
     this.dates = dates;
   }
 
@@ -45,7 +49,35 @@ public class FixDateProvider implements ICurrentDateProvider {
    */
   @Override
   public Date getCurrentDate() {
+    startOverIfDesiredAndAtEnd();
+
     return dates[idx++];
+  }
+
+  /**
+   * Reset the index to 0 if repeat is set to true and we have reached the end
+   * of the array.
+   */
+  private void startOverIfDesiredAndAtEnd() {
+    if (repeat && idx == dates.length) {
+      idx = 0;
+    }
+  }
+
+  /**
+   * 
+   * @param dates
+   * @return a {@link FixDateProvider} that starts over with the first date
+   *         after the last date was returned.
+   */
+  public static ICurrentDateProvider repeat(Date... dates) {
+
+    final FixDateProvider repeatingProvider = new FixDateProvider(dates);
+
+    repeatingProvider.repeat = true;
+
+    return repeatingProvider;
+
   }
 
 }
