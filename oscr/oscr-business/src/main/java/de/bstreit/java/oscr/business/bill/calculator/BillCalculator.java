@@ -1,36 +1,37 @@
-package de.bstreit.java.oscr.business.bill;
+package de.bstreit.java.oscr.business.bill.calculator;
 
 import java.math.BigDecimal;
-import java.util.Collection;
 import java.util.Currency;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Named;
+
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 
 import de.bstreit.java.oscr.business.base.finance.money.Money;
 import de.bstreit.java.oscr.business.base.finance.tax.VATClass;
-import de.bstreit.java.oscr.business.base.finance.tax.dao.IVATClassRepository;
+import de.bstreit.java.oscr.business.bill.Bill;
+import de.bstreit.java.oscr.business.bill.BillItem;
+import de.bstreit.java.oscr.business.bill.IBillCalculator;
 import de.bstreit.java.oscr.business.taxation.IVATFinder;
-import de.bstreit.java.oscr.business.taxation.TaxInfo;
-import de.bstreit.java.oscr.business.taxation.dao.ITaxInfoRepository;
 
 @Named
-public class BillCalculator {
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+class BillCalculator implements IBillCalculator {
 
+  private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(BillCalculator.class);
   @Inject
   private Currency defaultCurrency;
-
-  @Inject
-  private ITaxInfoRepository taxInfoRepository;
-
-  @Inject
-  private IVATClassRepository vatClassRepository;
 
   @Inject
   private IVATFinder vatFinder;
@@ -40,15 +41,15 @@ public class BillCalculator {
   private BiMap<Character, VATClass> vatClassAbbreviations = HashBiMap.create();
 
   private Money ZERO;
-  private TaxInfo NON_FOOD;
-  private VATClass NORMAL_VAT;
 
+
+  BillCalculator() {
+
+  }
 
   @PostConstruct
   private void init() {
     ZERO = new Money(BigDecimal.ZERO, defaultCurrency);
-    NON_FOOD = taxInfoRepository.findByDenotationAndValidToIsNull("non-food");
-    NORMAL_VAT = vatClassRepository.findByDesignationAndValidToIsNull("Normaler Steuersatz");
   }
 
   /**
@@ -59,7 +60,7 @@ public class BillCalculator {
    * 
    * @param bill
    */
-  public void analyse(Bill bill) {
+  void analyse(Bill bill) {
     this.bill = bill;
 
     char currentChar = 'A';
@@ -78,13 +79,18 @@ public class BillCalculator {
 
   }
 
-  public void freeResults() {
+  @PreDestroy
+  @Override
+  public void close() {
+    logger.debug("closing bill calculator");
+
     this.bill = null;
     vatClassAbbreviations.clear();
     billItemsVatClassesAbbreviated.clear();
     // TODO: clear cache if there is any
   }
 
+  @Override
   public Money getTotalGross() {
     Money total = ZERO;
 
@@ -96,6 +102,7 @@ public class BillCalculator {
     return total;
   }
 
+  @Override
   public Money getTotalNetFor(VATClass vatClass) {
     Money total = ZERO;
 
@@ -110,6 +117,7 @@ public class BillCalculator {
     return total;
   }
 
+  @Override
   public Money getTotalGrossFor(VATClass vatClass) {
     Money total = ZERO;
 
@@ -122,7 +130,16 @@ public class BillCalculator {
     return total;
   }
 
+  @Override
+  public Money getTotalVATFor(VATClass vatClass) {
 
+    final Money totalGross = getTotalGrossFor(vatClass);
+    final Money totalNet = getTotalNetFor(vatClass);
+
+    return totalGross.subtract(totalNet);
+  }
+
+  @Override
   public Money getNetFor(BillItem billItem) {
     if (!bill.getBillItems().contains(billItem)) {
       throw new RuntimeException("billItem not contained in bill!");
@@ -138,15 +155,21 @@ public class BillCalculator {
   // return vatClassAbbreviations.get(abbreviation);
   // }
 
+  @Override
   public String getVATClassAbbreviationFor(BillItem billItem) {
     return billItemsVatClassesAbbreviated.get(billItem).toString();
   }
 
-  public String getAbbreviationFor(VATClass vatClass) {
-    return vatClassAbbreviations.inverse().get(vatClass).toString();
+
+  @Override
+  public VATClass getVATClassForAbbreviation(Character abbreviation) {
+    return vatClassAbbreviations.get(abbreviation);
   }
 
-  public Collection<VATClass> allFoundVATClasses() {
-    return vatClassAbbreviations.values();
+  @Override
+  public SortedSet<Character> allFoundVATClassesAbbreviated() {
+    return new TreeSet<Character>(vatClassAbbreviations.keySet());
   }
+
+
 }

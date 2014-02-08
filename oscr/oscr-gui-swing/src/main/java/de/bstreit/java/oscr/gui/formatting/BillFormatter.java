@@ -1,7 +1,6 @@
 package de.bstreit.java.oscr.gui.formatting;
 
 import java.text.DateFormat;
-import java.text.NumberFormat;
 import java.util.Date;
 import java.util.Locale;
 
@@ -9,17 +8,17 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.text.StrBuilder;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.google.common.base.Strings;
 
 import de.bstreit.java.oscr.business.base.finance.money.Money;
 import de.bstreit.java.oscr.business.base.finance.tax.VATClass;
-import de.bstreit.java.oscr.business.base.finance.tax.dao.IVATClassRepository;
 import de.bstreit.java.oscr.business.bill.Bill;
-import de.bstreit.java.oscr.business.bill.BillCalculator;
 import de.bstreit.java.oscr.business.bill.BillItem;
+import de.bstreit.java.oscr.business.bill.IBillCalculator;
+import de.bstreit.java.oscr.business.bill.IBillCalculatorFactory;
 
 /**
  * Format a bill for textual representation
@@ -37,26 +36,23 @@ public class BillFormatter {
   private static final int MAX_PRODUCT_COLUMN_LENGTH = 20;
 
   @Inject
-  private BillCalculator billCalculator;
+  private IBillCalculatorFactory billCalculatorFactory;
 
-  @Inject
-  private IVATClassRepository vatClassRepository;
 
   @Inject
   private Locale locale;
 
   private BillItemWrapper billItemWrapper;
   private MoneyFormatter moneyFormatter = new MoneyFormatter();
-  private NumberFormat vatRateFormatter;
   private DateFormat dateFormat;
 
   private transient Bill _bill;
-  private transient StringBuilder _builder;
+  private transient StrBuilder _builder;
+  private transient IBillCalculator billCalculator;
 
 
   @PostConstruct
   private void init() {
-    vatRateFormatter = NumberFormat.getNumberInstance(locale);
     dateFormat = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.SHORT, locale);
     billItemWrapper = new BillItemWrapper(MAX_PRODUCT_COLUMN_LENGTH, NEWLINE);
   }
@@ -68,20 +64,20 @@ public class BillFormatter {
 
     this._bill = bill;
 
-    try {
+    try (IBillCalculator billCalculator = billCalculatorFactory.create(bill)) {
+      this.billCalculator = billCalculator;
+
       return getBillAsText();
 
     } finally {
       this._bill = null;
       this._builder = null;
-      billCalculator.freeResults();
     }
   }
 
   private String getBillAsText() {
-    _builder = new StringBuilder();
+    _builder = new StrBuilder();
 
-    billCalculator.analyse(_bill);
 
     appendBillHeader();
     appendBillContent();
@@ -99,8 +95,8 @@ public class BillFormatter {
 
     // Is "+" worse or better than creating another stringbuilder?
     _builder.insert(0, "Rechnung                    " + dateFormat.format(datum) + NEWLINE //
-        + StringUtils.repeat("=", MAX_LINE_LENGTH) + NEWLINE //
-        + "                     Mwst.  netto     brutto" + NEWLINE);
+        + createHR("=") + NEWLINE //
+        + "                     Mwst.  netto*    brutto" + NEWLINE);
   }
 
   private int appendBillContent() {
@@ -154,15 +150,13 @@ public class BillFormatter {
   }
 
 
-  // private String getVATRateFormatted(BillItem billItem) {
-  // final BigDecimal vatRate =
-  // billCalculator.getVATClassFor(billItem).getRate();
-  // final String vatRateFormatted = vatRateFormatter.format(vatRate);
-  // return vatRateFormatted;
-  // }
-
-
   private void appendBillFooter() {
+    appendTotal();
+    appendVATInfo();
+    appendRoundedNetAndVATValuesInfo();
+  }
+
+  private void appendTotal() {
     final String totalGross = moneyFormatter.format(billCalculator.getTotalGross());
 
     // TODO check that secondColumnLength + len(Gesamtsumme:) <= maxLineLength!
@@ -173,18 +167,23 @@ public class BillFormatter {
         + secondColumnLength + "s"
         + NEWLINE;
 
-    _builder.append(Strings.repeat("-", MAX_LINE_LENGTH)).append(NEWLINE);
+    _builder.append(createHR("-")).append(NEWLINE);
     _builder.append(String.format(formatString, "Gesamtsumme (brutto):", totalGross));
-    _builder.append(Strings.repeat("=", MAX_LINE_LENGTH)).append(NEWLINE).append(NEWLINE);
-    /*
-     * A - Normaler Steuersatz (19%) netto 10,87 € Mwst. 2,06 € brutto 12,93 €
-     */
+    _builder.append(createHR("=")).append(NEWLINE).append(NEWLINE);
+  }
 
-    for (VATClass vatClass : billCalculator.allFoundVATClasses()) {
+  private String createHR(String symbol) {
+    return Strings.repeat(symbol, MAX_LINE_LENGTH);
+  }
+
+  private void appendVATInfo() {
+
+    for (Character abbreviation : billCalculator.allFoundVATClassesAbbreviated()) {
+
+      final VATClass vatClass = billCalculator.getVATClassForAbbreviation(abbreviation);
       final Money totalNetForVATClass = billCalculator.getTotalNetFor(vatClass);
+      final Money totalVATForVATClass = billCalculator.getTotalVATFor(vatClass);
       final Money totalGrossForVATClass = billCalculator.getTotalGrossFor(vatClass);
-      final String abbreviation = billCalculator.getAbbreviationFor(vatClass);
-
 
       _builder
           .append(abbreviation)
@@ -194,16 +193,25 @@ public class BillFormatter {
           .append(vatClass.getRate())
           .append("%)")
           .append(NEWLINE)
-          .append("   netto  ")
+          .append("      netto* ")
           .append(String.format("%8s", moneyFormatter.format(totalNetForVATClass)))
           .append(NEWLINE)
-          .append("   Mwst.  ")
+          .append("      Mwst.* ")
           .append(
-              String.format("%8s", moneyFormatter.format(totalGrossForVATClass.subtract(totalNetForVATClass))))
+              String.format("%8s", moneyFormatter.format(totalVATForVATClass)))
           .append(NEWLINE)
-          .append("   brutto ").append(String.format("%8s", moneyFormatter.format(totalGrossForVATClass)))
+          .append("      brutto ").append(String.format("%8s", moneyFormatter.format(totalGrossForVATClass)))
+          .append(NEWLINE)
           .append(NEWLINE);
+
     }
 
   }
+
+  private void appendRoundedNetAndVATValuesInfo() {
+    _builder
+        .append("* gerundete Beträge")
+        .append(NEWLINE);
+  }
+
 }
