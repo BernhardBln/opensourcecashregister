@@ -3,7 +3,7 @@ package de.bstreit.java.oscr.gui.swing;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
-import de.bstreit.java.oscr.SpringConfiguration;
+import de.bstreit.java.oscr.SpringConfigurationDoesComponentScan;
 
 
 public class SwingStarter {
@@ -19,7 +19,7 @@ public class SwingStarter {
 
 
   private static ConfigurableApplicationContext getContext() {
-    return new AnnotationConfigApplicationContext(SpringConfiguration.class);
+    return new AnnotationConfigApplicationContext(SpringConfigurationDoesComponentScan.class);
   }
 
 }
