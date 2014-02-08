@@ -1,4 +1,4 @@
-package de.bstreit.java.oscr.gui.formatting;
+package de.bstreit.java.oscr.testutils;
 
 import java.util.Date;
 
