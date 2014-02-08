@@ -144,8 +144,15 @@ public class BillService {
    */
   public void setVariationOffer(VariationOffer variationOffer) {
     final String errorMessage = "Cannot set variation '" + variationOffer + "' - no bill available!";
+
     assertCurrentBillNotNull(errorMessage);
     assertCurrentBillNotEmpty(errorMessage);
+
+    checkNotNull(variationOffer);
+
+    if (variationOffer.equals(lastAddedItem.getVariationOffer())) {
+      return;
+    }
 
     lastAddedItem.setVariationOffer(variationOffer);
     saveBill();
@@ -192,8 +199,13 @@ public class BillService {
     // At the moment, we only support one tax info, might change in the future
     assertCurrentBillNotNull("Cannot set tax info - no bill available");
     checkNotNull(taxInfo);
+
+    if (taxInfo.equals(currentBill.getGlobalTaxInfo())) {
+      return;
+    }
+
     currentBill.setGlobalTaxInfo(taxInfo);
+
     fireBillChangedEvent();
   }
-
 }

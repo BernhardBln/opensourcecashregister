@@ -65,6 +65,11 @@ public class BillItem extends AbstractPersistentObject {
 
   }
 
+  VariationOffer getVariationOffer() {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
   /**
    * @param extraOffer
    */
