@@ -16,8 +16,6 @@ import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTextPane;
 import javax.swing.JToggleButton;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -140,9 +138,10 @@ public class MainWindow implements IBillDisplay {
     controlButtonsPanel.add(payButton);
 
     final JToggleButton btnToGo = new JToggleButton("To go");
-    btnToGo.addChangeListener(new ChangeListener() {
+    btnToGo.addActionListener(new ActionListener() {
 
-      public void stateChanged(ChangeEvent e) {
+      @Override
+      public void actionPerformed(ActionEvent e) {
         appController.setBillToGo(btnToGo.isSelected());
       }
     });
