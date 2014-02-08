@@ -60,7 +60,7 @@ public class BillItem extends AbstractPersistentObject {
   /**
    * @param variationOffer
    */
-  public void setVariationOffer(VariationOffer variationOffer) {
+  void setVariationOffer(VariationOffer variationOffer) {
     // TODO Auto-generated method stub
 
   }
@@ -68,7 +68,7 @@ public class BillItem extends AbstractPersistentObject {
   /**
    * @param extraOffer
    */
-  public void addExtraOffer(ExtraOffer extraOffer) {
+  void addExtraOffer(ExtraOffer extraOffer) {
     // TODO Auto-generated method stub
 
   }
