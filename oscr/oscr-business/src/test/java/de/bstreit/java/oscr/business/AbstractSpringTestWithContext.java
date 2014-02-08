@@ -30,15 +30,12 @@ import javax.inject.Inject;
 
 import org.junit.runner.RunWith;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import de.bstreit.java.oscr.SpringConfigurationDoesComponentScan;
-import de.bstreit.java.oscr.business.taxation.TaxInfo;
-import de.bstreit.java.oscr.business.taxation.dao.ITaxInfoRepository;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { SpringConfigurationDoesComponentScan.class })
@@ -49,10 +46,5 @@ public abstract class AbstractSpringTestWithContext {
   @Inject
   protected ConfigurableApplicationContext context;
 
-
-  @Bean
-  protected TaxInfo getDefaultGlobalTaxInfoForNewBills(ITaxInfoRepository taxInfoRepository) {
-    return taxInfoRepository.findByDenotationAndValidToIsNull("in-house");
-  }
 
 }
