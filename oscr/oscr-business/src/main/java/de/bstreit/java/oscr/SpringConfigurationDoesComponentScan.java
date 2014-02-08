@@ -60,7 +60,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @ComponentScan
 @EnableJpaRepositories
 @EnableTransactionManagement
-public class SpringConfiguration {
+public class SpringConfigurationDoesComponentScan {
 
   @Inject
   private Database database;
@@ -108,7 +108,12 @@ public class SpringConfiguration {
    */
   @Bean
   public Currency getDefaultCurrency() {
-    return Currency.getInstance(Locale.getDefault());
+    return Currency.getInstance(getLocale());
+  }
+
+  @Bean
+  public Locale getLocale() {
+    return Locale.getDefault();
   }
 
 }
