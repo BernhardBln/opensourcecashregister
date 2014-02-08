@@ -88,8 +88,10 @@ public class BillService {
    * available.
    * 
    * @param productOffer
+   * @return the bill item which was created and added to the bill with the
+   *         given offer
    */
-  public void addProductOffer(ProductOffer productOffer) {
+  public BillItem addProductOffer(ProductOffer productOffer) {
     initBillIfEmpty();
 
     final BillItem billItem = new BillItem(productOffer);
@@ -102,6 +104,8 @@ public class BillService {
 
     // fire events after lastAddedItem was changed - just in case...
     fireBillChangedEvent();
+
+    return billItem;
   }
 
 
