@@ -174,11 +174,14 @@ public class BillFormatterTest {
 
   @Bean
   public ICurrentDateProvider getCurrentDateProvider() throws ParseException {
-    DateFormat df = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, getLocale());
+    final DateFormat df = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, getLocale());
+
     System.out.println(df.format(new Date()));
+
     final Date date1 = df.parse("31.01.2014 12:01:00");
     final Date date2 = df.parse("31.01.2014 12:05:00");
-    return new FixDateProvider(date1, date2);
+
+    return FixDateProvider.repeat(date1, date2);
   }
 
   @Bean
@@ -225,18 +228,24 @@ public class BillFormatterTest {
   @Bean
   public ITaxInfoRepository getMockedTaxInfoRepository() {
     final ITaxInfoRepository mock = mock(ITaxInfoRepository.class);
+
     when(mock.findByDenotationAndValidToIsNull("non-food")).thenReturn(NON_FOOD_TAX_INFO);
     when(mock.findByDenotationAndValidToIsNull("to go")).thenReturn(TO_GO_TAX_INFO);
+
     return mock;
   }
 
   @Bean
   public IVATClassRepository getMockedVATClassRepository() {
+
     final IVATClassRepository mock = mock(IVATClassRepository.class);
+
     when(mock.findByDesignationAndValidToIsNull("Normaler Steuersatz")).thenReturn(
         new VATClass("Normaler Steuersatz", new BigDecimal("19"), null, null));
+
     when(mock.findByDesignationAndValidToIsNull("Ermäßigter Steuersatz")).thenReturn(
         new VATClass("Ermäßigter Steuersatz", new BigDecimal("7"), null, null));
+
     return mock;
   }
 
