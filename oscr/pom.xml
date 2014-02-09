@@ -20,18 +20,29 @@
 
 
 	<properties>
+		<!-- General -->
 		<java.version>1.7</java.version>
 
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
+		<!-- Dependencies -->
 		<javax-inject.version>1</javax-inject.version>
 		<guava.version>15.0</guava.version>
 		<commons-lang3.version>3.1</commons-lang3.version>
 
+		<!-- Test Dependencies -->
 		<mockito-all.version>1.9.5</mockito-all.version>
 
+		<!-- Maven Plugins -->
 		<maven-jgitflow-plugin.version>1.0-alpha21.1</maven-jgitflow-plugin.version>
+
+		<maven-checkstyle-plugin.version>2.11</maven-checkstyle-plugin.version>
+		<findbugs-maven-plugin.version>2.5.3</findbugs-maven-plugin.version>
+
+		<dashboard-maven-plugin.version>1.0.0-beta-1</dashboard-maven-plugin.version>
+		<maven-project-info-reports-plugin.version>2.7</maven-project-info-reports-plugin.version>
+
 	</properties>
 
 
@@ -91,8 +102,17 @@
 				<enabled>false</enabled>
 			</snapshots>
 		</repository>
+
 	</repositories>
 
+
+	<pluginRepositories>
+		<pluginRepository>
+			<!-- For maven dashboard plugin -->
+			<id>Codehaus repository</id>
+			<url>http://repository.codehaus.org/</url>
+		</pluginRepository>
+	</pluginRepositories>
 
 	<build>
 		<plugins>
@@ -108,6 +128,54 @@
 
 		</plugins>
 	</build>
+
+	<reporting>
+
+		<plugins>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+				<version>${maven-checkstyle-plugin.version}</version>
+				<reportSets>
+					<reportSet>
+						<reports>
+							<report>checkstyle</report>
+						</reports>
+					</reportSet>
+				</reportSets>
+			</plugin>
+
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>findbugs-maven-plugin</artifactId>
+				<version>${findbugs-maven-plugin.version}</version>
+			</plugin>
+
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-project-info-reports-plugin</artifactId>
+				<version>${maven-project-info-reports-plugin.version}</version>
+				<configuration>
+					<!-- To prevent checking for local jars in remote repos -->
+					<dependencyDetailsEnabled>false</dependencyDetailsEnabled>
+					<dependencyLocationsEnabled>false</dependencyLocationsEnabled>
+				</configuration>
+			</plugin>
+
+			<!-- This MUST be the last plugin! -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>dashboard-maven-plugin</artifactId>
+				<version>${dashboard-maven-plugin.version}</version>
+			</plugin>
+
+			<!-- Do NOT add anything here, but before the dashboard-maven-plugin! -->
+
+		</plugins>
+
+	</reporting>
 
 
 </project>
