@@ -19,6 +19,7 @@ import de.bstreit.java.oscr.business.bill.Bill;
 import de.bstreit.java.oscr.business.bill.BillItem;
 import de.bstreit.java.oscr.business.bill.IBillCalculator;
 import de.bstreit.java.oscr.business.bill.IBillCalculatorFactory;
+import de.bstreit.java.oscr.business.taxation.TaxInfo;
 
 /**
  * Format a bill for textual representation
@@ -38,9 +39,12 @@ public class BillFormatter {
   @Inject
   private IBillCalculatorFactory billCalculatorFactory;
 
-
   @Inject
   private Locale locale;
+
+  @Inject
+  @Named("togoTaxInfo")
+  private TaxInfo toGoTaxinfo;
 
   private BillItemWrapper billItemWrapper;
   private MoneyFormatter moneyFormatter = new MoneyFormatter();
@@ -96,7 +100,16 @@ public class BillFormatter {
     // Is "+" worse or better than creating another stringbuilder?
     _builder.insert(0, "Rechnung                    " + dateFormat.format(datum) + NEWLINE //
         + createHR("=") + NEWLINE //
+        + taxInformationIfApplies()
         + "                     Mwst.  netto*    brutto" + NEWLINE);
+  }
+
+  private String taxInformationIfApplies() {
+    if (!_bill.getGlobalTaxInfo().equals(toGoTaxinfo)) {
+      return "";
+    }
+
+    return "Außer-Haus-Verzehr" + NEWLINE;
   }
 
   private int appendBillContent() {

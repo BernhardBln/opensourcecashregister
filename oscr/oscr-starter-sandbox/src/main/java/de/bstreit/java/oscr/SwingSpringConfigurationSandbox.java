@@ -33,10 +33,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.jpa.vendor.Database;
 
-import de.bstreit.java.oscr.business.taxation.TaxInfo;
-import de.bstreit.java.oscr.business.taxation.dao.ITaxInfoRepository;
-import de.bstreit.java.oscr.initialdata.initialdata.TaxInfos;
-
 /**
  * Configuration with file-based H2 database. Can be used to start the
  * application while developing.
@@ -57,8 +53,4 @@ public class SwingSpringConfigurationSandbox {
     return Database.H2;
   }
 
-  @Bean
-  protected TaxInfo getDefaultGlobalTaxInfoForNewBills(ITaxInfoRepository taxInfoRepository) {
-    return taxInfoRepository.findByDenotationAndValidToIsNull(TaxInfos.IN_HOUSE.getDenotation());
-  }
 }

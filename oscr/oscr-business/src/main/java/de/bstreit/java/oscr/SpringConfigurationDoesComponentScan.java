@@ -44,6 +44,9 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import de.bstreit.java.oscr.business.taxation.TaxInfo;
+import de.bstreit.java.oscr.business.taxation.dao.ITaxInfoRepository;
+
 /**
  * <p>
  * Spring configuration. Append your own configuration by placing a
@@ -114,6 +117,17 @@ public class SpringConfigurationDoesComponentScan {
   @Bean
   public Locale getLocale() {
     return Locale.getDefault();
+  }
+
+  @Bean(name = "togoTaxInfo")
+  public TaxInfo togoTaxInfo(ITaxInfoRepository taxInfoRepository) {
+    return taxInfoRepository.findByDenotationAndValidToIsNull("to go");
+  }
+
+
+  @Bean(name = "defaultGlobalTaxInfoForNewBills")
+  protected TaxInfo getDefaultGlobalTaxInfoForNewBills(ITaxInfoRepository taxInfoRepository) {
+    return taxInfoRepository.findByDenotationAndValidToIsNull("inhouse");
   }
 
 }

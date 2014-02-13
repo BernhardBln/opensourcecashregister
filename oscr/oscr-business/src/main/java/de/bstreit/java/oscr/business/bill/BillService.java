@@ -61,6 +61,7 @@ public class BillService {
   private IUserService userProvider;
 
   @Inject
+  @Named("defaultGlobalTaxInfoForNewBills")
   private TaxInfo defaultTaxInfoForNewBills;
 
   @Inject

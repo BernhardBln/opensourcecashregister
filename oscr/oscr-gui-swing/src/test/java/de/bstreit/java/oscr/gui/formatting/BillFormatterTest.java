@@ -30,10 +30,10 @@ import de.bstreit.java.oscr.testutils.business.bill.MakeBillServiceUsableInJUnit
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { BillFormatterTest_SimpleBill.class })
+@ContextConfiguration(classes = { BillFormatterTest.class })
 @Import(MakeBillServiceUsableInJUnitTest.class)
 @Configuration
-public class BillFormatterTest_SimpleBill {
+public class BillFormatterTest {
 
   private static final TaxInfo NON_FOOD_TAX_INFO = new TaxInfo("non-food", null, null);
   private static final TaxInfo TO_GO_TAX_INFO = new TaxInfo("to go", null, null);
@@ -69,6 +69,10 @@ public class BillFormatterTest_SimpleBill {
     return new JUnitBillCalculatorFactory();
   }
 
+  @Bean(name = "togoTaxInfo")
+  public TaxInfo togoTaxInfo() {
+    return TO_GO_TAX_INFO;
+  }
 
   @Before
   public void createBill() {
@@ -150,6 +154,7 @@ public class BillFormatterTest_SimpleBill {
     final String expectedOutput = "" + //
         "Rechnung                    31.01.2014 12:05" + NEWLINE +
         "============================================" + NEWLINE +
+        "Außer-Haus-Verzehr" + NEWLINE +
         "                     Mwst.  netto*    brutto" + NEWLINE +
         "Espresso               A    1,00 €    1,07 €" + NEWLINE +
         "Cappuccino             A    2,22 €    2,38 €" + NEWLINE +
