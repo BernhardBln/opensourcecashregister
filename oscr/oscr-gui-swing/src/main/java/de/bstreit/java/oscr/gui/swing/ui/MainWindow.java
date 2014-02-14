@@ -6,6 +6,7 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Collection;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -46,6 +47,9 @@ public class MainWindow implements IBillDisplay {
 
   private JTextPane billView;
 
+  private JPanel mainPanel;
+  private JPanel drinksPanel;
+
 
   @Override
   public void printBill(String billAsText) {
@@ -67,64 +71,31 @@ public class MainWindow implements IBillDisplay {
     billView.setPreferredSize(new Dimension(6, 150));
     splitPane.setLeftComponent(billView);
 
-    JPanel panel = new JPanel();
-    splitPane.setRightComponent(panel);
-    panel.setLayout(new BorderLayout(0, 0));
+    mainPanel = new JPanel();
 
-    JPanel drinksPanel = new JPanel();
-    panel.add(drinksPanel);
-    drinksPanel.setLayout(new GridLayout(3, 5, 3, 3));
+    splitPane.setRightComponent(mainPanel);
+    mainPanel.setLayout(new BorderLayout(0, 0));
 
-    JButton button = new JButton("Single Espresso");
-    // get sample product - remove later!
-    final ProductOffer espressoOffer = productOfferRep.findActiveOfferByProductName("Espresso");
-    button.addActionListener(new ActionListener() {
+    buildMainPanel();
 
-      public void actionPerformed(ActionEvent e) {
-        appController.addToBill(espressoOffer);
-      }
-    });
-    button.setMinimumSize(new Dimension(0, 40));
-    drinksPanel.add(button);
+    return splitPane;
+  }
 
-    JButton button_1 = new JButton("Double Espresso");
-    button_1.setMinimumSize(new Dimension(0, 40));
-    drinksPanel.add(button_1);
+  private void buildMainPanel() {
+    mainPanel.removeAll();
 
+    buildAndAddDrinksPanelToMainPanel();
+    buildAndAddControlButtonsPanelToMainPanel();
 
-    // get sample product - remove later!
-    final ProductOffer cappuOffer = productOfferRep.findActiveOfferByProductName("Cappuccino");
-    JButton button_2 = new JButton("Single Cappuccino");
-    button_2.addActionListener(new ActionListener() {
+    mainPanel.validate();
+  }
 
-      public void actionPerformed(ActionEvent e) {
-        appController.addToBill(cappuOffer);
-      }
-    });
-    button_2.setMinimumSize(new Dimension(0, 40));
-    drinksPanel.add(button_2);
-
-    JButton button_3 = new JButton("Double Cappuccino");
-    final ProductOffer hario = productOfferRep.findActiveOfferByProductName("Hario V60 Papierfilter 01 weiß");
-    button_3.addActionListener(new ActionListener() {
-
-      public void actionPerformed(ActionEvent e) {
-        appController.addToBill(hario);
-      }
-    });
-    button_3.setMinimumSize(new Dimension(0, 40));
-    drinksPanel.add(button_3);
-
-    JButton button_4 = new JButton("Latte");
-    button_4.setMinimumSize(new Dimension(0, 40));
-    drinksPanel.add(button_4);
-
-    JButton button_5 = new JButton("Flat White");
-    button_5.setMinimumSize(new Dimension(0, 40));
-    drinksPanel.add(button_5);
-
+  /**
+   * 
+   */
+  private void buildAndAddControlButtonsPanelToMainPanel() {
     JPanel controlButtonsPanel = new JPanel();
-    panel.add(controlButtonsPanel, BorderLayout.EAST);
+    mainPanel.add(controlButtonsPanel, BorderLayout.EAST);
     controlButtonsPanel.setLayout(new GridLayout(3, 1, 0, 0));
 
     JButton payButton = new JButton("Pay");
@@ -151,14 +122,42 @@ public class MainWindow implements IBillDisplay {
     JButton btnKassenstand = new JButton("Balance");
     btnKassenstand.setMinimumSize(new Dimension(0, 40));
     controlButtonsPanel.add(btnKassenstand);
+  }
 
-    return splitPane;
+  /**
+   * 
+   */
+  private void buildAndAddDrinksPanelToMainPanel() {
+    drinksPanel = new JPanel();
+    mainPanel.add(drinksPanel);
+    drinksPanel.setLayout(new GridLayout(3, 5, 3, 3));
+
+    // get sample product - remove later!
+    final Collection<ProductOffer> allOffers = productOfferRep.findAllActiveOffers();
+
+    for (ProductOffer offer : allOffers) {
+      createAndAddProductOfferButton(offer);
+    }
+
+  }
+
+  private void createAndAddProductOfferButton(final ProductOffer productOffer) {
+    JButton button = new JButton(productOffer.getLabel());
+    button.addActionListener(new ActionListener() {
+
+      public void actionPerformed(ActionEvent e) {
+        appController.addToBill(productOffer);
+      }
+    });
+    button.setMinimumSize(new Dimension(0, 40));
+    drinksPanel.add(button);
   }
 
   public void show() {
     jFrame = new JFrame();
     jFrame.setBounds(100, 100, 757, 555);
     jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    jFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 
     // if child of abstractview, use getPanel!
     if (AbstractView.class.isAssignableFrom(getClass())) {

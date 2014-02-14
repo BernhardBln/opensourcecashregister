@@ -97,7 +97,8 @@ public abstract class AbstractOffer<OFFERED_ITEM extends AbstractSalesItem> exte
   }
 
   public String getLabel() {
-    return offeredItem.getLabel() + "<BR>" + getPriceGross().toString();
+    return "<html><center>" + offeredItem.getLabel() + "<BR>" + getPriceGross().toString()
+        + "</center></html>";
   }
 
   @Override
