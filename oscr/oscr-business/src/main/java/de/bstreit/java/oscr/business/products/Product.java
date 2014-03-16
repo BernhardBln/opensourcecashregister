@@ -77,7 +77,7 @@ public class Product extends AbstractSalesItem {
 
     String containerSizeStr = "";
     if (containerSize != null) {
-      containerSizeStr = "<BR><BR>[" + containerSize.getSize() + "]<BR>";
+      containerSizeStr = "<BR>[" + containerSize.getSize() + "]<BR>";
     }
 
     return name + containerSizeStr;
