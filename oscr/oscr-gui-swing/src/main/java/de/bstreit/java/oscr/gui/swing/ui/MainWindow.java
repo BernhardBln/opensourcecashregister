@@ -6,6 +6,8 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.util.Collection;
 
 import javax.inject.Inject;
@@ -14,6 +16,7 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextPane;
 import javax.swing.JToggleButton;
@@ -50,6 +53,9 @@ public class MainWindow implements IBillDisplay {
   private JPanel mainPanel;
   private JPanel drinksPanel;
 
+  private JToggleButton btnToGo;
+  private JScrollPane scrollPane;
+
 
   @Override
   public void printBill(String billAsText) {
@@ -69,9 +75,19 @@ public class MainWindow implements IBillDisplay {
     billView = new JTextPane();
     billView.setFont(new Font("Courier New", Font.PLAIN, 12));
     billView.setPreferredSize(new Dimension(6, 150));
-    splitPane.setLeftComponent(billView);
+
+    scrollPane = new JScrollPane(billView);
+    splitPane.setLeftComponent(scrollPane);
 
     mainPanel = new JPanel();
+    mainPanel.setPreferredSize(new Dimension(10, 340));
+    mainPanel.addComponentListener(new ComponentAdapter() {
+
+      @Override
+      public void componentResized(ComponentEvent e) {
+        System.out.println(mainPanel.getSize());
+      }
+    });
 
     splitPane.setRightComponent(mainPanel);
     mainPanel.setLayout(new BorderLayout(0, 0));
@@ -108,7 +124,7 @@ public class MainWindow implements IBillDisplay {
     payButton.setMinimumSize(new Dimension(0, 40));
     controlButtonsPanel.add(payButton);
 
-    final JToggleButton btnToGo = new JToggleButton("To go");
+    btnToGo = new JToggleButton("To go");
     btnToGo.addActionListener(new ActionListener() {
 
       @Override
@@ -128,6 +144,7 @@ public class MainWindow implements IBillDisplay {
    * 
    */
   private void buildAndAddDrinksPanelToMainPanel() {
+
     drinksPanel = new JPanel();
     mainPanel.add(drinksPanel);
     drinksPanel.setLayout(new GridLayout(3, 5, 3, 3));
@@ -169,5 +186,13 @@ public class MainWindow implements IBillDisplay {
     jFrame.setVisible(true);
   }
 
+  @Override
+  public void resetGui() {
+    resetToggleButtons();
+  }
+
+  private void resetToggleButtons() {
+    btnToGo.setSelected(false);
+  }
 
 }

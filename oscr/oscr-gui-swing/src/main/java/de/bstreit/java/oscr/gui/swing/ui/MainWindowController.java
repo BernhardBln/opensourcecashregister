@@ -56,6 +56,7 @@ public class MainWindowController implements IBillChangedListener {
 
   public void closeBill() {
     billService.closeBill();
+    billDisplay.resetGui();
   }
 
 
