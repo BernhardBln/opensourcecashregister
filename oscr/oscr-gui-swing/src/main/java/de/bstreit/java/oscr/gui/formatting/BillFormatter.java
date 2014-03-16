@@ -105,11 +105,16 @@ public class BillFormatter {
   }
 
   private String taxInformationIfApplies() {
-    if (!_bill.getGlobalTaxInfo().equals(toGoTaxinfo)) {
-      return "";
+
+    final boolean isToGo = _bill.getGlobalTaxInfo().equals(toGoTaxinfo);
+
+    if (isToGo) {
+      return "  To go" + NEWLINE;
+    }
+    else {
+      return "  In-house" + NEWLINE;
     }
 
-    return "Außer-Haus-Verzehr" + NEWLINE;
   }
 
   private int appendBillContent() {
