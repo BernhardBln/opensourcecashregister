@@ -80,9 +80,12 @@ public class DataStorageTest extends AbstractSpringTestWithContext {
     Assert.assertTrue(offers.contains(ProductOffers.CAPPUCCINO));
     Assert.assertTrue(offers.contains(ProductOffers.LATTE_MACCHIATO));
 
-    Assert.assertEquals("Espresso<BR>Cup 100 ml<BR>1,00 €", offers.get(0).getLabel());
-    Assert.assertEquals("Cappuccino<BR>Cup 200 ml<BR>1,80 €", offers.get(1).getLabel());
-    Assert.assertEquals("Latte Macchiato<BR>Cup 200 ml<BR>2,30 €", offers.get(2).getLabel());
+    Assert.assertEquals("<html><center>Espresso<BR>[Cup 100 ml]<BR><BR>1,00 €</center></html>", offers.get(0)
+        .getLabel());
+    Assert.assertEquals("<html><center>Cappuccino<BR>[Cup 200 ml]<BR><BR>1,80 €</center></html>",
+        offers.get(1).getLabel());
+    Assert.assertEquals("<html><center>Latte Macchiato<BR>[Cup 200 ml]<BR><BR>2,30 €</center></html>", offers
+        .get(2).getLabel());
   }
 
 
