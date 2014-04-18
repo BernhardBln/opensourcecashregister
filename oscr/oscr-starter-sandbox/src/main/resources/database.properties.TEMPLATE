@@ -2,9 +2,10 @@
 # Then edit the copy. The copy is ignored by git.
 
 # allowed types: DEFAULT, DB2, DERBY, H2, HSQL, INFORMIX, MYSQL, ORACLE, POSTGRESQL, SQL_SERVER, SYBASE
-type=MYSQL
+database.type=MYSQL
 
-url=jdbc:mysql://localhost/cashregister
 
-username=
-password=
+database.url=jdbc:mysql://localhost/cashregister
+
+database.username=
+database.password=
