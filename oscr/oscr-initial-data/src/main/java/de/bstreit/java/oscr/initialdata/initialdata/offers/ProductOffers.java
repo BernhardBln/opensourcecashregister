@@ -42,59 +42,61 @@ import de.bstreit.java.oscr.initialdata.initialdata.products.Products;
 @Named
 public class ProductOffers extends AbstractDataContainer<ProductOffer> {
 
-  public static final ProductOffer ESPRESSO = addProductOffer(Products.ESPRESSO, new Money("1.07", "EUR"));
+  public static final ProductOffer ESPRESSO = addProductOffer(Products.ESPRESSO, new Money("1.30", "EUR"));
   public static final ProductOffer DOUBLE_ESPRESSO = addProductOffer(Products.DOUBLE_ESPRESSO, new Money(
-      "1.40", "EUR"));
+      "1.80", "EUR"));
+  public static final ProductOffer HarioCoffee = addProductOffer(Products.HarioCoffee, new Money("2.70", "EUR"));
+  public static final ProductOffer AeropressCoffee = addProductOffer(Products.AeropressCoffee, new Money(
+		  "2.70", "EUR"));
 
-  public static final ProductOffer AMERICANO = addProductOffer(Products.AMERICANO, new Money("1.40", "EUR"));
-  public static final ProductOffer DOUBLE_AMERICANO = addProductOffer(Products.DOUBLE_AMERICANO, new Money(
-      "1.70", "EUR"));
+  public static final ProductOffer AMERICANO = addProductOffer(Products.AMERICANO, new Money("1.90", "EUR"));
 
   public static final ProductOffer SINGLE_ESPRESSO_MACCHIATO = addProductOffer(
-      Products.SINGLE_ESPRESSO_MACCHIATO, new Money("1.40", "EUR"));
+      Products.SINGLE_ESPRESSO_MACCHIATO, new Money("1.50", "EUR"));
   public static final ProductOffer DOUBLE_ESPRESSO_MACCHIATO = addProductOffer(
       Products.DOUBLE_ESPRESSO_MACCHIATO, new Money("2.00", "EUR"));
 
-  public static final ProductOffer CAPPUCCINO = addProductOffer(Products.CAPPUCCINO, new Money("2.38",
+  public static final ProductOffer CAPPUCCINO = addProductOffer(Products.CAPPUCCINO, new Money("2.30",
       "EUR"));
   public static final ProductOffer DOUBLE_CAPPUCCINO = addProductOffer(Products.DOUBLE_CAPPUCCINO,
-      new Money("2.30", "EUR"));
+      new Money("3.10", "EUR"));
 
   public static final ProductOffer LATTE_MACCHIATO = addProductOffer(Products.LATTE_MACCHIATO, new Money(
-      "2.30", "EUR"));
-  public static final ProductOffer DOUBLE_LATTE_MACCHIATO = addProductOffer(
-      Products.DOUBLE_LATTE_MACCHIATO, new Money("2.80", "EUR"));
+      "3", "EUR"));
 
-  public static final ProductOffer KAKAO = addProductOffer(Products.KAKAO, new Money("2", "EUR"));
+  public static final ProductOffer KAKAO = addProductOffer(Products.KAKAO, new Money("3", "EUR"));
   public static final ProductOffer SINGLE_SCHOKO_CAPPUCCINO = addProductOffer(
-      Products.SINGLE_SCHOKO_CAPPUCCINO, new Money("2.60", "EUR"));
-  public static final ProductOffer DOUBLE_SCHOKO_CAPPUCCINO = addProductOffer(
-      Products.DOUBLE_SCHOKO_CAPPUCCINO, new Money("3.10", "EUR"));
+      Products.SINGLE_SCHOKO_CAPPUCCINO, new Money("4", "EUR"));
 
-  public static final ProductOffer VIETNAMESISCHER_EISKAFFEE = addProductOffer(
-      Products.VIETNAMESISCHER_EISKAFFEE, new Money("2.00", "EUR"));
-  public static final ProductOffer ICED_DOUBLE_ESPRESSO = addProductOffer(Products.ICED_DOUBLE_ESPRESSO,
-      new Money("1.50", "EUR"));
   public static final ProductOffer ICED_DOUBLE_CAPPUCCINO = addProductOffer(
-      Products.ICED_DOUBLE_CAPPUCCINO, new Money("1.70", "EUR"));
-  public static final ProductOffer ICED_COFFEE = addProductOffer(Products.ICED_COFFEE, new Money("1.90",
+      Products.ICED_DOUBLE_CAPPUCCINO, new Money("2.80", "EUR"));
+  public static final ProductOffer FLAT_WHITE= addProductOffer(Products.FLAT_WHITE, new Money("3.10",
       "EUR"));
-  public static final ProductOffer ICED_COFFEE_MIT_MILCH = addProductOffer(Products.ICED_COFFEE_MIT_MILCH,
-      new Money("2.20", "EUR"));
 
-  public static final ProductOffer MINT_TEA = addProductOffer(Products.MINT_TEA, new Money("1.40", "EUR"));
-  public static final ProductOffer BLACK_TEA = addProductOffer(Products.BLACK_TEA, new Money("1.60", "EUR"));
-  public static final ProductOffer WHITE_TEA = addProductOffer(Products.WHITE_TEA, new Money("2.30", "EUR"));
+  public static final ProductOffer MINT_TEA = addProductOffer(Products.MINT_TEA, new Money("1.80", "EUR"));
+  public static final ProductOffer LINDENBLUETEN = addProductOffer(Products.LINDENBLUETEN, new Money("1.90", "EUR"));
+  public static final ProductOffer WHITE_TEA = addProductOffer(Products.WHITE_TEA, new Money("2.60", "EUR"));
 
-  public static final ProductOffer HEISSE_BIO_ZITRONE = addProductOffer(Products.HEISSE_BIO_ZITRONE,
-      new Money("2.30", "EUR"));
 
-  public static final ProductOffer APFELSCHORLE = addProductOffer(Products.APFELSCHORLE, new Money("2.30",
+  public static final ProductOffer APFELSCHORLE = addProductOffer(Products.APFELSCHORLE, new Money("2.50",
       "EUR"));
-  public static final ProductOffer ICED_TEA = addProductOffer(Products.ICED_TEA, new Money("2.30", "EUR"));
+  public static final ProductOffer APFEL_KIRSCH_HOLUNDER = addProductOffer(Products.APFEL_KIRSCH_HOLUNDER, new Money("2.50",
+		  "EUR"));
+  public static final ProductOffer RHABARBERSCHORLE = addProductOffer(Products.RHABARBERSCHORLE, new Money("2.50",
+		  "EUR"));
+  public static final ProductOffer CHARITEA = addProductOffer(Products.CHARITEA, new Money("3",
+		  "EUR"));
+  public static final ProductOffer CLUB_MATE_COLA= addProductOffer(Products.CLUB_MATE, new Money("2.20",
+		  "EUR"));
 
-  public static final ProductOffer HARIO_V60_PAPER_FILTER_01_WHITE = addProductOffer(
-      Products.HARIO_V60_PAPER_FILTER_01_WHITE, new Money("7.10", "EUR"));
+  public static final ProductOffer BUTTER_CROISSANT= addProductOffer(Products.BUTTER_CROISSANT, new Money("1.90",
+		  "EUR"));
+  public static final ProductOffer FRENCH_BREAKFAST= addProductOffer(Products.FRENCH_BREAKFAST, new Money("2.50",
+		  "EUR"));
+  public static final ProductOffer CHEESE_BREAKFAST= addProductOffer(Products.CHEESE_BREAKFAST, new Money("3.20",
+		  "EUR"));
+  public static final ProductOffer VEGAN_BREAKFAST= addProductOffer(Products.VEGAN_BREAKFAST, new Money("3.50",
+		  "EUR"));
 
 
   private static ProductOffer addProductOffer(Product product, Money price) {
