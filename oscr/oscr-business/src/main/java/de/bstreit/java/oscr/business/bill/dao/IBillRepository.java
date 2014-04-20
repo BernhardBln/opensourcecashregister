@@ -27,10 +27,27 @@
 package de.bstreit.java.oscr.business.bill.dao;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
+import de.bstreit.java.oscr.business.base.finance.money.Money;
 import de.bstreit.java.oscr.business.bill.Bill;
 
 
 public interface IBillRepository extends JpaRepository<Bill, Long> {
 
+	@Query("SELECT"
+			+ " CURRENT_DATE as date,"
+			+ " SUM(total), "
+			+ " pricecurrency "
+			
+			+ "FROM"
+			+ " BILLS_SUMMED_UP"
+			
+			+ "WHERE"
+			+ " CAST(billclosed AS DATE) = CURRENT_DATE"
+			
+			+ "GROUP BY"
+			+ " pricecurrency")
+	Money totalOfToday();
+	
 }
