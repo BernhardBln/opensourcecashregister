@@ -48,7 +48,6 @@ import com.google.common.collect.ImmutableList;
 import de.bstreit.java.oscr.business.taxation.TaxInfo;
 import de.bstreit.java.oscr.business.user.User;
 
-
 /**
  * 
  * @author streit
@@ -56,136 +55,135 @@ import de.bstreit.java.oscr.business.user.User;
 @Entity
 public class Bill implements Iterable<BillItem> {
 
-  private static final TimeBasedGenerator timeBasedUuidGenerator;
+	private static final TimeBasedGenerator timeBasedUuidGenerator;
 
-  static {
-    timeBasedUuidGenerator = Generators.timeBasedGenerator(EthernetAddress.fromInterface());
-  }
+	static {
+		timeBasedUuidGenerator = Generators.timeBasedGenerator(EthernetAddress
+				.fromInterface());
+	}
 
+	@Id
+	@Column(length = 36)
+	private final String id = timeBasedUuidGenerator.generate().toString();
 
-  @Id
-  @Column(length = 36)
-  private String id = timeBasedUuidGenerator.generate().toString();
+	/**
+	 * An optional description of the bill, can help to identify an opened bill
+	 * (e.g. "table 3")
+	 */
+	@Column(nullable = true)
+	private String description;
 
-  /**
-   * An optional description of the bill, can help to identify an opened bill
-   * (e.g. "table 3")
-   */
-  @Column(nullable = true)
-  private String description;
+	@OneToMany(cascade = CascadeType.ALL)
+	private final List<BillItem> billItems = new ArrayList<BillItem>();
 
-  @OneToMany(cascade = CascadeType.ALL)
-  private List<BillItem> billItems = new ArrayList<BillItem>();
+	/** The date when the bill was opened. */
+	@Column(nullable = false)
+	private Date billOpened;
 
-  /** The date when the bill was opened. */
-  @Column(nullable = false)
-  private Date billOpened;
+	/** The date when the bill was closed and paid. */
+	@Column(nullable = true)
+	private Date billClosed;
 
-  /** The date when the bill was closed and paid. */
-  @Column(nullable = true)
-  private Date billClosed;
+	/**
+	 * The global tax info. Must not be null; default value must be set within
+	 * the app
+	 */
+	// TODO [10]: check which cascade types we really need here. Same at
+	// AbstractSalesItem.overridingTaxInfo
+	@ManyToOne(cascade = { CascadeType.REFRESH }, optional = false)
+	private TaxInfo globalTaxInfo;
 
-  /**
-   * The global tax info. Must not be null; default value must be set within the
-   * app
-   */
-  // TODO [10]: check which cascade types we really need here. Same at
-  // AbstractSalesItem.overridingTaxInfo
-  @ManyToOne(cascade = { CascadeType.REFRESH }, optional = false)
-  private TaxInfo globalTaxInfo;
+	/**
+	 * The user who was logged in when the bill was closed. This is not
+	 * necessarily the person that opened the bill, but that received the
+	 * payment.
+	 */
+	@ManyToOne(optional = true)
+	private User cashier;
 
-  /**
-   * The user who was logged in when the bill was closed. This is not
-   * necessarily the person that opened the bill, but that received the payment.
-   */
-  @ManyToOne(optional = true)
-  private User cashier;
+	Bill(TaxInfo defaultGlobalTaxInfo, Date billOpeningDate) {
+		checkNotNull(defaultGlobalTaxInfo);
+		setGlobalTaxInfo(defaultGlobalTaxInfo);
+		billOpened = billOpeningDate;
+	}
 
+	private Bill() {
 
-  Bill(TaxInfo defaultGlobalTaxInfo, Date billOpeningDate) {
-    checkNotNull(defaultGlobalTaxInfo);
-    setGlobalTaxInfo(defaultGlobalTaxInfo);
-    billOpened = billOpeningDate;
-  }
+	}
 
-  private Bill() {
+	void addBillItem(BillItem item) {
+		billItems.add(item);
+	}
 
-  }
+	/**
+	 * @return the {@link #globalTaxInfo}
+	 */
+	public TaxInfo getGlobalTaxInfo() {
+		return globalTaxInfo;
+	}
 
-  void addBillItem(BillItem item) {
-    billItems.add(item);
-  }
+	/**
+	 * @param globalTaxInfo
+	 *            the {@link #globalTaxInfo} to set
+	 */
+	public void setGlobalTaxInfo(TaxInfo globalTaxInfo) {
+		this.globalTaxInfo = globalTaxInfo;
+	}
 
+	/**
+	 * @return the {@link #billClosed}
+	 */
+	public Date getBillClosed() {
+		return billClosed;
+	}
 
-  /**
-   * @return the {@link #globalTaxInfo}
-   */
-  public TaxInfo getGlobalTaxInfo() {
-    return globalTaxInfo;
-  }
+	/**
+	 * Invoked when an open bill is getting paid and hence closed.
+	 * 
+	 * @param billClosed
+	 * @param billClosingDate
+	 */
+	void closeBill(User cashier, Date billClosingDate) {
+		this.billClosed = billClosingDate;
+		this.cashier = cashier;
+	}
 
+	public List<BillItem> getBillItems() {
+		return ImmutableList.copyOf(billItems);
+	}
 
-  /**
-   * @param globalTaxInfo
-   *          the {@link #globalTaxInfo} to set
-   */
-  public void setGlobalTaxInfo(TaxInfo globalTaxInfo) {
-    this.globalTaxInfo = globalTaxInfo;
-  }
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		return result;
+	}
 
-  /**
-   * @return the {@link #billClosed}
-   */
-  public Date getBillClosed() {
-    return billClosed;
-  }
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		final Bill other = (Bill) obj;
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
+			return false;
+		return true;
+	}
 
+	@Override
+	public Iterator<BillItem> iterator() {
+		return getBillItems().iterator();
+	}
 
-  /**
-   * Invoked when an open bill is getting paid and hence closed.
-   * 
-   * @param billClosed
-   * @param billClosingDate
-   */
-  void closeBill(User cashier, Date billClosingDate) {
-    this.billClosed = billClosingDate;
-    this.cashier = cashier;
-  }
-
-  public List<BillItem> getBillItems() {
-    return ImmutableList.copyOf(billItems);
-  }
-
-
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + ((id == null) ? 0 : id.hashCode());
-    return result;
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
-    Bill other = (Bill) obj;
-    if (id == null) {
-      if (other.id != null)
-        return false;
-    } else if (!id.equals(other.id))
-      return false;
-    return true;
-  }
-
-  @Override
-  public Iterator<BillItem> iterator() {
-    return getBillItems().iterator();
-  }
-
+	public Date getBillOpened() {
+		return billOpened;
+	}
 
 }

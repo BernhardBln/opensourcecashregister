@@ -32,167 +32,174 @@ import de.bstreit.java.oscr.business.products.dao.IProductRepository;
 @Named
 public class MainWindow implements IBillDisplay {
 
-  private static final Logger log = LoggerFactory.getLogger(MainWindow.class);
+	private static final Logger log = LoggerFactory.getLogger(MainWindow.class);
 
-  private JFrame jFrame;
+	private JFrame jFrame;
 
+	// Just for testing, remove later
+	@Inject
+	private IProductOfferRepository productOfferRep;
 
-  // Just for testing, remove later
-  @Inject
-  private IProductOfferRepository productOfferRep;
+	@Inject
+	private IProductRepository productRep;
 
-  @Inject
-  private IProductRepository productRep;
+	@Inject
+	private MainWindowController appController;
 
-  @Inject
-  private MainWindowController appController;
+	private JTextPane billView;
 
+	private JPanel mainPanel;
+	private JPanel drinksPanel;
 
-  private JTextPane billView;
+	private JToggleButton btnToGo;
+	private JScrollPane scrollPane;
 
-  private JPanel mainPanel;
-  private JPanel drinksPanel;
+	@Override
+	public void printBill(String billAsText) {
+		billView.setText(billAsText);
+	}
 
-  private JToggleButton btnToGo;
-  private JScrollPane scrollPane;
+	/**
+	 * @wbp.parser.entryPoint
+	 */
+	// @Override
+	protected JComponent buildPanel() {
+		final JSplitPane splitPane = new JSplitPane();
+		splitPane.setBounds(100, 100, 757, 555);
+		splitPane.setResizeWeight(1.0);
+		splitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
 
+		billView = new JTextPane();
+		billView.setFont(new Font("Courier New", Font.PLAIN, 12));
+		billView.setPreferredSize(new Dimension(6, 150));
 
-  @Override
-  public void printBill(String billAsText) {
-    billView.setText(billAsText);
-  }
+		scrollPane = new JScrollPane(billView);
+		splitPane.setLeftComponent(scrollPane);
 
-  /**
-   * @wbp.parser.entryPoint
-   */
-  // @Override
-  protected JComponent buildPanel() {
-    JSplitPane splitPane = new JSplitPane();
-    splitPane.setBounds(100, 100, 757, 555);
-    splitPane.setResizeWeight(1.0);
-    splitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+		mainPanel = new JPanel();
+		mainPanel.setPreferredSize(new Dimension(10, 340));
+		mainPanel.addComponentListener(new ComponentAdapter() {
 
-    billView = new JTextPane();
-    billView.setFont(new Font("Courier New", Font.PLAIN, 12));
-    billView.setPreferredSize(new Dimension(6, 150));
+			@Override
+			public void componentResized(ComponentEvent e) {
+				System.out.println(mainPanel.getSize());
+			}
+		});
 
-    scrollPane = new JScrollPane(billView);
-    splitPane.setLeftComponent(scrollPane);
+		splitPane.setRightComponent(mainPanel);
+		mainPanel.setLayout(new BorderLayout(0, 0));
 
-    mainPanel = new JPanel();
-    mainPanel.setPreferredSize(new Dimension(10, 340));
-    mainPanel.addComponentListener(new ComponentAdapter() {
+		buildMainPanel();
 
-      @Override
-      public void componentResized(ComponentEvent e) {
-        System.out.println(mainPanel.getSize());
-      }
-    });
+		return splitPane;
+	}
 
-    splitPane.setRightComponent(mainPanel);
-    mainPanel.setLayout(new BorderLayout(0, 0));
+	private void buildMainPanel() {
+		mainPanel.removeAll();
 
-    buildMainPanel();
+		buildAndAddDrinksPanelToMainPanel();
+		buildAndAddControlButtonsPanelToMainPanel();
 
-    return splitPane;
-  }
+		mainPanel.validate();
+	}
 
-  private void buildMainPanel() {
-    mainPanel.removeAll();
-
-    buildAndAddDrinksPanelToMainPanel();
-    buildAndAddControlButtonsPanelToMainPanel();
-
-    mainPanel.validate();
-  }
-
-  /**
+	/**
    * 
    */
-  private void buildAndAddControlButtonsPanelToMainPanel() {
-    JPanel controlButtonsPanel = new JPanel();
-    mainPanel.add(controlButtonsPanel, BorderLayout.EAST);
-    controlButtonsPanel.setLayout(new GridLayout(3, 1, 0, 0));
+	private void buildAndAddControlButtonsPanelToMainPanel() {
+		final JPanel controlButtonsPanel = new JPanel();
+		mainPanel.add(controlButtonsPanel, BorderLayout.EAST);
+		controlButtonsPanel.setLayout(new GridLayout(3, 1, 0, 0));
 
-    JButton payButton = new JButton("Pay");
-    payButton.addActionListener(new ActionListener() {
+		final JButton payButton = new JButton("Pay");
+		payButton.addActionListener(new ActionListener() {
 
-      public void actionPerformed(ActionEvent e) {
-        appController.closeBill();
-      }
-    });
-    payButton.setMinimumSize(new Dimension(0, 40));
-    controlButtonsPanel.add(payButton);
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				appController.closeBill();
+			}
+		});
+		payButton.setMinimumSize(new Dimension(0, 40));
+		controlButtonsPanel.add(payButton);
 
-    btnToGo = new JToggleButton("To go");
-    btnToGo.addActionListener(new ActionListener() {
+		btnToGo = new JToggleButton("To go");
+		btnToGo.addActionListener(new ActionListener() {
 
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        appController.setBillToGo(btnToGo.isSelected());
-      }
-    });
-    btnToGo.setMinimumSize(new Dimension(0, 40));
-    controlButtonsPanel.add(btnToGo);
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				appController.setBillToGo(btnToGo.isSelected());
+			}
+		});
+		btnToGo.setMinimumSize(new Dimension(0, 40));
+		controlButtonsPanel.add(btnToGo);
 
-    JButton btnKassenstand = new JButton("Balance");
-    btnKassenstand.setMinimumSize(new Dimension(0, 40));
-    controlButtonsPanel.add(btnKassenstand);
-  }
+		final JButton btnKassenstand = new JButton("Balance");
+		btnKassenstand.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				appController.printTodaysTotal();
+			}
+		});
+		btnKassenstand.setMinimumSize(new Dimension(0, 40));
+		controlButtonsPanel.add(btnKassenstand);
+	}
 
-  /**
+	/**
    * 
    */
-  private void buildAndAddDrinksPanelToMainPanel() {
+	private void buildAndAddDrinksPanelToMainPanel() {
 
-    drinksPanel = new JPanel();
-    mainPanel.add(drinksPanel);
-    drinksPanel.setLayout(new GridLayout(3, 5, 3, 3));
+		drinksPanel = new JPanel();
+		mainPanel.add(drinksPanel);
+		drinksPanel.setLayout(new GridLayout(3, 5, 3, 3));
 
-    // get sample product - remove later!
-    final Collection<ProductOffer> allOffers = productOfferRep.findAllActiveOffers();
+		// get sample product - remove later!
+		final Collection<ProductOffer> allOffers = productOfferRep
+				.findAllActiveOffers();
 
-    for (ProductOffer offer : allOffers) {
-      createAndAddProductOfferButton(offer);
-    }
+		for (final ProductOffer offer : allOffers) {
+			createAndAddProductOfferButton(offer);
+		}
 
-  }
+	}
 
-  private void createAndAddProductOfferButton(final ProductOffer productOffer) {
-    JButton button = new JButton(productOffer.getLabel());
-    button.addActionListener(new ActionListener() {
+	private void createAndAddProductOfferButton(final ProductOffer productOffer) {
+		final JButton button = new JButton(productOffer.getLabel());
+		button.addActionListener(new ActionListener() {
 
-      public void actionPerformed(ActionEvent e) {
-        appController.addToBill(productOffer);
-      }
-    });
-    button.setMinimumSize(new Dimension(0, 40));
-    drinksPanel.add(button);
-  }
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				appController.addToBill(productOffer);
+			}
+		});
+		button.setMinimumSize(new Dimension(0, 40));
+		drinksPanel.add(button);
+	}
 
-  public void show() {
-    jFrame = new JFrame();
-    jFrame.setBounds(100, 100, 757, 555);
-    jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    jFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+	@Override
+	public void show() {
+		jFrame = new JFrame();
+		jFrame.setBounds(100, 100, 757, 555);
+		jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		jFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 
-    // if child of abstractview, use getPanel!
-    if (AbstractView.class.isAssignableFrom(getClass())) {
-      // jFrame.getContentPane().add(getPanel());
-    } else {
-      jFrame.getContentPane().add(buildPanel());
-    }
+		// if child of abstractview, use getPanel!
+		if (AbstractView.class.isAssignableFrom(getClass())) {
+			// jFrame.getContentPane().add(getPanel());
+		} else {
+			jFrame.getContentPane().add(buildPanel());
+		}
 
-    jFrame.setVisible(true);
-  }
+		jFrame.setVisible(true);
+	}
 
-  @Override
-  public void resetGui() {
-    resetToggleButtons();
-  }
+	@Override
+	public void resetGui() {
+		resetToggleButtons();
+	}
 
-  private void resetToggleButtons() {
-    btnToGo.setSelected(false);
-  }
+	private void resetToggleButtons() {
+		btnToGo.setSelected(false);
+	}
 
 }

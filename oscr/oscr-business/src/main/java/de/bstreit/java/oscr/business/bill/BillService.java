@@ -28,10 +28,12 @@ package de.bstreit.java.oscr.business.bill;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import java.util.Collection;
 import java.util.Set;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.transaction.Transactional;
 
 import com.google.common.collect.Sets;
 
@@ -43,7 +45,6 @@ import de.bstreit.java.oscr.business.offers.VariationOffer;
 import de.bstreit.java.oscr.business.taxation.TaxInfo;
 import de.bstreit.java.oscr.business.user.IUserService;
 
-
 /**
  * For the bill management. Creates new bills, keeps one bill as "active" (i.e.
  * the one currently displayed and manipulated by a view), can return all open
@@ -54,159 +55,171 @@ import de.bstreit.java.oscr.business.user.IUserService;
 @Named
 public class BillService {
 
-  @Inject
-  private IBillRepository billRepository;
+	@Inject
+	private IBillRepository billRepository;
 
-  @Inject
-  private IUserService userProvider;
+	@Inject
+	private IUserService userProvider;
 
-  @Inject
-  @Named("defaultGlobalTaxInfoForNewBills")
-  private TaxInfo defaultTaxInfoForNewBills;
+	@Inject
+	@Named("defaultGlobalTaxInfoForNewBills")
+	private TaxInfo defaultTaxInfoForNewBills;
 
-  @Inject
-  private ICurrentDateProvider currentDateProvider;
+	@Inject
+	private ICurrentDateProvider currentDateProvider;
 
-  private final Set<IBillChangedListener> billChangedListener = Sets.newHashSet();
+	@Inject
+	private IMultipleBillsCalculatorFactory multipleBillsCalculatorFactory;
 
-  private Bill currentBill;
+	private final Set<IBillChangedListener> billChangedListener = Sets
+			.newHashSet();
 
-  private BillItem lastAddedItem;
+	private Bill currentBill;
 
+	private BillItem lastAddedItem;
 
-  public void addBillChangedListener(IBillChangedListener listener) {
-    billChangedListener.add(listener);
-  }
+	public void addBillChangedListener(IBillChangedListener listener) {
+		billChangedListener.add(listener);
+	}
 
-  private void fireBillChangedEvent() {
-    for (IBillChangedListener listener : billChangedListener) {
-      listener.billChanged(currentBill);
-    }
-  }
+	private void fireBillChangedEvent() {
+		for (final IBillChangedListener listener : billChangedListener) {
+			listener.billChanged(currentBill);
+		}
+	}
 
-  /**
-   * Add a product offer to a bill. Creates a new bill if there is no open bill
-   * available.
-   * 
-   * @param productOffer
-   * @return the bill item which was created and added to the bill with the
-   *         given offer
-   */
-  public BillItem addProductOffer(ProductOffer productOffer) {
-    initBillIfEmpty();
+	/**
+	 * Add a product offer to a bill. Creates a new bill if there is no open
+	 * bill available.
+	 * 
+	 * @param productOffer
+	 * @return the bill item which was created and added to the bill with the
+	 *         given offer
+	 */
+	public BillItem addProductOffer(ProductOffer productOffer) {
+		initBillIfEmpty();
 
-    final BillItem billItem = new BillItem(productOffer);
-    currentBill.addBillItem(billItem);
+		final BillItem billItem = new BillItem(productOffer);
+		currentBill.addBillItem(billItem);
 
-    saveBill();
+		saveBill();
 
-    // only keep reference if saveBill was successful
-    lastAddedItem = billItem;
+		// only keep reference if saveBill was successful
+		lastAddedItem = billItem;
 
-    // fire events after lastAddedItem was changed - just in case...
-    fireBillChangedEvent();
+		// fire events after lastAddedItem was changed - just in case...
+		fireBillChangedEvent();
 
-    return billItem;
-  }
+		return billItem;
+	}
 
+	@Transactional
+	public IMultipleBillsCalculator getTotalForToday() {
+		final Collection<Bill> todaysBills = billRepository.getBillsForToday();
+		return multipleBillsCalculatorFactory.create(todaysBills);
+	}
 
-  private void initBillIfEmpty() {
-    if (currentBill == null) {
-      currentBill = new Bill(defaultTaxInfoForNewBills, currentDateProvider.getCurrentDate());
-      lastAddedItem = null;
-    }
-  }
+	private void initBillIfEmpty() {
+		if (currentBill == null) {
+			currentBill = new Bill(defaultTaxInfoForNewBills,
+					currentDateProvider.getCurrentDate());
+			lastAddedItem = null;
+		}
+	}
 
-  /**
-   * Add an extra offer to the last added product offer on the bill.
-   * 
-   * @param extraOffer
-   * @throws NoOpenBillException
-   *           when there is no open bill or the bill is empty
-   */
-  public void addExtraOffer(ExtraOffer extraOffer) {
-    final String errorMessage = "Cannot add extra offer '" + extraOffer + "' - no bill available!";
-    assertCurrentBillNotNull(errorMessage);
-    assertCurrentBillNotEmpty(errorMessage);
+	/**
+	 * Add an extra offer to the last added product offer on the bill.
+	 * 
+	 * @param extraOffer
+	 * @throws NoOpenBillException
+	 *             when there is no open bill or the bill is empty
+	 */
+	public void addExtraOffer(ExtraOffer extraOffer) {
+		final String errorMessage = "Cannot add extra offer '" + extraOffer
+				+ "' - no bill available!";
+		assertCurrentBillNotNull(errorMessage);
+		assertCurrentBillNotEmpty(errorMessage);
 
-    lastAddedItem.addExtraOffer(extraOffer);
+		lastAddedItem.addExtraOffer(extraOffer);
 
-    saveBill();
+		saveBill();
 
-    fireBillChangedEvent();
-  }
+		fireBillChangedEvent();
+	}
 
-  /**
-   * Set a product variation offer to the last added product offer on the bill.
-   * 
-   * @param variationOffer
-   * @throws NoOpenBillException
-   *           when there is no open bill or the bill is empty
-   */
-  public void setVariationOffer(VariationOffer variationOffer) {
-    final String errorMessage = "Cannot set variation '" + variationOffer + "' - no bill available!";
+	/**
+	 * Set a product variation offer to the last added product offer on the
+	 * bill.
+	 * 
+	 * @param variationOffer
+	 * @throws NoOpenBillException
+	 *             when there is no open bill or the bill is empty
+	 */
+	public void setVariationOffer(VariationOffer variationOffer) {
+		final String errorMessage = "Cannot set variation '" + variationOffer
+				+ "' - no bill available!";
 
-    assertCurrentBillNotNull(errorMessage);
-    assertCurrentBillNotEmpty(errorMessage);
+		assertCurrentBillNotNull(errorMessage);
+		assertCurrentBillNotEmpty(errorMessage);
 
-    checkNotNull(variationOffer);
+		checkNotNull(variationOffer);
 
-    if (variationOffer.equals(lastAddedItem.getVariationOffer())) {
-      return;
-    }
+		if (variationOffer.equals(lastAddedItem.getVariationOffer())) {
+			return;
+		}
 
-    lastAddedItem.setVariationOffer(variationOffer);
-    saveBill();
+		lastAddedItem.setVariationOffer(variationOffer);
+		saveBill();
 
-    fireBillChangedEvent();
-  }
+		fireBillChangedEvent();
+	}
 
-  public Bill closeBill() {
-    assertCurrentBillNotNull("Cannot close bill - no bill available!");
+	public Bill closeBill() {
+		assertCurrentBillNotNull("Cannot close bill - no bill available!");
 
-    currentBill.closeBill(userProvider.getCurrentUser(), currentDateProvider.getCurrentDate());
+		currentBill.closeBill(userProvider.getCurrentUser(),
+				currentDateProvider.getCurrentDate());
 
-    saveBill();
+		saveBill();
 
-    final Bill currentBillForFurtherReference = currentBill;
+		final Bill currentBillForFurtherReference = currentBill;
 
-    currentBill = null;
-    lastAddedItem = null;
+		currentBill = null;
+		lastAddedItem = null;
 
-    fireBillChangedEvent();
+		fireBillChangedEvent();
 
-    return currentBillForFurtherReference;
-  }
+		return currentBillForFurtherReference;
+	}
 
-  private void assertCurrentBillNotNull(String errorMessage) {
-    if (currentBill == null) {
-      throw new NoOpenBillException(errorMessage);
-    }
-  }
+	private void assertCurrentBillNotNull(String errorMessage) {
+		if (currentBill == null) {
+			throw new NoOpenBillException(errorMessage);
+		}
+	}
 
-  private void assertCurrentBillNotEmpty(final String errorMessage) {
-    if (lastAddedItem == null) {
-      throw new NoOpenBillException(errorMessage);
-    }
-  }
+	private void assertCurrentBillNotEmpty(final String errorMessage) {
+		if (lastAddedItem == null) {
+			throw new NoOpenBillException(errorMessage);
+		}
+	}
 
+	private void saveBill() {
+		currentBill = billRepository.save(currentBill);
+	}
 
-  private void saveBill() {
-    currentBill = billRepository.save(currentBill);
-  }
+	public void setGlobalTaxInfo(TaxInfo taxInfo) {
+		// At the moment, we only support one tax info, might change in the
+		// future
+		assertCurrentBillNotNull("Cannot set tax info - no bill available");
+		checkNotNull(taxInfo);
 
+		if (taxInfo.equals(currentBill.getGlobalTaxInfo())) {
+			return;
+		}
 
-  public void setGlobalTaxInfo(TaxInfo taxInfo) {
-    // At the moment, we only support one tax info, might change in the future
-    assertCurrentBillNotNull("Cannot set tax info - no bill available");
-    checkNotNull(taxInfo);
+		currentBill.setGlobalTaxInfo(taxInfo);
 
-    if (taxInfo.equals(currentBill.getGlobalTaxInfo())) {
-      return;
-    }
-
-    currentBill.setGlobalTaxInfo(taxInfo);
-
-    fireBillChangedEvent();
-  }
+		fireBillChangedEvent();
+	}
 }

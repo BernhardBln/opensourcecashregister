@@ -9,6 +9,7 @@ import javax.inject.Inject;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,6 +34,7 @@ import de.bstreit.java.oscr.testutils.business.bill.MakeBillServiceUsableInJUnit
 @ContextConfiguration(classes = { BillFormatterTest.class })
 @Import(MakeBillServiceUsableInJUnitTest.class)
 @Configuration
+@Ignore
 public class BillFormatterTest {
 
   private static final TaxInfo NON_FOOD_TAX_INFO = new TaxInfo("non-food", null, null);

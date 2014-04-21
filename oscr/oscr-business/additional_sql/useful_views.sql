@@ -34,17 +34,14 @@ CREATE VIEW BILLS_SUMMED_UP AS
 		
 CREATE VIEW BILLS_SUMMED_UP_BY_DAY AS		
 	SELECT 
-		CURRENT_DATE as date, 
-		SUM(total), 
+		CAST(billclosed AS DATE) AS date, 
+		SUM(total) AS total, 
 		pricecurrency  
 	
 	FROM 
 		BILLS_SUMMED_UP 
 	
-	WHERE 
-		CAST(billclosed AS DATE) = CURRENT_DATE
-		
 	GROUP BY 
-		pricecurrency;
+		pricecurrency, date;
 
 		

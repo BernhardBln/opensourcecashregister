@@ -11,6 +11,12 @@
 
 	<artifactId>oscr-starter-sandbox</artifactId>
 
+	<build>
+		<plugins>
+		
+		</plugins>
+	</build>
+
 	<dependencies>
 
 		<dependency>
@@ -23,7 +29,7 @@
 			<artifactId>oscr-gui-swing</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>de.bstreit.java.oscr</groupId>
 			<artifactId>oscr-initial-data</artifactId>

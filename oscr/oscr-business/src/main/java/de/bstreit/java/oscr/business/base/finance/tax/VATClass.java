@@ -55,40 +55,46 @@ import de.bstreit.java.oscr.business.base.persistence.AbstractPersistentObjectWi
 @Entity
 public class VATClass extends AbstractPersistentObjectWithContinuance<VATClass> {
 
-  @NaturalId
-  private String designation;
+	@NaturalId
+	private String designation;
 
-  /** the tax rate, e.g. "19" for 19% */
-  private BigDecimal taxRate;
+	/** the tax rate, e.g. "19" for 19% */
+	private BigDecimal taxRate;
 
+	@SuppressWarnings("unused")
+	private VATClass() {
+		// for hibernate
+	}
 
-  @SuppressWarnings("unused")
-  private VATClass() {
-    // for hibernate
-  }
+	public VATClass(String designation, BigDecimal rate, Date validFrom,
+			Date validTo) {
+		super(validFrom, validTo);
+		this.designation = designation;
+		this.taxRate = rate;
+	}
 
-  public VATClass(String designation, BigDecimal rate, Date validFrom, Date validTo) {
-    super(validFrom, validTo);
-    this.designation = designation;
-    this.taxRate = rate;
-  }
+	public String getName() {
+		return designation;
+	}
 
-  public String getName() {
-    return designation;
-  }
+	public BigDecimal getRate() {
+		return taxRate;
+	}
 
-  public BigDecimal getRate() {
-    return taxRate;
-  }
+	@Override
+	protected void additionalEqualsForSubclasses(EqualsBuilder equalsBuilder,
+			VATClass otherObject) {
+		equalsBuilder.append(designation, otherObject.designation);
+	}
 
-  @Override
-  protected void additionalEqualsForSubclasses(EqualsBuilder equalsBuilder, VATClass otherObject) {
-    equalsBuilder.append(designation, otherObject.designation);
-  }
+	@Override
+	protected void additionalHashcodeForSubclasses(HashCodeBuilder builder) {
+		builder.append(designation);
+	}
 
-  @Override
-  protected void additionalHashcodeForSubclasses(HashCodeBuilder builder) {
-    builder.append(designation);
-  }
+	@Override
+	public String toString() {
+		return getName() + " (" + getRate() + "%)";
+	}
 
 }
