@@ -13,7 +13,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>
-				<version>2.2</version>
 				<executions>
 					<execution>
 						<phase>package</phase>
@@ -36,6 +35,17 @@
 			<groupId>de.bstreit.java.oscr</groupId>
 			<artifactId>oscr-gui-swing</artifactId>
 			<version>${project.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>de.bstreit.java.oscr</groupId>
+			<artifactId>oscr-initial-data</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
 		</dependency>
 	</dependencies>
 

@@ -88,3 +88,8 @@ local.properties
 # PDT-specific
 .buildpath
 
+# maven
+**/dependency-reduced-pom.xml
+
+
+
