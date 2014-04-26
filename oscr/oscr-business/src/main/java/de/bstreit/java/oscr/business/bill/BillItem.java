@@ -86,5 +86,13 @@ public class BillItem extends AbstractPersistentObject {
     return offer;
   }
 
+  public boolean hasUndoable() {
+    return false;
+  }
+
+  public void undoLastAction() {
+
+  }
+
 
 }
