@@ -29,11 +29,11 @@ package de.bstreit.java.oscr.business.bill;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 
+import de.bstreit.java.oscr.business.base.finance.money.Money;
 import de.bstreit.java.oscr.business.base.persistence.AbstractPersistentObject;
 import de.bstreit.java.oscr.business.offers.ExtraOffer;
 import de.bstreit.java.oscr.business.offers.ProductOffer;
 import de.bstreit.java.oscr.business.offers.VariationOffer;
-
 
 /**
  * Represents an item on the bill. Items can only be of type
@@ -44,55 +44,69 @@ import de.bstreit.java.oscr.business.offers.VariationOffer;
 @Entity
 public class BillItem extends AbstractPersistentObject {
 
-  @ManyToOne
-  private ProductOffer offer;
+	@ManyToOne
+	private ProductOffer offer;
 
+	@ManyToOne
+	private VariationOffer variationOffer;
 
-  @SuppressWarnings("unused")
-  private BillItem() {
-    // For Hibernate
-  }
+	@SuppressWarnings("unused")
+	private BillItem() {
+		// For Hibernate
+	}
 
-  public BillItem(ProductOffer offer) {
-    this.offer = offer;
-  }
+	public BillItem(ProductOffer offer) {
+		this.offer = offer;
+	}
 
-  /**
-   * @param variationOffer
-   */
-  void setVariationOffer(VariationOffer variationOffer) {
-    // TODO Auto-generated method stub
+	/**
+	 * @param variationOffer
+	 */
+	void setVariationOffer(VariationOffer variationOffer) {
+		this.variationOffer = variationOffer;
+	}
 
-  }
+	public VariationOffer getVariationOffer() {
+		return variationOffer;
+	}
 
-  VariationOffer getVariationOffer() {
-    // TODO Auto-generated method stub
-    return null;
-  }
+	/**
+	 * @param extraOffer
+	 */
+	void addExtraOffer(ExtraOffer extraOffer) {
+		// TODO Auto-generated method stub
 
-  /**
-   * @param extraOffer
-   */
-  void addExtraOffer(ExtraOffer extraOffer) {
-    // TODO Auto-generated method stub
+	}
 
-  }
+	/**
+	 * @return the {@link #offer}
+	 */
+	public ProductOffer getOffer() {
+		return offer;
+	}
 
+	public boolean hasUndoable() {
+		return false;
+	}
 
-  /**
-   * @return the {@link #offer}
-   */
-  public ProductOffer getOffer() {
-    return offer;
-  }
+	public void undoLastAction() {
 
-  public boolean hasUndoable() {
-    return false;
-  }
+	}
 
-  public void undoLastAction() {
+	public Money getPriceGross() {
+		Money priceGross = offer.getPriceGross();
+		if (variationOffer != null) {
+			priceGross = priceGross.add(variationOffer.getPriceGross());
+		}
+		return priceGross;
+	}
 
-  }
-
+	public String getName() {
+		String name = getOffer().getOfferedItem().getName();
+		if (variationOffer != null) {
+			name = name + " with " + variationOffer.getOfferedItem().getName();
+		}
+		return name;
+	}
 
 }

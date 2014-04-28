@@ -127,34 +127,38 @@ public class BillFormatter {
 
 		for (final BillItem billItem : _bill) {
 
-			// TODO: add prices of extras and variations!
-			final Money priceGross = billItem.getOffer().getPriceGross();
-			final String priceGrossFormatted = moneyFormatter
-					.format(priceGross);
+			maxLineWidth = appendProduct(maxLineWidth, billItem);
 
-			final Money priceNet = billCalculator.getNetFor(billItem);
-			final String priceNetFormatted = moneyFormatter.format(priceNet);
-
-			billItemWrapper.wrapText(getOfferedItemName(billItem));
-
-			final Object[] variables = new Object[] {
-					billItemWrapper.getFirstLine(), //
-					billCalculator.getVATClassAbbreviationFor(billItem),//
-					priceNetFormatted, //
-					priceGrossFormatted };
-
-			final String lineFormatted = String.format(
-					getProductNameVATPriceFormatString(), variables);
-			_builder.append(lineFormatted).append(NEWLINE);
-
-			if (billItemWrapper.hasFurtherLines()) {
-				_builder.append(billItemWrapper.getFurtherLines()).append(
-						NEWLINE);
-			}
-
-			maxLineWidth = Math.max(lineFormatted.length(), maxLineWidth);
 		}
 
+		return maxLineWidth;
+	}
+
+	private int appendProduct(int maxLineWidth, final BillItem billItem) {
+		// TODO: add prices of extras and variations!
+		final Money priceGross = billItem.getPriceGross();
+		final String priceGrossFormatted = moneyFormatter.format(priceGross);
+
+		final Money priceNet = billCalculator.getNetFor(billItem);
+		final String priceNetFormatted = moneyFormatter.format(priceNet);
+
+		billItemWrapper.wrapText(getOfferedItemName(billItem));
+
+		final Object[] variables = new Object[] {
+				billItemWrapper.getFirstLine(), //
+				billCalculator.getVATClassAbbreviationFor(billItem),//
+				priceNetFormatted, //
+				priceGrossFormatted };
+
+		final String lineFormatted = String.format(
+				getProductNameVATPriceFormatString(), variables);
+		_builder.append(lineFormatted).append(NEWLINE);
+
+		if (billItemWrapper.hasFurtherLines()) {
+			_builder.append(billItemWrapper.getFurtherLines()).append(NEWLINE);
+		}
+
+		maxLineWidth = Math.max(lineFormatted.length(), maxLineWidth);
 		return maxLineWidth;
 	}
 
@@ -170,7 +174,7 @@ public class BillFormatter {
 	}
 
 	private String getOfferedItemName(BillItem billItem) {
-		return billItem.getOffer().getOfferedItem().getName();
+		return billItem.getName();
 	}
 
 	private void appendBillFooter() {

@@ -11,4 +11,5 @@
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="de.bstreit.java.oscr.gui.swing.SwingStarter"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="oscr-starter-sandbox"/>
 <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.m2e.launchconfig.sourcepathProvider"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dh2.maxCompactTime=60000"/>
 </launchConfiguration>
