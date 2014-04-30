@@ -127,7 +127,7 @@ public class SpringConfigurationDoesComponentScan {
 
   @Bean(name = "defaultGlobalTaxInfoForNewBills")
   protected TaxInfo getDefaultGlobalTaxInfoForNewBills(ITaxInfoRepository taxInfoRepository) {
-    return taxInfoRepository.findByDenotationAndValidToIsNull("inhouse");
+    return taxInfoRepository.findByDenotationAndValidToIsNull("to go");
   }
 
 }
