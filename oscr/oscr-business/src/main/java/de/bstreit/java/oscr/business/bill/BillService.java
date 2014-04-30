@@ -248,6 +248,8 @@ public class BillService {
 
 		currentBill.setGlobalTaxInfo(taxInfo);
 
+		saveBill();
+
 		fireBillChangedEvent();
 	}
 }
