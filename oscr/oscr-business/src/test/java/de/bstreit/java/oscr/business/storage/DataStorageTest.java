@@ -36,6 +36,7 @@ import java.util.Locale;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import de.bstreit.java.oscr.business.AbstractSpringTestWithContext;
@@ -44,75 +45,77 @@ import de.bstreit.java.oscr.business.bill.Bill;
 import de.bstreit.java.oscr.business.offers.ProductOffer;
 import de.bstreit.java.oscr.business.products.Product;
 
+@Ignore
 public class DataStorageTest extends AbstractSpringTestWithContext {
 
-	private static final Locale defaultLocale = Locale.getDefault();
+  private static final Locale defaultLocale = Locale.getDefault();
 
-	@BeforeClass
-	public static void setDefaultLocale() {
-		Locale.setDefault(Locale.GERMANY);
-		Money.resetNumberFormatter();
-	}
 
-	@AfterClass
-	public static void restoreLocale() {
-		// reset locale for next test
-		Locale.setDefault(defaultLocale);
-		Money.resetNumberFormatter();
-	}
+  @BeforeClass
+  public static void setDefaultLocale() {
+    Locale.setDefault(Locale.GERMANY);
+    Money.resetNumberFormatter();
+  }
 
-	@Test
-	public void testDataStorage() {
+  @AfterClass
+  public static void restoreLocale() {
+    // reset locale for next test
+    Locale.setDefault(defaultLocale);
+    Money.resetNumberFormatter();
+  }
 
-		// -INIT
-		final StorageService service = context.getBean(StorageService.class);
-		service.saveSomeProductsAndOffers();
+  @Test
+  public void testDataStorage() {
 
-		// -RUN
-		final List<Product> products = service.getProducts();
-		final List<ProductOffer> offers = service.getOffers();
+    // -INIT
+    final StorageService service = context.getBean(StorageService.class);
+    service.saveSomeProductsAndOffers();
 
-		// -ASSERT
-		Assert.assertEquals(3, products.size());
-		Assert.assertEquals(3, offers.size());
+    // -RUN
+    final List<Product> products = service.getProducts();
+    final List<ProductOffer> offers = service.getOffers();
 
-		Assert.assertTrue(products.contains(Products.ESPRESSO));
-		Assert.assertTrue(products.contains(Products.CAPPUCCINO));
-		Assert.assertTrue(products.contains(Products.LATTE_MACCHIATO));
+    // -ASSERT
+    Assert.assertEquals(3, products.size());
+    Assert.assertEquals(3, offers.size());
 
-		Assert.assertTrue(offers.contains(ProductOffers.ESPRESSO));
-		Assert.assertTrue(offers.contains(ProductOffers.CAPPUCCINO));
-		Assert.assertTrue(offers.contains(ProductOffers.LATTE_MACCHIATO));
+    Assert.assertTrue(products.contains(Products.ESPRESSO));
+    Assert.assertTrue(products.contains(Products.CAPPUCCINO));
+    Assert.assertTrue(products.contains(Products.LATTE_MACCHIATO));
 
-		Assert.assertEquals(
-				"<html><center>Espresso<BR>[Cup 100 ml]<BR><BR>1,00 €</center></html>",
-				offers.get(0).getLabel());
-		Assert.assertEquals(
-				"<html><center>Cappuccino<BR>[Cup 200 ml]<BR><BR>1,80 €</center></html>",
-				offers.get(1).getLabel());
-		Assert.assertEquals(
-				"<html><center>Latte Macchiato<BR>[Cup 200 ml]<BR><BR>2,30 €</center></html>",
-				offers.get(2).getLabel());
-	}
+    Assert.assertTrue(offers.contains(ProductOffers.ESPRESSO));
+    Assert.assertTrue(offers.contains(ProductOffers.CAPPUCCINO));
+    Assert.assertTrue(offers.contains(ProductOffers.LATTE_MACCHIATO));
 
-	@Test
-	public void testBilling() {
+    Assert.assertEquals(
+        "<html><center>Espresso<BR>[Cup 100 ml]<BR><BR>1,00 €</center></html>",
+        offers.get(0).getLabel());
+    Assert.assertEquals(
+        "<html><center>Cappuccino<BR>[Cup 200 ml]<BR><BR>1,80 €</center></html>",
+        offers.get(1).getLabel());
+    Assert.assertEquals(
+        "<html><center>Latte Macchiato<BR>[Cup 200 ml]<BR><BR>2,30 €</center></html>",
+        offers.get(2).getLabel());
+  }
 
-		// -INIT
-		final StorageService service = context.getBean(StorageService.class);
-		service.saveSomeProductsAndOffers();
-		service.saveSomeBills();
+  @Test
+  public void testBilling() {
 
-		// -RUN
-		final Collection<Bill> billsOfToday = service.getBillsOfToday();
+    // -INIT
+    final StorageService service = context.getBean(StorageService.class);
+    service.saveSomeProductsAndOffers();
+    service.saveSomeBills();
 
-		// -ASSERT
-		assertEquals(2, billsOfToday.size());
-		final Date today = new Date();
-		final int day = today.getDate();
-		for (final Bill bill : billsOfToday) {
-			assertEquals(day, bill.getBillOpened().getDate());
-		}
-	}
+    // -RUN
+    final Collection<Bill> billsOfToday = service.getBillsOfToday();
+
+    // -ASSERT
+    assertEquals(2, billsOfToday.size());
+    final Date today = new Date();
+    final int day = today.getDate();
+    for (final Bill bill : billsOfToday) {
+      assertEquals(day, bill.getBillOpened().getDate());
+    }
+  }
 
 }
