@@ -18,86 +18,95 @@ import de.bstreit.java.oscr.gui.formatting.BillFormatter;
 @Named
 public class MainWindowController implements IBillChangedListener {
 
-	@Inject
-	private IBillDisplay billDisplay;
+  @Inject
+  private IBillDisplay billDisplay;
 
-	@Inject
-	private BillFormatter billFormatter;
+  @Inject
+  private BillFormatter billFormatter;
 
-	@Inject
-	private BillService billService;
+  @Inject
+  private BillService billService;
 
-	@Inject
-	private ITaxInfoRepository taxInfoRepository;
+  @Inject
+  private ITaxInfoRepository taxInfoRepository;
 
-	private TaxInfo toGoTaxInfo;
+  private TaxInfo toGoTaxInfo;
 
-	private TaxInfo inHouseTaxInfo;
+  private TaxInfo inHouseTaxInfo;
 
-	@PostConstruct
-	private void initController() {
-		billService.addBillChangedListener(this);
-		toGoTaxInfo = taxInfoRepository
-				.findByDenotationAndValidToIsNull("to go");
-		inHouseTaxInfo = taxInfoRepository
-				.findByDenotationAndValidToIsNull("inhouse");
-	}
 
-	void addToBill(ProductOffer offer) {
-		billService.addProductOffer(offer);
-	}
+  @PostConstruct
+  private void initController() {
+    billService.addBillChangedListener(this);
+    toGoTaxInfo = taxInfoRepository
+        .findByDenotationAndValidToIsNull("to go");
+    inHouseTaxInfo = taxInfoRepository
+        .findByDenotationAndValidToIsNull("inhouse");
+  }
 
-	void setVariationOffer(VariationOffer variationOffer) {
-		billService.setVariationOffer(variationOffer);
-	}
+  void addToBill(ProductOffer offer) {
+    billService.addProductOffer(offer);
+  }
 
-	public void showMainwindow() {
-		billDisplay.show();
-	}
+  void setVariationOffer(VariationOffer variationOffer) {
+    billService.setVariationOffer(variationOffer);
+  }
 
-	@Override
-	public void billChanged(Bill bill) {
-		billDisplay.printBill(billFormatter.formatBill(bill));
-	}
+  public void showMainwindow() {
+    billDisplay.show();
+  }
 
-	public void closeBill() {
-		billService.closeBill();
-		billDisplay.resetGui();
-	}
+  @Override
+  public void billChanged(Bill bill) {
+    billDisplay.printBill(billFormatter.formatBill(bill));
+  }
 
-	public void printTodaysTotal() {
-		final IMultipleBillsCalculator totalForToday = billService
-				.getTotalForToday();
+  public void closeBill() {
+    billService.closeBill();
+    billDisplay.resetGui();
+  }
 
-		final StringBuilder sb = new StringBuilder();
+  public void printTodaysTotal() {
+    final StringBuilder sb = new StringBuilder();
 
-		sb.append("Bill for today\n==============\n\n");
-		sb.append("Total (gross)\t").append(totalForToday.getTotalGross())
-				.append("\n");
+    addBills(billService.getTotalForToday(), "today", sb);
+    addBills(billService.getTotalForYesterday(), "yesterday", sb);
 
-		sb.append("VAT classes:\n\n");
-		for (final VATClass vatClass : totalForToday.getAllVatClasses()) {
-			sb.append(vatClass + " \tgross: ")
-					.append(totalForToday.getTotalGrossFor(vatClass))
-					.append("; vat: ")
-					.append(totalForToday.getTotalVATFor(vatClass))
-					.append("; net: ")
-					.append(totalForToday.getTotalNetFor(vatClass))
-					.append("\n");
-		}
+    billDisplay.printBill(sb.toString());
+  }
 
-		billDisplay.printBill(sb.toString());
-	}
+  /**
+   * @param totalForToday
+   * @param sb
+   */
+  private void addBills(final IMultipleBillsCalculator totalForToday, String date, final StringBuilder sb) {
+    sb.append("Bill for "
+        + date + "\n==============\n\n");
+    sb.append("Total (gross)\t").append(totalForToday.getTotalGross())
+        .append("\n");
 
-	public void setBillToGo(boolean togo) {
-		if (togo) {
-			billService.setGlobalTaxInfo(toGoTaxInfo);
-		} else {
-			billService.setGlobalTaxInfo(inHouseTaxInfo);
-		}
-	}
+    sb.append("VAT classes:\n\n");
+    for (final VATClass vatClass : totalForToday.getAllVatClasses()) {
+      sb.append(vatClass + " \tgross: ")
+          .append(totalForToday.getTotalGrossFor(vatClass))
+          .append("; vat: ")
+          .append(totalForToday.getTotalVATFor(vatClass))
+          .append("; net: ")
+          .append(totalForToday.getTotalNetFor(vatClass))
+          .append("\n");
+    }
+    sb.append("\n\n");
+  }
 
-	public void undoLastAction() {
-		billService.undoLastAction();
-	}
+  public void setBillToGo(boolean togo) {
+    if (togo) {
+      billService.setGlobalTaxInfo(toGoTaxInfo);
+    } else {
+      billService.setGlobalTaxInfo(inHouseTaxInfo);
+    }
+  }
+
+  public void undoLastAction() {
+    billService.undoLastAction();
+  }
 }
