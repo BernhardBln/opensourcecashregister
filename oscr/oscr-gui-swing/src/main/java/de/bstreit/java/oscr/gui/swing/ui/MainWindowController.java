@@ -4,10 +4,14 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.apache.commons.lang3.StringUtils;
+
+import de.bstreit.java.oscr.business.base.finance.money.Money;
 import de.bstreit.java.oscr.business.base.finance.tax.VATClass;
 import de.bstreit.java.oscr.business.bill.Bill;
 import de.bstreit.java.oscr.business.bill.BillService;
 import de.bstreit.java.oscr.business.bill.IBillChangedListener;
+import de.bstreit.java.oscr.business.bill.IBillProcessor;
 import de.bstreit.java.oscr.business.bill.IMultipleBillsCalculator;
 import de.bstreit.java.oscr.business.offers.ProductOffer;
 import de.bstreit.java.oscr.business.offers.VariationOffer;
@@ -70,10 +74,27 @@ public class MainWindowController implements IBillChangedListener {
     final StringBuilder sb = new StringBuilder();
 
     addBills(billService.getTotalForToday(), "today", sb);
+
+    sb.append("\n\nAll bills for today:\n"
+        + "====================\n\n");
+
+    billService.processTodaysBills(new IBillProcessor() {
+
+      @Override
+      public void processBill(Bill bill) {
+        sb.append(billFormatter.formatBill(bill)).append("\n\n\n");
+      }
+
+    });
+
+    sb.append("\n\n").append(StringUtils.repeat("-", 80)).append("\n\n");
     addBills(billService.getTotalForYesterday(), "yesterday", sb);
 
     billDisplay.printBill(sb.toString());
+
+    billDisplay.scrollToBeginning();
   }
+
 
   /**
    * @param totalForToday
@@ -82,8 +103,18 @@ public class MainWindowController implements IBillChangedListener {
   private void addBills(final IMultipleBillsCalculator totalForToday, String date, final StringBuilder sb) {
     sb.append("Bill for "
         + date + "\n==============\n\n");
-    sb.append("Total (gross)\t").append(totalForToday.getTotalGross())
-        .append("\n");
+
+    Money totalNet = null;
+    for (final VATClass vatClass : totalForToday.getAllVatClasses()) {
+      if (totalNet == null) {
+        totalNet = totalForToday.getTotalNetFor(vatClass);
+      } else {
+        totalNet = totalNet.add(totalForToday.getTotalNetFor(vatClass));
+      }
+    }
+
+    sb.append("Total (gross): ").append(totalForToday.getTotalGross()).append(";\t\t")
+        .append("Total (net): ").append(totalNet).append("\n\n");
 
     sb.append("VAT classes:\n\n");
     for (final VATClass vatClass : totalForToday.getAllVatClasses()) {

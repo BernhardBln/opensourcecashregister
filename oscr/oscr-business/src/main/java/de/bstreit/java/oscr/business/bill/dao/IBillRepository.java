@@ -35,7 +35,7 @@ import de.bstreit.java.oscr.business.bill.Bill;
 
 public interface IBillRepository extends JpaRepository<Bill, Long> {
 
-  @Query("from Bill where billOpened >= current_date")
+  @Query("from Bill where billOpened >= current_date order by billOpened desc")
   public Collection<Bill> getBillsForToday();
 
   @Query("from Bill where billOpened >= current_date - 1 AND billOpened < current_date")

@@ -71,6 +71,7 @@ public class BillService {
   @Inject
   private IMultipleBillsCalculatorFactory multipleBillsCalculatorFactory;
 
+
   private final Set<IBillChangedListener> billChangedListener = Sets
       .newHashSet();
 
@@ -257,5 +258,16 @@ public class BillService {
     saveBill();
 
     fireBillChangedEvent();
+  }
+
+
+  @Transactional
+  public void processTodaysBills(IBillProcessor billProcessor) {
+    final Collection<Bill> allBillsForToday = billRepository.getBillsForToday();
+
+    for (final Bill bill : allBillsForToday) {
+      billProcessor.processBill(bill);
+    }
+
   }
 }

@@ -29,219 +29,221 @@ import de.bstreit.java.oscr.business.taxation.TaxInfo;
 @Named
 public class BillFormatter {
 
-	@Value("#{ systemProperties['line.separator'] }")
-	private String NEWLINE;
+  @Value("#{ systemProperties['line.separator'] }")
+  private String NEWLINE;
 
-	private static final int MAX_LINE_LENGTH = 44;
+  private static final int MAX_LINE_LENGTH = 44;
 
-	private static final int MAX_PRODUCT_COLUMN_LENGTH = 20;
+  private static final int MAX_PRODUCT_COLUMN_LENGTH = 20;
 
-	@Inject
-	private IBillCalculatorFactory billCalculatorFactory;
+  @Inject
+  private IBillCalculatorFactory billCalculatorFactory;
 
-	@Inject
-	private Locale locale;
+  @Inject
+  private Locale locale;
 
-	@Inject
-	@Named("togoTaxInfo")
-	private TaxInfo toGoTaxinfo;
+  @Inject
+  @Named("togoTaxInfo")
+  private TaxInfo toGoTaxinfo;
 
-	private BillItemWrapper billItemWrapper;
-	private final MoneyFormatter moneyFormatter = new MoneyFormatter();
-	private DateFormat dateFormat;
+  private BillItemWrapper billItemWrapper;
+  private final MoneyFormatter moneyFormatter = new MoneyFormatter();
+  private DateFormat dateFormat;
 
-	private transient Bill _bill;
-	private transient StrBuilder _builder;
-	private transient IBillCalculator billCalculator;
+  private transient Bill _bill;
+  private transient StrBuilder _builder;
+  private transient IBillCalculator billCalculator;
 
-	@PostConstruct
-	private void init() {
-		dateFormat = DateFormat.getDateTimeInstance(DateFormat.DEFAULT,
-				DateFormat.SHORT, locale);
-		billItemWrapper = new BillItemWrapper(MAX_PRODUCT_COLUMN_LENGTH,
-				NEWLINE);
-	}
 
-	public String formatBill(Bill bill) {
-		if (bill == null) {
-			return "";
-		}
+  @PostConstruct
+  private void init() {
+    dateFormat = DateFormat.getDateTimeInstance(DateFormat.DEFAULT,
+        DateFormat.SHORT, locale);
+    billItemWrapper = new BillItemWrapper(MAX_PRODUCT_COLUMN_LENGTH,
+        NEWLINE);
+  }
 
-		this._bill = bill;
+  public String formatBill(Bill bill) {
+    if (bill == null) {
+      return "";
+    }
 
-		try (IBillCalculator billCalculator = billCalculatorFactory
-				.create(bill)) {
-			this.billCalculator = billCalculator;
+    this._bill = bill;
 
-			return getBillAsText();
+    try (IBillCalculator billCalculator = billCalculatorFactory
+        .create(bill)) {
+      this.billCalculator = billCalculator;
 
-		} finally {
-			this._bill = null;
-			this._builder = null;
-		}
-	}
+      return getBillAsText();
 
-	private String getBillAsText() {
-		_builder = new StrBuilder();
+    } finally {
+      this._bill = null;
+      this._builder = null;
+    }
+  }
 
-		appendBillHeader();
-		appendBillContent();
-		appendBillFooter();
+  private String getBillAsText() {
+    _builder = new StrBuilder();
 
-		return _builder.toString();
-	}
+    appendBillHeader();
+    appendBillContent();
+    appendBillFooter();
 
-	private void appendBillHeader() {
+    return _builder.toString();
+  }
 
-		Date datum = _bill.getBillClosed();
-		if (datum == null) {
-			datum = new Date();
-		}
+  private void appendBillHeader() {
 
-		// Is "+" worse or better than creating another stringbuilder?
-		_builder.insert(0,
-				"Rechnung                    "
-						+ dateFormat.format(datum)
-						+ NEWLINE //
-						+ createHR("=")
-						+ NEWLINE //
-						+ taxInformationIfApplies()
-						+ "                     Mwst.  netto*    brutto"
-						+ NEWLINE);
-	}
+    Date datum = _bill.getBillClosed();
+    if (datum == null) {
+      datum = new Date();
+    }
 
-	private String taxInformationIfApplies() {
+    // Is "+" worse or better than creating another stringbuilder?
+    _builder.insert(0,
+        "Rechnung                    "
+            + dateFormat.format(datum)
+            + NEWLINE //
+            + createHR("=")
+            + NEWLINE //
+            + taxInformationIfApplies()
+            + "                     Mwst.  netto*    brutto"
+            + NEWLINE);
+  }
 
-		final boolean isToGo = _bill.getGlobalTaxInfo().equals(toGoTaxinfo);
+  private String taxInformationIfApplies() {
 
-		if (isToGo) {
-			return "  To go" + NEWLINE;
-		} else {
-			return "  In-house" + NEWLINE;
-		}
+    final boolean isToGo = _bill.getGlobalTaxInfo().equals(toGoTaxinfo);
 
-	}
+    if (isToGo) {
+      return "  To go" + NEWLINE;
+    } else {
+      return "  In-house" + NEWLINE;
+    }
 
-	private int appendBillContent() {
-		int maxLineWidth = 0;
+  }
 
-		for (final BillItem billItem : _bill) {
+  private int appendBillContent() {
+    int maxLineWidth = 0;
 
-			maxLineWidth = appendProduct(maxLineWidth, billItem);
+    for (final BillItem billItem : _bill) {
 
-		}
+      maxLineWidth = appendProduct(maxLineWidth, billItem);
 
-		return maxLineWidth;
-	}
+    }
 
-	private int appendProduct(int maxLineWidth, final BillItem billItem) {
-		// TODO: add prices of extras and variations!
-		final Money priceGross = billItem.getPriceGross();
-		final String priceGrossFormatted = moneyFormatter.format(priceGross);
+    return maxLineWidth;
+  }
 
-		final Money priceNet = billCalculator.getNetFor(billItem);
-		final String priceNetFormatted = moneyFormatter.format(priceNet);
+  private int appendProduct(int maxLineWidth, final BillItem billItem) {
+    // TODO: add prices of extras and variations!
+    final Money priceGross = billItem.getPriceGross();
+    final String priceGrossFormatted = moneyFormatter.format(priceGross);
 
-		billItemWrapper.wrapText(getOfferedItemName(billItem));
+    final Money priceNet = billCalculator.getNetFor(billItem);
+    final String priceNetFormatted = moneyFormatter.format(priceNet);
 
-		final Object[] variables = new Object[] {
-				billItemWrapper.getFirstLine(), //
-				billCalculator.getVATClassAbbreviationFor(billItem),//
-				priceNetFormatted, //
-				priceGrossFormatted };
+    billItemWrapper.wrapText(getOfferedItemName(billItem));
 
-		final String lineFormatted = String.format(
-				getProductNameVATPriceFormatString(), variables);
-		_builder.append(lineFormatted).append(NEWLINE);
+    final Object[] variables = new Object[] {
+        billItemWrapper.getFirstLine(), //
+        billCalculator.getVATClassAbbreviationFor(billItem),//
+        priceNetFormatted, //
+        priceGrossFormatted };
 
-		if (billItemWrapper.hasFurtherLines()) {
-			_builder.append(billItemWrapper.getFurtherLines()).append(NEWLINE);
-		}
+    final String lineFormatted = String.format(
+        getProductNameVATPriceFormatString(), variables);
+    _builder.append(lineFormatted).append(NEWLINE);
 
-		maxLineWidth = Math.max(lineFormatted.length(), maxLineWidth);
-		return maxLineWidth;
-	}
+    if (billItemWrapper.hasFurtherLines()) {
+      _builder.append(billItemWrapper.getFurtherLines()).append(NEWLINE);
+    }
 
-	private String getProductNameVATPriceFormatString() {
+    maxLineWidth = Math.max(lineFormatted.length(), maxLineWidth);
+    return maxLineWidth;
+  }
 
-		final String productNameFormat = "%-" + MAX_PRODUCT_COLUMN_LENGTH + "s";
-		final String vatRate = "%s";
-		final String netPrice = "%8s";
-		final String grossPrice = "%8s";
+  private String getProductNameVATPriceFormatString() {
 
-		return productNameFormat + "   " + vatRate + "  " + netPrice + "  "
-				+ grossPrice;
-	}
+    final String productNameFormat = "%-" + MAX_PRODUCT_COLUMN_LENGTH + "s";
+    final String vatRate = "%s";
+    final String netPrice = "%8s";
+    final String grossPrice = "%8s";
 
-	private String getOfferedItemName(BillItem billItem) {
-		return billItem.getName();
-	}
+    return productNameFormat + "   " + vatRate + "  " + netPrice + "  "
+        + grossPrice;
+  }
 
-	private void appendBillFooter() {
-		appendTotal();
-		appendVATInfo();
-		appendRoundedNetAndVATValuesInfo();
-	}
+  private String getOfferedItemName(BillItem billItem) {
+    return billItem.getName();
+  }
 
-	private void appendTotal() {
-		final String totalGross = moneyFormatter.format(billCalculator
-				.getTotalGross());
+  private void appendBillFooter() {
+    appendTotal();
+    appendVATInfo();
+    appendRoundedNetAndVATValuesInfo();
+  }
 
-		// TODO check that secondColumnLength + len(Gesamtsumme:) <=
-		// maxLineLength!
-		final int secondColumnLength = totalGross.length();
-		final int firstColumnLength = MAX_LINE_LENGTH - secondColumnLength;
+  private void appendTotal() {
+    final String totalGross = moneyFormatter.format(billCalculator
+        .getTotalGross());
 
-		final String formatString = "%-" + firstColumnLength + "s%"
-				+ secondColumnLength + "s" + NEWLINE;
+    // TODO check that secondColumnLength + len(Gesamtsumme:) <=
+    // maxLineLength!
+    final int secondColumnLength = totalGross.length();
+    final int firstColumnLength = MAX_LINE_LENGTH - secondColumnLength;
 
-		_builder.append(createHR("-")).append(NEWLINE);
-		_builder.append(String.format(formatString, "Gesamtsumme (brutto):",
-				totalGross));
-		_builder.append(createHR("=")).append(NEWLINE).append(NEWLINE);
-	}
+    final String formatString = "%-" + firstColumnLength + "s%"
+        + secondColumnLength + "s" + NEWLINE;
 
-	private String createHR(String symbol) {
-		return Strings.repeat(symbol, MAX_LINE_LENGTH);
-	}
+    _builder.append(createHR("-")).append(NEWLINE);
+    _builder.append(String.format(formatString, "Gesamtsumme (brutto):",
+        totalGross));
+    _builder.append(createHR("=")).append(NEWLINE).append(NEWLINE);
+  }
 
-	private void appendVATInfo() {
+  private String createHR(String symbol) {
+    return Strings.repeat(symbol, MAX_LINE_LENGTH);
+  }
 
-		for (final Character abbreviation : billCalculator
-				.allFoundVATClassesAbbreviated()) {
+  private void appendVATInfo() {
 
-			final VATClass vatClass = billCalculator
-					.getVATClassForAbbreviation(abbreviation);
-			final Money totalNetForVATClass = billCalculator
-					.getTotalNetFor(vatClass);
-			final Money totalVATForVATClass = billCalculator
-					.getTotalVATFor(vatClass);
-			final Money totalGrossForVATClass = billCalculator
-					.getTotalGrossFor(vatClass);
+    for (final Character abbreviation : billCalculator
+        .allFoundVATClassesAbbreviated()) {
 
-			_builder.append(abbreviation)
-					.append(" - ")
-					.append(vatClass)
-					.append(NEWLINE)
-					.append("      netto* ")
-					.append(String.format("%8s",
-							moneyFormatter.format(totalNetForVATClass)))
-					.append(NEWLINE)
-					.append("      Mwst.* ")
-					.append(String.format("%8s",
-							moneyFormatter.format(totalVATForVATClass)))
-					.append(NEWLINE)
-					.append("      brutto ")
-					.append(String.format("%8s",
-							moneyFormatter.format(totalGrossForVATClass)))
-					.append(NEWLINE).append(NEWLINE);
+      final VATClass vatClass = billCalculator
+          .getVATClassForAbbreviation(abbreviation);
+      final Money totalNetForVATClass = billCalculator
+          .getTotalNetFor(vatClass);
+      final Money totalVATForVATClass = billCalculator
+          .getTotalVATFor(vatClass);
+      final Money totalGrossForVATClass = billCalculator
+          .getTotalGrossFor(vatClass);
 
-		}
+      _builder.append(abbreviation)
+          .append(" - ")
+          .append(vatClass)
+          .append(NEWLINE)
+          .append("      netto* ")
+          .append(String.format("%8s",
+              moneyFormatter.format(totalNetForVATClass)))
+          .append(NEWLINE)
+          .append("      Mwst.* ")
+          .append(String.format("%8s",
+              moneyFormatter.format(totalVATForVATClass)))
+          .append(NEWLINE)
+          .append("      brutto ")
+          .append(String.format("%8s",
+              moneyFormatter.format(totalGrossForVATClass)))
+          .append(NEWLINE).append(NEWLINE);
 
-	}
+    }
 
-	private void appendRoundedNetAndVATValuesInfo() {
-		_builder.append("* gerundete Beträge").append(NEWLINE);
-	}
+  }
+
+  private void appendRoundedNetAndVATValuesInfo() {
+    _builder.append("* gerundete Beträge").append(NEWLINE);
+  }
+
 
 }

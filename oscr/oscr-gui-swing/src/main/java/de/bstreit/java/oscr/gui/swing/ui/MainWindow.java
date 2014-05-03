@@ -238,4 +238,9 @@ public class MainWindow implements IBillDisplay {
     btnToGo.setSelected(true);
   }
 
+  @Override
+  public void scrollToBeginning() {
+    billView.setCaretPosition(0);
+  }
+
 }

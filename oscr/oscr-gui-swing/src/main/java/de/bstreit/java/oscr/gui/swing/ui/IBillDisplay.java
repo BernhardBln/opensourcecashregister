@@ -10,5 +10,7 @@ public interface IBillDisplay {
 
   void resetGui();
 
+  void scrollToBeginning();
+
 
 }
