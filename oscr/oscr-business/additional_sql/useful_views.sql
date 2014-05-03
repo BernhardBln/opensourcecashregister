@@ -45,3 +45,13 @@ CREATE VIEW BILLS_SUMMED_UP_BY_DAY AS
 		pricecurrency, date;
 
 		
+CREATE VIEW STAT_BILLITEMS_PER_HOUR AS
+	SELECT
+		COUNT(*), 
+		SUBSTRING(billopened, 12, 2) AS hour 
+	FROM
+		BILLS_WITH_PRODUCTS
+	GROUP BY 
+		hour
+	ORDER BY
+		hour;
