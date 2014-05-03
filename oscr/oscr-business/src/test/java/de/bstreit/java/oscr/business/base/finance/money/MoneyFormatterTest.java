@@ -26,50 +26,68 @@
  */
 package de.bstreit.java.oscr.business.base.finance.money;
 
-import org.junit.Assert;
-import org.junit.Test;
+import java.util.Locale;
 
-import de.bstreit.java.oscr.business.base.finance.money.Money;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 public class MoneyFormatterTest {
 
-	@Test
-	public void formatterTest() {
-		final Money m = new Money("1.26", "EUR");
+  private static final Locale defaultLocale = Locale.getDefault();
 
-		final String actualString = m.toString();
-		final String expectedString = "1,26 €";
 
-		Assert.assertEquals(expectedString, actualString);
-	}
+  @BeforeClass
+  public static void setDefaultLocale() {
+    Locale.setDefault(Locale.GERMANY);
+    Money.resetNumberFormatter();
+  }
 
-	@Test
-	public void formatterTestHigherScale() {
-		final Money m = new Money("1.269", "EUR");
+  @AfterClass
+  public static void restoreLocale() {
+    // reset locale for next test
+    Locale.setDefault(defaultLocale);
+    Money.resetNumberFormatter();
+  }
 
-		final String actualString = m.toString();
-		final String expectedString = "1,27 €";
+  @Test
+  public void formatterTest() {
+    final Money m = new Money("1.26", "EUR");
 
-		Assert.assertEquals(expectedString, actualString);
-	}
+    final String actualString = m.toString();
+    final String expectedString = "1,26 €";
 
-	@Test
-	public void formatterTestSmallerScale() {
-		final Money m = new Money("1.2", "EUR");
+    Assert.assertEquals(expectedString, actualString);
+  }
 
-		final String actualString = m.toString();
-		final String expectedString = "1,20 €";
+  @Test
+  public void formatterTestHigherScale() {
+    final Money m = new Money("1.269", "EUR");
 
-		Assert.assertEquals(expectedString, actualString);
-	}
+    final String actualString = m.toString();
+    final String expectedString = "1,27 €";
 
-	@Test
-	public void formatterTestNoScale() {
-		final Money m = new Money("1", "EUR");
+    Assert.assertEquals(expectedString, actualString);
+  }
 
-		final String actualString = m.toString();
-		final String expectedString = "1,00 €";
+  @Test
+  public void formatterTestSmallerScale() {
+    final Money m = new Money("1.2", "EUR");
 
-		Assert.assertEquals(expectedString, actualString);
-	}
+    final String actualString = m.toString();
+    final String expectedString = "1,20 €";
+
+    Assert.assertEquals(expectedString, actualString);
+  }
+
+  @Test
+  public void formatterTestNoScale() {
+    final Money m = new Money("1", "EUR");
+
+    final String actualString = m.toString();
+    final String expectedString = "1,00 €";
+
+    Assert.assertEquals(expectedString, actualString);
+  }
 }

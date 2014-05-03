@@ -26,11 +26,19 @@
  */
 package de.bstreit.java.oscr.business.bill.dao;
 
+import java.util.Collection;
+
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import de.bstreit.java.oscr.business.bill.Bill;
 
-
 public interface IBillRepository extends JpaRepository<Bill, Long> {
+
+  @Query("from Bill where billOpened >= current_date")
+  public Collection<Bill> getBillsForToday();
+
+  @Query("from Bill where billOpened >= current_date - 1 AND billOpened < current_date")
+  public Collection<Bill> getBillsForYesterday();
 
 }

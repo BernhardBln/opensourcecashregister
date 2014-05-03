@@ -26,10 +26,19 @@
  */
 package de.bstreit.java.oscr.business.offers.dao;
 
+import java.util.Collection;
+
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import de.bstreit.java.oscr.business.offers.VariationOffer;
 
-public interface IVariationOfferRepository extends JpaRepository<VariationOffer, Long> {
+public interface IVariationOfferRepository extends
+		JpaRepository<VariationOffer, Long> {
+
+	@Query("select variationOffer " + "  from VariationOffer variationOffer "
+			+ "  where variationOffer.validTo is null"
+			+ "    and variationOffer.offeredItem.validTo is null")
+	public Collection<VariationOffer> findAllActiveOffers();
 
 }

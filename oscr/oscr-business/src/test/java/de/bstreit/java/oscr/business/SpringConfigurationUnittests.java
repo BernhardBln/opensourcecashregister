@@ -35,6 +35,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.orm.jpa.vendor.Database;
 
+import de.bstreit.java.oscr.business.taxation.TaxInfo;
+import de.bstreit.java.oscr.business.taxation.dao.ITaxInfoRepository;
+
 /**
  * Configuration using an in-memory H2 database, for unittests (when mocks are
  * inappropriate) and for integration tests.
@@ -52,6 +55,12 @@ public class SpringConfigurationUnittests {
   @Bean
   protected Database getDatabaseForVendorAdapter() {
     return Database.H2;
+  }
+
+
+  @Bean
+  protected TaxInfo getDefaultGlobalTaxInfoForNewBills(ITaxInfoRepository taxInfoRepository) {
+    return taxInfoRepository.findByDenotationAndValidToIsNull("in-house");
   }
 
 }

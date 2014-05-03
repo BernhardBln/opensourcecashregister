@@ -43,7 +43,5 @@ public class Extras {
   public static final Extra MILCH = new Extra("Milch", ValidityDates.VALID_FROM_DATE,
       ValidityDates.VALID_TO_DATE);
 
-  public static final Extra SIRUP = new Extra("Sirup", ValidityDates.VALID_FROM_DATE,
-      ValidityDates.VALID_TO_DATE);
 
 }

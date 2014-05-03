@@ -26,14 +26,18 @@
  */
 package de.bstreit.java.oscr.business.bill;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
 import com.fasterxml.uuid.EthernetAddress;
@@ -41,37 +45,90 @@ import com.fasterxml.uuid.Generators;
 import com.fasterxml.uuid.impl.TimeBasedGenerator;
 import com.google.common.collect.ImmutableList;
 
+import de.bstreit.java.oscr.business.taxation.TaxInfo;
+import de.bstreit.java.oscr.business.user.User;
 
 /**
  * 
  * @author streit
  */
 @Entity
-public class Bill {
+public class Bill implements Iterable<BillItem> {
 
-
-  private static final TimeBasedGenerator uuidGenerator;
+  private static final TimeBasedGenerator timeBasedUuidGenerator;
 
   static {
-    uuidGenerator = Generators.timeBasedGenerator(EthernetAddress.fromInterface());
+    timeBasedUuidGenerator = Generators.timeBasedGenerator(EthernetAddress
+        .fromInterface());
   }
 
   @Id
   @Column(length = 36)
-  private String id = uuidGenerator.generate().toString();
+  private final String id = timeBasedUuidGenerator.generate().toString();
+
+  /**
+   * An optional description of the bill, can help to identify an opened bill
+   * (e.g. "table 3")
+   */
+  @Column(nullable = true)
+  private String description;
 
   @OneToMany(cascade = CascadeType.ALL)
-  private List<BillItem> billItems = new ArrayList<BillItem>();
+  private final List<BillItem> billItems = new ArrayList<BillItem>();
+
+  /** The date when the bill was opened. */
+  @Column(nullable = false)
+  private Date billOpened;
 
   /** The date when the bill was closed and paid. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   private Date billClosed;
 
+  /**
+   * The global tax info. Must not be null; default value must be set within the
+   * app
+   */
+  // TODO [10]: check which cascade types we really need here. Same at
+  // AbstractSalesItem.overridingTaxInfo
+  @ManyToOne(cascade = { CascadeType.REFRESH }, optional = false)
+  private TaxInfo globalTaxInfo;
 
-  public void addBillItem(BillItem item) {
+  /**
+   * The user who was logged in when the bill was closed. This is not
+   * necessarily the person that opened the bill, but that received the payment.
+   */
+  @ManyToOne(optional = true)
+  private User cashier;
+
+
+  Bill(TaxInfo defaultGlobalTaxInfo, Date billOpeningDate) {
+    checkNotNull(defaultGlobalTaxInfo);
+    setGlobalTaxInfo(defaultGlobalTaxInfo);
+    billOpened = billOpeningDate;
+  }
+
+  private Bill() {
+
+  }
+
+  void addBillItem(BillItem item) {
     billItems.add(item);
   }
 
+  /**
+   * @return the {@link #globalTaxInfo}
+   */
+  public TaxInfo getGlobalTaxInfo() {
+    return globalTaxInfo;
+  }
+
+  /**
+   * @param globalTaxInfo
+   *          the {@link #globalTaxInfo} to set
+   */
+  public void setGlobalTaxInfo(TaxInfo globalTaxInfo) {
+    this.globalTaxInfo = globalTaxInfo;
+  }
 
   /**
    * @return the {@link #billClosed}
@@ -80,19 +137,20 @@ public class Bill {
     return billClosed;
   }
 
-
   /**
+   * Invoked when an open bill is getting paid and hence closed.
+   * 
    * @param billClosed
-   *          the {@link #billClosed} to set
+   * @param billClosingDate
    */
-  public void setBillClosed(Date billClosed) {
-    this.billClosed = billClosed;
+  void closeBill(User cashier, Date billClosingDate) {
+    this.billClosed = billClosingDate;
+    this.cashier = cashier;
   }
 
   public List<BillItem> getBillItems() {
     return ImmutableList.copyOf(billItems);
   }
-
 
   @Override
   public int hashCode() {
@@ -110,7 +168,7 @@ public class Bill {
       return false;
     if (getClass() != obj.getClass())
       return false;
-    Bill other = (Bill) obj;
+    final Bill other = (Bill) obj;
     if (id == null) {
       if (other.id != null)
         return false;
@@ -119,5 +177,30 @@ public class Bill {
     return true;
   }
 
+  @Override
+  public Iterator<BillItem> iterator() {
+    return getBillItems().iterator();
+  }
+
+  public Date getBillOpened() {
+    return billOpened;
+  }
+
+  public void undoLastAction() {
+    final int lastItemIndex = billItems.size() - 1;
+
+    final BillItem lastItem = billItems.get(lastItemIndex);
+
+    if (lastItem.hasUndoable()) {
+      lastItem.undoLastAction();
+    } else {
+      billItems.remove(lastItemIndex);
+    }
+
+  }
+
+  public boolean isEmpty() {
+    return billItems.isEmpty();
+  }
 
 }

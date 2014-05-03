@@ -26,11 +26,17 @@
  */
 package de.bstreit.java.oscr.business.base.finance.tax.dao;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import de.bstreit.java.oscr.business.base.finance.tax.VATClass;
 
 
 public interface IVATClassRepository extends JpaRepository<VATClass, Long> {
+
+  public VATClass findByDesignationAndValidToIsNull(String designation);
+
+  public List<VATClass> findAllByValidToIsNull();
 
 }

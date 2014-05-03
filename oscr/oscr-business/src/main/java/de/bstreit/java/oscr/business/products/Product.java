@@ -42,44 +42,44 @@ import javax.persistence.ManyToOne;
 @DiscriminatorValue(value = "Product")
 public class Product extends AbstractSalesItem {
 
-	/**
-	 * Optional; not used in equals or hashcode
-	 */
-	@ManyToOne(cascade = CascadeType.ALL, optional = true)
-	private ContainerSize containerSize = null;
+  /**
+   * Optional; not used in equals or hashcode
+   */
+  @ManyToOne(cascade = CascadeType.ALL, optional = true)
+  private ContainerSize containerSize = null;
 
 
-	private Product() {
-		super(null, null, null);
-	}
+  private Product() {
+    super(null, null, null);
+  }
 
-	public Product(String name, Date validFrom, Date validTo) {
-		super(name, validFrom, validTo);
-	}
+  public Product(String name, Date validFrom, Date validTo) {
+    super(name, validFrom, validTo);
+  }
 
-	public ContainerSize getContainerSize() {
-		return containerSize;
-	}
+  public ContainerSize getContainerSize() {
+    return containerSize;
+  }
 
-	/**
-	 * Optional: Packungsgröße setzen
-	 * 
-	 * @param containerSize
-	 */
-	public void setPackageSize(ContainerSize containerSize) {
-		this.containerSize = containerSize;
-	}
+  /**
+   * Optional: Packungsgröße setzen
+   * 
+   * @param containerSize
+   */
+  public void setPackageSize(ContainerSize containerSize) {
+    this.containerSize = containerSize;
+  }
 
-	@Override
-	public String getLabel() {
+  @Override
+  public String getLabel() {
 
-		final String name = getName();
+    final String name = getName();
 
-		String containerSizeStr = "";
-		if (containerSize != null) {
-			containerSizeStr = "<BR>" + containerSize.getSize();
-		}
+    String containerSizeStr = "";
+    if (containerSize != null) {
+      containerSizeStr = "<BR>[" + containerSize.getSize() + "]<BR>";
+    }
 
-		return name + containerSizeStr;
-	}
+    return name + containerSizeStr;
+  }
 }

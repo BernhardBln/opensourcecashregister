@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
@@ -6,31 +7,42 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>0.5.0.M7</version>
+		<version>1.0.1.RELEASE</version>
 	</parent>
 
 
 	<groupId>de.bstreit.java.oscr</groupId>
 	<artifactId>oscr</artifactId>
 	<name>oscr</name>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.1.0.RELEASE</version>
 
 	<packaging>pom</packaging>
 
 
 	<properties>
+		<!-- General -->
 		<java.version>1.7</java.version>
 
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
+		<!-- Dependencies -->
 		<javax-inject.version>1</javax-inject.version>
 		<guava.version>15.0</guava.version>
 		<commons-lang3.version>3.1</commons-lang3.version>
 
+		<!-- Test Dependencies -->
 		<mockito-all.version>1.9.5</mockito-all.version>
 
+		<!-- Maven Plugins -->
 		<maven-jgitflow-plugin.version>1.0-alpha21.1</maven-jgitflow-plugin.version>
+
+		<maven-checkstyle-plugin.version>2.11</maven-checkstyle-plugin.version>
+		<findbugs-maven-plugin.version>2.5.3</findbugs-maven-plugin.version>
+
+		<dashboard-maven-plugin.version>1.0.0-beta-1</dashboard-maven-plugin.version>
+		<maven-project-info-reports-plugin.version>2.7</maven-project-info-reports-plugin.version>
+
 	</properties>
 
 
@@ -40,79 +52,45 @@
 		<module>oscr-starter-production</module>
 		<module>oscr-starter-sandbox</module>
 		<module>oscr-initial-data</module>
+		<module>oscr-test-base</module>
 	</modules>
 
-	<dependencies>
+	<dependencyManagement>
+		<dependencies>
+			<!-- Spring Core -->
 
-		<!-- Spring Core -->
+			<dependency>
+				<groupId>javax.inject</groupId>
+				<artifactId>javax.inject</artifactId>
+				<version>${javax-inject.version}</version>
+			</dependency>
 
-		<dependency>
-			<groupId>javax.inject</groupId>
-			<artifactId>javax.inject</artifactId>
-			<version>${javax-inject.version}</version>
-		</dependency>
+			<!-- Tools -->
 
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-context</artifactId>
-		</dependency>
+			<dependency>
+				<groupId>org.apache.commons</groupId>
+				<artifactId>commons-lang3</artifactId>
+				<version>${commons-lang3.version}</version>
+			</dependency>
 
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-logging</artifactId>
-		</dependency>
+			<dependency>
+				<groupId>com.google.guava</groupId>
+				<artifactId>guava</artifactId>
+				<version>${guava.version}</version>
+			</dependency>
 
-		<!-- Data mapping and access -->
+			<!-- Testing -->
 
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-orm</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.data</groupId>
-			<artifactId>spring-data-jpa</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-entitymanager</artifactId>
-		</dependency>
 
-		<!-- Tools -->
+			<dependency>
+				<groupId>org.mockito</groupId>
+				<artifactId>mockito-all</artifactId>
+				<version>${mockito-all.version}</version>
+				<scope>test</scope>
+			</dependency>
 
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-lang3</artifactId>
-			<version>${commons-lang3.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>com.google.guava</groupId>
-			<artifactId>guava</artifactId>
-			<version>${guava.version}</version>
-		</dependency>
-
-		<!-- Testing -->
-
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-test</artifactId>
-			<scope>test</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>org.mockito</groupId>
-			<artifactId>mockito-all</artifactId>
-			<version>${mockito-all.version}</version>
-			<scope>test</scope>
-		</dependency>
-
-	</dependencies>
+		</dependencies>
+	</dependencyManagement>
 
 
 	<repositories>
@@ -124,8 +102,17 @@
 				<enabled>false</enabled>
 			</snapshots>
 		</repository>
+
 	</repositories>
 
+
+	<pluginRepositories>
+		<pluginRepository>
+			<!-- For maven dashboard plugin -->
+			<id>Codehaus repository</id>
+			<url>http://repository.codehaus.org/</url>
+		</pluginRepository>
+	</pluginRepositories>
 
 	<build>
 		<plugins>
@@ -141,6 +128,54 @@
 
 		</plugins>
 	</build>
+
+	<reporting>
+
+		<plugins>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+				<version>${maven-checkstyle-plugin.version}</version>
+				<reportSets>
+					<reportSet>
+						<reports>
+							<report>checkstyle</report>
+						</reports>
+					</reportSet>
+				</reportSets>
+			</plugin>
+
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>findbugs-maven-plugin</artifactId>
+				<version>${findbugs-maven-plugin.version}</version>
+			</plugin>
+
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-project-info-reports-plugin</artifactId>
+				<version>${maven-project-info-reports-plugin.version}</version>
+				<configuration>
+					<!-- To prevent checking for local jars in remote repos -->
+					<dependencyDetailsEnabled>false</dependencyDetailsEnabled>
+					<dependencyLocationsEnabled>false</dependencyLocationsEnabled>
+				</configuration>
+			</plugin>
+
+			<!-- This MUST be the last plugin! -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>dashboard-maven-plugin</artifactId>
+				<version>${dashboard-maven-plugin.version}</version>
+			</plugin>
+
+			<!-- Do NOT add anything here, but before the dashboard-maven-plugin! -->
+
+		</plugins>
+
+	</reporting>
 
 
 </project>

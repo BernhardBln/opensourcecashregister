@@ -29,7 +29,6 @@ package de.bstreit.java.oscr.business.products;
 import java.util.Date;
 
 import javax.persistence.CascadeType;
-import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.DiscriminatorType;
 import javax.persistence.Entity;
@@ -44,6 +43,7 @@ import org.hibernate.annotations.NaturalId;
 
 import de.bstreit.java.oscr.business.base.ILabelledItem;
 import de.bstreit.java.oscr.business.base.persistence.AbstractPersistentObjectWithContinuance;
+import de.bstreit.java.oscr.business.taxation.TaxInfo;
 
 @Entity
 @Table(name = "SalesItems")
@@ -56,9 +56,34 @@ public abstract class AbstractSalesItem extends AbstractPersistentObjectWithCont
   @NaturalId
   private String name;
 
-  @ManyToOne(cascade = CascadeType.ALL)
-  @Column(nullable = true)
-  private transient TaxInfo taxInfo;
+  /**
+   * <p>
+   * The vat class for products on the bill is usually globally determined by
+   * the tax info attached to the bill.
+   * </p>
+   * <p>
+   * Some products, however, might need to carry additional information that
+   * help determining the correct tax class.
+   * </p>
+   * <p>
+   * <b> Consider the following example (please be sure to read our warning
+   * notice about tax examples, e.g. in the {@link TaxInfo} JavaDoc or in the
+   * projects README.txt!) </b>
+   * </p>
+   * <p>
+   * In a restaurant, the global tax information for the bill could be
+   * "sold to go" or "eaten inhouse" which determines whether the tax class for
+   * food is reduced or standard vat.
+   * </p>
+   * <p>
+   * But if the same restaurant is selling China plates with their logo, the tax
+   * class for those plates should always be "normal vat", even if the other
+   * items on the bill are food that was ordered "to go" and hence taxed
+   * "reduced vat".
+   * </p>
+   */
+  @ManyToOne(cascade = CascadeType.ALL, optional = true)
+  private TaxInfo overridingTaxInfo;
 
 
   protected AbstractSalesItem(String name, Date validFrom, Date validTo) {
@@ -66,16 +91,16 @@ public abstract class AbstractSalesItem extends AbstractPersistentObjectWithCont
     this.name = name;
   }
 
-  public TaxInfo getTaxInfo() {
-    return taxInfo;
+  public TaxInfo getOverridingTaxInfo() {
+    return overridingTaxInfo;
   }
 
   public String getName() {
     return name;
   }
 
-  public void setTaxInfo(TaxInfo taxInfo) {
-    this.taxInfo = taxInfo;
+  public void setOverridingTaxInfo(TaxInfo taxInfo) {
+    this.overridingTaxInfo = taxInfo;
   }
 
   @Override

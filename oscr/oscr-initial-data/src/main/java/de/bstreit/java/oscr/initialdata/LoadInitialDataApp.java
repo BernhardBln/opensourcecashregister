@@ -39,7 +39,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.orm.jpa.vendor.Database;
 
-import de.bstreit.java.oscr.SpringConfiguration;
+import de.bstreit.java.oscr.SpringConfigurationDoesComponentScan;
 
 
 /**
@@ -69,7 +69,7 @@ public class LoadInitialDataApp {
 
     try (
         final AbstractApplicationContext context = new AnnotationConfigApplicationContext(
-            SpringConfiguration.class)) {
+            SpringConfigurationDoesComponentScan.class)) {
 
       context.getBean(LoadInitialDataApp.class).start();
 

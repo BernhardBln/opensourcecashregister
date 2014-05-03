@@ -26,7 +26,12 @@
  */
 package de.bstreit.java.oscr.business.storage;
 
+import static org.junit.Assert.assertTrue;
+
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -36,10 +41,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.Lists;
 
+import de.bstreit.java.oscr.business.bill.Bill;
+import de.bstreit.java.oscr.business.bill.BillTestFactory;
+import de.bstreit.java.oscr.business.bill.dao.IBillRepository;
 import de.bstreit.java.oscr.business.offers.ProductOffer;
 import de.bstreit.java.oscr.business.offers.dao.IProductOfferRepository;
 import de.bstreit.java.oscr.business.products.Product;
 import de.bstreit.java.oscr.business.products.dao.IProductRepository;
+import de.bstreit.java.oscr.business.taxation.TaxInfo;
+import de.bstreit.java.oscr.business.taxation.dao.ITaxInfoRepository;
 
 @Named
 public class StorageService {
@@ -50,12 +60,61 @@ public class StorageService {
 	@Inject
 	private IProductOfferRepository offerRepository;
 
+	@Inject
+	private IBillRepository billRepository;
+	@Inject
+	private ITaxInfoRepository taxInfoRepository;
+
+	private final BillTestFactory billTestFactory = new BillTestFactory();
 
 	@Transactional
 	public void saveSomeProductsAndOffers() {
 		prodRepository.save(Products.ESPRESSO);
-		offerRepository.save(Arrays.asList(ProductOffers.ESPRESSO, ProductOffers.CAPPUCCINO,
-				ProductOffers.LATTE_MACCHIATO));
+		offerRepository.save(Arrays.asList(ProductOffers.ESPRESSO,
+				ProductOffers.CAPPUCCINO, ProductOffers.LATTE_MACCHIATO));
+	}
+
+	@Transactional
+	public void saveSomeBills() {
+		// hard to prevent - we can use fix times here, but the database uses
+		// system time.
+		// maybe modify query so it gets todays date from outside
+		assertTrue("Test does only run during datetime :)",
+				new Date().getHours() > 1 && new Date().getHours() < 21);
+
+		final Calendar yesterdayOneHourEarlier = Calendar.getInstance();
+		yesterdayOneHourEarlier.roll(Calendar.DAY_OF_MONTH, false);
+		yesterdayOneHourEarlier.roll(Calendar.HOUR_OF_DAY, false);
+
+		final Calendar yesterdayOneHourLater = Calendar.getInstance();
+		yesterdayOneHourLater.roll(Calendar.DAY_OF_MONTH, false);
+		yesterdayOneHourLater.roll(Calendar.HOUR_OF_DAY, true);
+
+		final Calendar todayOneHourEarlier = Calendar.getInstance();
+		todayOneHourEarlier.roll(Calendar.HOUR_OF_DAY, false);
+
+		final Calendar todayOneHourLater = Calendar.getInstance();
+		todayOneHourLater.roll(Calendar.HOUR_OF_DAY, true);
+
+		final TaxInfo taxInfo = new TaxInfo("19%", null, null);
+		final Bill billYesterdayOneHourEarlier = billTestFactory.create(
+				taxInfo, yesterdayOneHourEarlier.getTime());
+
+		final Bill billYesterdayOneHourLater = billTestFactory.create(taxInfo,
+				yesterdayOneHourLater.getTime());
+
+		final Bill billTodayOneHourEarlier = billTestFactory.create(taxInfo,
+				todayOneHourEarlier.getTime());
+
+		final Bill billTodayOneHourLater = billTestFactory.create(taxInfo,
+				todayOneHourLater.getTime());
+
+		taxInfoRepository.save(taxInfo);
+
+		billRepository.save(billYesterdayOneHourEarlier);
+		billRepository.save(billYesterdayOneHourLater);
+		billRepository.save(billTodayOneHourEarlier);
+		billRepository.save(billTodayOneHourLater);
 	}
 
 	public List<Product> getProducts() {
@@ -64,6 +123,10 @@ public class StorageService {
 
 	public List<ProductOffer> getOffers() {
 		return Lists.newArrayList(offerRepository.findAll());
+	}
+
+	public Collection<Bill> getBillsOfToday() {
+		return billRepository.getBillsForToday();
 	}
 
 }

@@ -26,16 +26,43 @@
  */
 package de.bstreit.java.oscr.business.storage;
 
-import java.util.List;
+import static org.junit.Assert.assertEquals;
 
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+
+import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import de.bstreit.java.oscr.business.AbstractSpringTestWithContext;
+import de.bstreit.java.oscr.business.base.finance.money.Money;
+import de.bstreit.java.oscr.business.bill.Bill;
 import de.bstreit.java.oscr.business.offers.ProductOffer;
 import de.bstreit.java.oscr.business.products.Product;
 
+@Ignore
 public class DataStorageTest extends AbstractSpringTestWithContext {
+
+  private static final Locale defaultLocale = Locale.getDefault();
+
+
+  @BeforeClass
+  public static void setDefaultLocale() {
+    Locale.setDefault(Locale.GERMANY);
+    Money.resetNumberFormatter();
+  }
+
+  @AfterClass
+  public static void restoreLocale() {
+    // reset locale for next test
+    Locale.setDefault(defaultLocale);
+    Money.resetNumberFormatter();
+  }
 
   @Test
   public void testDataStorage() {
@@ -60,10 +87,35 @@ public class DataStorageTest extends AbstractSpringTestWithContext {
     Assert.assertTrue(offers.contains(ProductOffers.CAPPUCCINO));
     Assert.assertTrue(offers.contains(ProductOffers.LATTE_MACCHIATO));
 
-    Assert.assertEquals("Espresso<BR>Cup 100 ml<BR>1,00 €", offers.get(0).getLabel());
-    Assert.assertEquals("Cappuccino<BR>Cup 200 ml<BR>1,80 €", offers.get(1).getLabel());
-    Assert.assertEquals("Latte Macchiato<BR>Cup 200 ml<BR>2,30 €", offers.get(2).getLabel());
+    Assert.assertEquals(
+        "<html><center>Espresso<BR>[Cup 100 ml]<BR><BR>1,00 €</center></html>",
+        offers.get(0).getLabel());
+    Assert.assertEquals(
+        "<html><center>Cappuccino<BR>[Cup 200 ml]<BR><BR>1,80 €</center></html>",
+        offers.get(1).getLabel());
+    Assert.assertEquals(
+        "<html><center>Latte Macchiato<BR>[Cup 200 ml]<BR><BR>2,30 €</center></html>",
+        offers.get(2).getLabel());
   }
 
+  @Test
+  public void testBilling() {
+
+    // -INIT
+    final StorageService service = context.getBean(StorageService.class);
+    service.saveSomeProductsAndOffers();
+    service.saveSomeBills();
+
+    // -RUN
+    final Collection<Bill> billsOfToday = service.getBillsOfToday();
+
+    // -ASSERT
+    assertEquals(2, billsOfToday.size());
+    final Date today = new Date();
+    final int day = today.getDate();
+    for (final Bill bill : billsOfToday) {
+      assertEquals(day, bill.getBillOpened().getDate());
+    }
+  }
 
 }

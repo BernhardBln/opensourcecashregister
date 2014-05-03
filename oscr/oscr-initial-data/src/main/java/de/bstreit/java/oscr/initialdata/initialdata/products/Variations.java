@@ -42,9 +42,7 @@ public class Variations {
 
   public static final Variation SOJA = new Variation("Soja", ValidityDates.VALID_FROM_DATE,
       ValidityDates.VALID_TO_DATE);
-  public static final Variation LAKTOSEFREI = new Variation("Laktosefrei", ValidityDates.VALID_FROM_DATE,
-      ValidityDates.VALID_TO_DATE);
-  public static final Variation KOFFEINFREI = new Variation("Koffeinfrei", ValidityDates.VALID_FROM_DATE,
+  public static final Variation ALMONDMILK= new Variation("Almond Milk", ValidityDates.VALID_FROM_DATE,
       ValidityDates.VALID_TO_DATE);
 
 

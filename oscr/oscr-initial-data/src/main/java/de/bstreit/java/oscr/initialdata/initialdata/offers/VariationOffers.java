@@ -39,8 +39,7 @@ import de.bstreit.java.oscr.initialdata.initialdata.products.Variations;
 public class VariationOffers extends AbstractDataContainer<VariationOffer> {
 
   public static final VariationOffer SOJA = create(Variations.SOJA, new Money("0.30", "EUR"));
-  public static final VariationOffer LAKTOSEFREI = create(Variations.LAKTOSEFREI, new Money("0.20", "EUR"));
-  public static final VariationOffer KOFFEINFREI = create(Variations.KOFFEINFREI, new Money("0.20", "EUR"));
+  public static final VariationOffer ALMONDMILK = create(Variations.ALMONDMILK, new Money("0.90", "EUR"));
 
 
   private static VariationOffer create(Variation variation, Money price) {

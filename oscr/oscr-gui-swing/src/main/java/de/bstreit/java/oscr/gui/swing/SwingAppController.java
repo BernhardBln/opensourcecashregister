@@ -1,32 +1,37 @@
 package de.bstreit.java.oscr.gui.swing;
 
+import java.awt.EventQueue;
+
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import de.bstreit.java.oscr.business.bill.Bill;
-import de.bstreit.java.oscr.business.bill.BillItem;
-import de.bstreit.java.oscr.business.offers.ProductOffer;
-import de.bstreit.java.oscr.gui.swing.ui.IBillDisplay;
+import de.bstreit.java.oscr.gui.swing.ui.MainWindowController;
 
 @Named
 public class SwingAppController {
 
   private org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SwingAppController.class);
 
-
   @Inject
-  private IBillDisplay mainWindow;
-
-  private Bill bill = new Bill();
+  private MainWindowController mainWindowController;
 
 
-  public void addToBill(ProductOffer offer) {
-    bill.addBillItem(new BillItem(offer));
-    mainWindow.updateBill(bill);
-  }
+  /**
+   * Launch the application on the Swing thread
+   */
+  public void launchApplication() {
+    EventQueue.invokeLater(new Runnable() {
 
-  public void showMainwindow() {
-    mainWindow.show();
+      public void run() {
+        try {
+          mainWindowController.showMainwindow();
+
+        } catch (Exception e) {
+          logger.error("Uncaught exception when trying to show main window.", e);
+        }
+      }
+
+    });
   }
 
 

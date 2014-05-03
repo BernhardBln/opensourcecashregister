@@ -39,7 +39,6 @@ import de.bstreit.java.oscr.initialdata.initialdata.products.Extras;
 public class ExtraOffers extends AbstractDataContainer<ExtraOffer> {
 
   public static final ExtraOffer MILCH = create(Extras.MILCH, new Money("0.30", "EUR"));
-  public static final ExtraOffer SIRUP = create(Extras.SIRUP, new Money("0.20", "EUR"));
 
 
   private static ExtraOffer create(Extra extra, Money price) {

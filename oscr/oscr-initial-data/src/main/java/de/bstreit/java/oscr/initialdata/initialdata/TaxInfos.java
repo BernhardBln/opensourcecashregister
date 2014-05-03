@@ -28,7 +28,7 @@ package de.bstreit.java.oscr.initialdata.initialdata;
 
 import javax.inject.Named;
 
-import de.bstreit.java.oscr.business.products.TaxInfo;
+import de.bstreit.java.oscr.business.taxation.TaxInfo;
 import de.bstreit.java.oscr.initialdata.AbstractDataContainer;
 
 /**
@@ -53,7 +53,14 @@ public class TaxInfos extends AbstractDataContainer<TaxInfo> {
   /**
    * Only drinks "to go" are candidates for reduced VAT (?)
    */
-  public static final TaxInfo toGo = new TaxInfo("Außer-Haus-Verkauf", ValidityDates.VALID_FROM_DATE,
+  public static final TaxInfo TO_GO = new TaxInfo("to go", ValidityDates.VALID_FROM_DATE,
+      ValidityDates.VALID_TO_DATE);
+
+
+  public static final TaxInfo IN_HOUSE = new TaxInfo("inhouse", ValidityDates.VALID_FROM_DATE,
+      ValidityDates.VALID_TO_DATE);
+
+  public static final TaxInfo NON_FOOD = new TaxInfo("non-food", ValidityDates.VALID_FROM_DATE,
       ValidityDates.VALID_TO_DATE);
 
 
