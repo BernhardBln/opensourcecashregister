@@ -47,11 +47,38 @@ CREATE VIEW BILLS_SUMMED_UP_BY_DAY AS
 		
 CREATE VIEW STAT_BILLITEMS_PER_HOUR AS
 	SELECT
-		COUNT(*), 
-		SUBSTRING(billopened, 12, 2) AS hour 
+		SUBSTRING(billopened, 12, 2) AS hour,
+		COUNT(*) 
 	FROM
 		BILLS_WITH_PRODUCTS
 	GROUP BY 
 		hour
 	ORDER BY
 		hour;
+
+CREATE VIEW STAT_BILLITEMS_BY_NAME_AND_HOUR AS
+	SELECT
+		NAME,
+		SUBSTRING(billopened, 12, 2) AS hour, 
+		COUNT(*)
+	FROM
+		BILLS_WITH_PRODUCTS
+	GROUP BY 
+		name, 
+		hour
+	ORDER BY
+		name, hour;
+
+CREATE VIEW STAT_BILLITEMS_BY_HOUR_AND_NAME AS
+	SELECT
+		SUBSTRING(billopened, 12, 2) AS hour, 
+		NAME,
+		COUNT(*)
+	FROM
+		BILLS_WITH_PRODUCTS
+	GROUP BY 
+		hour,
+		name 
+	ORDER BY
+		hour, 
+		name;
