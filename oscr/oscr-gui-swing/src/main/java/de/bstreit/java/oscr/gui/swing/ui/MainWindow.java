@@ -8,6 +8,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.util.Collection;
 
 import javax.inject.Inject;
@@ -216,8 +218,52 @@ public class MainWindow implements IBillDisplay {
   public void show() {
     jFrame = new JFrame();
     jFrame.setBounds(100, 100, 757, 555);
-    jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    jFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     jFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+
+    jFrame.addWindowListener(new WindowListener() {
+
+      @Override
+      public void windowOpened(WindowEvent arg0) {
+        // TODO Auto-generated method stub
+
+      }
+
+      @Override
+      public void windowIconified(WindowEvent arg0) {
+        // TODO Auto-generated method stub
+
+      }
+
+      @Override
+      public void windowDeiconified(WindowEvent arg0) {
+        // TODO Auto-generated method stub
+
+      }
+
+      @Override
+      public void windowDeactivated(WindowEvent arg0) {
+        // TODO Auto-generated method stub
+
+      }
+
+      @Override
+      public void windowClosing(WindowEvent arg0) {
+        // TODO Auto-generated method stub
+
+      }
+
+      @Override
+      public void windowClosed(WindowEvent arg0) {
+        appController.notifyShutdown();
+      }
+
+      @Override
+      public void windowActivated(WindowEvent arg0) {
+        // TODO Auto-generated method stub
+
+      }
+    });
 
     // if child of abstractview, use getPanel!
     if (AbstractView.class.isAssignableFrom(getClass())) {

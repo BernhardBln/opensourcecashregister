@@ -140,4 +140,11 @@ public class MainWindowController implements IBillChangedListener {
   public void undoLastAction() {
     billService.undoLastAction();
   }
+
+  /**
+   * Notify that the app is supposed to shut down
+   */
+  public void notifyShutdown() {
+    billService.notifyShutdown();
+  }
 }

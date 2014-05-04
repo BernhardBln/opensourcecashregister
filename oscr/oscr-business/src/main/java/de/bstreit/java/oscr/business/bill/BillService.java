@@ -39,6 +39,7 @@ import com.google.common.collect.Sets;
 
 import de.bstreit.java.oscr.business.base.date.ICurrentDateProvider;
 import de.bstreit.java.oscr.business.bill.dao.IBillRepository;
+import de.bstreit.java.oscr.business.export.IExportService;
 import de.bstreit.java.oscr.business.offers.ExtraOffer;
 import de.bstreit.java.oscr.business.offers.ProductOffer;
 import de.bstreit.java.oscr.business.offers.VariationOffer;
@@ -70,6 +71,9 @@ public class BillService {
 
   @Inject
   private IMultipleBillsCalculatorFactory multipleBillsCalculatorFactory;
+
+  @Inject
+  private IExportService exportService;
 
 
   private final Set<IBillChangedListener> billChangedListener = Sets
@@ -269,5 +273,9 @@ public class BillService {
       billProcessor.processBill(bill);
     }
 
+  }
+
+  public void notifyShutdown() {
+    exportService.stopService();
   }
 }
