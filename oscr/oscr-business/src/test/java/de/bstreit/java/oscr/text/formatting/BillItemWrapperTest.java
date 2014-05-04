@@ -1,9 +1,11 @@
-package de.bstreit.java.oscr.gui.formatting;
+package de.bstreit.java.oscr.text.formatting;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
+
+import de.bstreit.java.oscr.text.formatting.BillItemWrapper;
 
 
 public class BillItemWrapperTest {

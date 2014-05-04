@@ -17,7 +17,7 @@ import de.bstreit.java.oscr.business.offers.ProductOffer;
 import de.bstreit.java.oscr.business.offers.VariationOffer;
 import de.bstreit.java.oscr.business.taxation.TaxInfo;
 import de.bstreit.java.oscr.business.taxation.dao.ITaxInfoRepository;
-import de.bstreit.java.oscr.gui.formatting.BillFormatter;
+import de.bstreit.java.oscr.text.formatting.BillFormatter;
 
 @Named
 public class MainWindowController implements IBillChangedListener {

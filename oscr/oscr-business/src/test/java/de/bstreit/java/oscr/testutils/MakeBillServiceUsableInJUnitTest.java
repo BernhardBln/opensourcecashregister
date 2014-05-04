@@ -1,4 +1,4 @@
-package de.bstreit.java.oscr.testutils.business.bill;
+package de.bstreit.java.oscr.testutils;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -22,7 +22,7 @@ import de.bstreit.java.oscr.business.bill.BillService;
 import de.bstreit.java.oscr.business.bill.dao.IBillRepository;
 import de.bstreit.java.oscr.business.taxation.TaxInfo;
 import de.bstreit.java.oscr.business.user.IUserService;
-import de.bstreit.java.oscr.testutils.FixDateProvider;
+import de.bstreit.java.oscr.testutils.business.bill.FixDateProvider;
 
 /**
  * This configuration provides a bill service instance and its mocked

@@ -1,4 +1,4 @@
-package de.bstreit.java.oscr.testutils;
+package de.bstreit.java.oscr.testutils.business.bill;
 
 import java.util.Date;
 
