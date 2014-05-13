@@ -1,1 +1,4 @@
+
+# target dir for html export
+# leave empty to disable export
 exportDir=
