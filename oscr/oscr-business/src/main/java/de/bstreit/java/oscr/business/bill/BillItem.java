@@ -26,11 +26,17 @@
  */
 package de.bstreit.java.oscr.business.bill;
 
+import java.util.List;
+
 import javax.persistence.Entity;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+
+import com.google.common.collect.Lists;
 
 import de.bstreit.java.oscr.business.base.finance.money.Money;
 import de.bstreit.java.oscr.business.base.persistence.AbstractPersistentObject;
+import de.bstreit.java.oscr.business.offers.AbstractOffer;
 import de.bstreit.java.oscr.business.offers.ExtraOffer;
 import de.bstreit.java.oscr.business.offers.ProductOffer;
 import de.bstreit.java.oscr.business.offers.VariationOffer;
@@ -44,11 +50,12 @@ import de.bstreit.java.oscr.business.offers.VariationOffer;
 @Entity
 public class BillItem extends AbstractPersistentObject {
 
-	@ManyToOne
+	@ManyToOne(optional = false)
 	private ProductOffer offer;
 
-	@ManyToOne
-	private VariationOffer variationOffer;
+	@ManyToMany
+	private final List<AbstractOffer<?>> extraAndVariationOffers = Lists
+			.newArrayList();
 
 	@SuppressWarnings("unused")
 	private BillItem() {
@@ -62,20 +69,25 @@ public class BillItem extends AbstractPersistentObject {
 	/**
 	 * @param variationOffer
 	 */
-	void setVariationOffer(VariationOffer variationOffer) {
-		this.variationOffer = variationOffer;
+	public void toggleVariationOffer(VariationOffer variationOffer) {
+		final int index = extraAndVariationOffers.indexOf(variationOffer);
+
+		if (index == -1) {
+			extraAndVariationOffers.add(variationOffer);
+		} else {
+			extraAndVariationOffers.remove(index);
+		}
 	}
 
-	public VariationOffer getVariationOffer() {
-		return variationOffer;
+	public List<AbstractOffer<?>> getExtraAndVariationOffers() {
+		return extraAndVariationOffers;
 	}
 
 	/**
 	 * @param extraOffer
 	 */
 	void addExtraOffer(ExtraOffer extraOffer) {
-		// TODO Auto-generated method stub
-
+		extraAndVariationOffers.add(extraOffer);
 	}
 
 	/**
@@ -86,27 +98,31 @@ public class BillItem extends AbstractPersistentObject {
 	}
 
 	public boolean hasUndoable() {
-		return false;
+		return !extraAndVariationOffers.isEmpty();
 	}
 
 	public void undoLastAction() {
-
+		extraAndVariationOffers.remove(extraAndVariationOffers.size() - 1);
 	}
 
 	public Money getPriceGross() {
 		Money priceGross = offer.getPriceGross();
-		if (variationOffer != null) {
-			priceGross = priceGross.add(variationOffer.getPriceGross());
+
+		for (final AbstractOffer<?> offer : extraAndVariationOffers) {
+			priceGross = priceGross.add(offer.getPriceGross());
 		}
+
 		return priceGross;
 	}
 
 	public String getName() {
 		String name = getOffer().getOfferedItem().getName();
-		if (variationOffer != null) {
-			name = name + " with " + variationOffer.getOfferedItem().getName();
+
+		for (final AbstractOffer<?> offer : extraAndVariationOffers) {
+			name = name + (offer instanceof ExtraOffer ? " plus " : " with ")
+					+ offer.getOfferedItem().getName();
 		}
+
 		return name;
 	}
-
 }

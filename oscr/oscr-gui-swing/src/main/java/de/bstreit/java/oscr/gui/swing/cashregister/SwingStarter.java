@@ -1,4 +1,4 @@
-package de.bstreit.java.oscr.gui.swing;
+package de.bstreit.java.oscr.gui.swing.cashregister;
 
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;

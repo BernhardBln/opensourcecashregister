@@ -161,7 +161,7 @@ public class BillFormatterTest {
 
     billItem5CappuccinoWithAlmondMilk = billService
         .addProductOffer(createOffer("Cappuccino", "2.38"));
-    billService.setProductVariationOffer(createVariationOffer(
+    billService.toggleProductVariationOffer(createVariationOffer(
         "Almond Milk", "0.90"));
 
     initBillCalculatorForInHouseWithVariation(billItem1Espresso,

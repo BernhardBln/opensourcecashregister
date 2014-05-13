@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
-<stringAttribute key="bad_container_name" value="/oscr-starter-sand"/>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
 <listEntry value="/oscr-gui-swing/src/main/java/de/bstreit/java/oscr/gui/swing/cashregister/SwingStarter.java"/>
 </listAttribute>
@@ -9,7 +8,6 @@
 </listAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.CLASSPATH_PROVIDER" value="org.eclipse.m2e.launchconfig.classpathProvider"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="de.bstreit.java.oscr.gui.swing.cashregister.SwingStarter"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="oscr-starter-sandbox"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="oscr-starter-production"/>
 <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.m2e.launchconfig.sourcepathProvider"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dh2.maxCompactTime=60000"/>
 </launchConfiguration>

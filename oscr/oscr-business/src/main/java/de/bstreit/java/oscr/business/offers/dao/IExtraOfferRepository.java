@@ -26,10 +26,16 @@
  */
 package de.bstreit.java.oscr.business.offers.dao;
 
+import java.util.Collection;
+
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import de.bstreit.java.oscr.business.offers.ExtraOffer;
 
 public interface IExtraOfferRepository extends JpaRepository<ExtraOffer, Long> {
+
+	@Query("FROM ExtraOffer WHERE validTo IS NULL AND offeredItem.validTo IS NULL")
+	public Collection<ExtraOffer> findAllActiveOffers();
 
 }
