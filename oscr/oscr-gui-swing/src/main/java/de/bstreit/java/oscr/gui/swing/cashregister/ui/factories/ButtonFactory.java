@@ -24,6 +24,7 @@ public class ButtonFactory {
 	@Inject
 	private MainWindowController appController;
 
+
 	public JButton createButtonFor(AbstractOffer<?> offer) {
 
 		if (offer instanceof ProductOffer) {
@@ -57,18 +58,20 @@ public class ButtonFactory {
 
 	private void setDefaults(JButton button) {
 		button.setMinimumSize(new Dimension(0, 40));
+		button.setPreferredSize(new Dimension(120, 40));
+		button.setMaximumSize(new Dimension(120, 40));
 		button.setInheritsPopupMenu(true);
 	}
 
 	private void setColourIfNotEmpty(final JButton button,
-			final ProductOffer productOffer) {
+	    final ProductOffer productOffer) {
 
 		final Product product = productOffer.getOfferedItem();
 
 		if (product.getProductCategory() != null) {
 
 			final String colourAsString = product.getProductCategory()
-					.getColour();
+			    .getColour();
 
 			if (StringUtils.isNotBlank(colourAsString)) {
 				final Color colour = Color.decode(colourAsString);
