@@ -34,7 +34,6 @@ import org.hibernate.annotations.NaturalId;
 
 import de.bstreit.java.oscr.business.base.persistence.AbstractPersistentObjectWithContinuance;
 
-
 /**
  * 
  * @author streit
@@ -42,48 +41,40 @@ import de.bstreit.java.oscr.business.base.persistence.AbstractPersistentObjectWi
 @Entity
 public class User extends AbstractPersistentObjectWithContinuance<User> {
 
-  /**
-   * The name <b>has</b> to be unique, at least during the period of time this
-   * entity is valid.
-   */
-  @NaturalId
-  private String name;
+	/**
+	 * The name <b>has</b> to be unique, at least during the period of time this
+	 * entity is valid.
+	 */
+	@NaturalId
+	private String loginname;
 
+	private String fullname;
 
-  public User() {
-  }
+	public User() {
+	}
 
-  public User(String name) {
-    this.name = name;
-  }
+	public User(String name, String fullname) {
+		this.loginname = name;
+		this.fullname = fullname;
+	}
 
+	@Override
+	protected void additionalEqualsForSubclasses(EqualsBuilder equalsBuilder,
+			User otherObject) {
+		equalsBuilder.append(loginname, otherObject.loginname);
+	}
 
-  @Override
-  protected void additionalEqualsForSubclasses(EqualsBuilder equalsBuilder, User otherObject) {
-    equalsBuilder.append(name, otherObject.name);
-  }
+	@Override
+	protected void additionalHashcodeForSubclasses(HashCodeBuilder builder) {
+		builder.append(loginname);
+	}
 
-  @Override
-  protected void additionalHashcodeForSubclasses(HashCodeBuilder builder) {
-    builder.append(name);
-  }
+	public String getName() {
+		return loginname;
+	}
 
-
-  /**
-   * @return the {@link #name}
-   */
-  public String getName() {
-    return name;
-  }
-
-
-  /**
-   * @param name
-   *          the {@link #name} to set
-   */
-  public void setName(String name) {
-    this.name = name;
-  }
-
+	public String getFullname() {
+		return fullname;
+	}
 
 }

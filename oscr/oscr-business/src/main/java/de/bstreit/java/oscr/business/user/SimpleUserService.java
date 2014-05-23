@@ -29,8 +29,9 @@ package de.bstreit.java.oscr.business.user;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import de.bstreit.java.oscr.business.user.dao.IUserRepository;
+import org.apache.commons.lang3.StringUtils;
 
+import de.bstreit.java.oscr.business.user.dao.IUserRepository;
 
 /**
  * TODO: This needs to return the actual logged-in user, not just any user from
@@ -41,12 +42,30 @@ import de.bstreit.java.oscr.business.user.dao.IUserRepository;
 @Named
 public class SimpleUserService implements IUserService {
 
-  @Inject
-  private IUserRepository userRepository;
+	@Inject
+	private IUserRepository userRepository;
 
+	private User currentUser;
 
-  @Override
-  public User getCurrentUser() {
-    return userRepository.findAll().get(0);
-  }
+	@Override
+	public User getCurrentUser() {
+		if (currentUser == null) {
+			loadCurrentUser();
+		}
+		return currentUser;
+	}
+
+	private void loadCurrentUser() {
+		final String loginName = System.getenv("USER");
+
+		if (StringUtils.isBlank(loginName)) {
+			return;
+		}
+
+		currentUser = userRepository.findByLoginname(loginName);
+
+		if (currentUser == null) {
+			currentUser = userRepository.save(new User(loginName, loginName));
+		}
+	}
 }
