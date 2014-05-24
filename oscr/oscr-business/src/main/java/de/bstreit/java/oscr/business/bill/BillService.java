@@ -45,6 +45,7 @@ import de.bstreit.java.oscr.business.offers.ProductOffer;
 import de.bstreit.java.oscr.business.offers.VariationOffer;
 import de.bstreit.java.oscr.business.taxation.TaxInfo;
 import de.bstreit.java.oscr.business.user.IUserService;
+import de.bstreit.java.oscr.business.user.User;
 
 /**
  * For the bill management. Creates new bills, keeps one bill as "active" (i.e.
@@ -120,6 +121,17 @@ public class BillService {
 		}
 
 		lastAddedItem.toggleVariationOffer(variationOffer);
+
+		saveBill();
+		fireBillChangedEvent();
+	}
+
+	public void setStaffConsumer(User consumer) {
+		if (currentBill == null) {
+			return;
+		}
+
+		currentBill.setStaffConsumer(consumer);
 
 		saveBill();
 		fireBillChangedEvent();

@@ -41,6 +41,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 
 import de.bstreit.java.oscr.business.taxation.TaxInfo;
@@ -92,6 +93,9 @@ public class Bill implements Iterable<BillItem> {
 	@ManyToOne(optional = true)
 	private User cashier;
 
+	@ManyToOne(optional = true)
+	private User internalConsumer = null;
+
 	Bill(TaxInfo defaultGlobalTaxInfo, Date billOpeningDate) {
 		checkNotNull(defaultGlobalTaxInfo);
 		setGlobalTaxInfo(defaultGlobalTaxInfo);
@@ -104,6 +108,21 @@ public class Bill implements Iterable<BillItem> {
 
 	void addBillItem(BillItem item) {
 		billItems.add(item);
+	}
+
+	/**
+	 * In case this was consumed by a member of the staff
+	 * 
+	 * @param consumer
+	 */
+	public void setStaffConsumer(User internalConsumer) {
+		Preconditions.checkNotNull(internalConsumer);
+
+		this.internalConsumer = internalConsumer;
+	}
+
+	public void clearStaffConsumer() {
+		this.internalConsumer = null;
 	}
 
 	/**
