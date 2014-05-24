@@ -1,4 +1,4 @@
-package de.bstreit.java.oscr.gui.swing.admin.util;
+package de.bstreit.java.oscr.gui.noswing.admin.util;
 
 import java.util.List;
 import java.util.Scanner;

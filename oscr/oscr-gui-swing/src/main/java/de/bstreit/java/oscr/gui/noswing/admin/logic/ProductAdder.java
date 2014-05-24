@@ -1,4 +1,4 @@
-package de.bstreit.java.oscr.gui.swing.admin.logic;
+package de.bstreit.java.oscr.gui.noswing.admin.logic;
 
 import java.util.Date;
 import java.util.List;
@@ -16,7 +16,7 @@ import de.bstreit.java.oscr.business.offers.dao.IProductOfferRepository;
 import de.bstreit.java.oscr.business.products.Product;
 import de.bstreit.java.oscr.business.products.category.ProductCategory;
 import de.bstreit.java.oscr.business.products.category.dao.IProductCategoryRepository;
-import de.bstreit.java.oscr.gui.swing.admin.util.ChoiceHelper;
+import de.bstreit.java.oscr.gui.noswing.admin.util.ChoiceHelper;
 
 @Named
 public class ProductAdder implements IAdminBean {

@@ -1,4 +1,4 @@
-package de.bstreit.java.oscr.gui.swing.admin.logic;
+package de.bstreit.java.oscr.gui.noswing.admin.logic;
 
 import java.sql.Connection;
 import java.sql.ResultSet;

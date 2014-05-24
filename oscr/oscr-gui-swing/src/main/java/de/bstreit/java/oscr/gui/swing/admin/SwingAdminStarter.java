@@ -1,25 +1,35 @@
 package de.bstreit.java.oscr.gui.swing.admin;
 
+import java.awt.EventQueue;
+
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import de.bstreit.java.oscr.SpringConfigurationDoesComponentScan;
+import de.bstreit.java.oscr.gui.swing.admin.ui.SwingAdminWindowController;
 
-public class AdminStarter {
+public class SwingAdminStarter {
 
 	public static void main(String[] args) {
 
 		final ConfigurableApplicationContext context = getContext();
 
-		final SwingAdminController swingAdminController = context
-				.getBean(SwingAdminController.class);
-		try {
-			swingAdminController.launchApplication();
-		} catch (final RuntimeException e) {
-			if (!"Aborted".equals(e.getMessage())) {
-				throw e;
+		showMainWindowInEventLoop(context
+				.getBean(SwingAdminWindowController.class));
+	}
+
+	public static void showMainWindowInEventLoop(
+			final SwingAdminWindowController mainWindowController) {
+
+		// Launch the application on the Swing thread
+		EventQueue.invokeLater(new Runnable() {
+
+			@Override
+			public void run() {
+				mainWindowController.showMainwindow();
 			}
-		}
+
+		});
 	}
 
 	private static ConfigurableApplicationContext getContext() {

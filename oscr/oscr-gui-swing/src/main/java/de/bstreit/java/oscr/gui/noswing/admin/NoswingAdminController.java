@@ -1,4 +1,4 @@
-package de.bstreit.java.oscr.gui.swing.admin;
+package de.bstreit.java.oscr.gui.noswing.admin;
 
 import java.util.List;
 import java.util.Map;
@@ -11,11 +11,11 @@ import org.springframework.context.ConfigurableApplicationContext;
 
 import com.google.common.collect.Lists;
 
-import de.bstreit.java.oscr.gui.swing.admin.logic.IAdminBean;
-import de.bstreit.java.oscr.gui.swing.admin.util.ChoiceHelper;
+import de.bstreit.java.oscr.gui.noswing.admin.logic.IAdminBean;
+import de.bstreit.java.oscr.gui.noswing.admin.util.ChoiceHelper;
 
 @Named
-public class SwingAdminController {
+public class NoswingAdminController {
 
 	@Inject
 	private ConfigurableApplicationContext context;
