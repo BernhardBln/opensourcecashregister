@@ -20,6 +20,7 @@ import de.bstreit.java.oscr.business.bill.IMultipleBillsCalculator;
 import de.bstreit.java.oscr.business.offers.ExtraOffer;
 import de.bstreit.java.oscr.business.offers.ProductOffer;
 import de.bstreit.java.oscr.business.offers.VariationOffer;
+import de.bstreit.java.oscr.business.staff.IUserService;
 import de.bstreit.java.oscr.business.taxation.TaxInfo;
 import de.bstreit.java.oscr.business.taxation.dao.ITaxInfoRepository;
 import de.bstreit.java.oscr.text.formatting.BillFormatter;
@@ -38,6 +39,9 @@ public class MainWindowController implements IBillChangedListener {
 
 	@Inject
 	private ITaxInfoRepository taxInfoRepository;
+
+	@Inject
+	private IUserService userService;
 
 	private TaxInfo toGoTaxInfo;
 
@@ -173,4 +177,11 @@ public class MainWindowController implements IBillChangedListener {
 		System.out.println("EDIT WEEKLY OFFERS");
 	}
 
+	public void setStaffConsumption() {
+		billService.setStaffConsumer(userService.getCurrentUser());
+	}
+
+	public void clearStaffConsumption() {
+		billService.clearStaffConsumer();
+	}
 }

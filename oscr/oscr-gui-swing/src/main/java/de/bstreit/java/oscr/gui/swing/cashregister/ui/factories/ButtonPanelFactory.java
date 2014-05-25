@@ -172,11 +172,12 @@ public class ButtonPanelFactory {
 		final JPanel controlButtonsPanel = new JPanel();
 
 		buttonPanel.add(controlButtonsPanel, BorderLayout.EAST);
-		controlButtonsPanel.setLayout(new GridLayout(4, 1, 0, 0));
+		controlButtonsPanel.setLayout(new GridLayout(5, 1, 0, 0));
 
 		addUndoButton(controlButtonsPanel);
 		addPayButton(controlButtonsPanel);
 		addToGoButton(controlButtonsPanel);
+		addStaffConsumptionButton(controlButtonsPanel);
 		addKassenstandButton(controlButtonsPanel);
 	}
 
@@ -225,6 +226,33 @@ public class ButtonPanelFactory {
 
 		btnToGo.setMinimumSize(new Dimension(0, 40));
 		controlButtonsPanel.add(btnToGo);
+	}
+
+	private void addStaffConsumptionButton(JPanel controlButtonsPanel) {
+		final JToggleButton staffConsumptionButton = new JToggleButton("Staff");
+
+		staffConsumptionButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (staffConsumptionButton.isSelected()) {
+					appController.setStaffConsumption();
+				} else {
+					appController.clearStaffConsumption();
+				}
+			}
+		});
+
+		appController.addGuiResetListener(new IResetListener() {
+			@Override
+			public void resetState() {
+				staffConsumptionButton.setSelected(false);
+			}
+		});
+
+		staffConsumptionButton.setMinimumSize(new Dimension(0, 40));
+
+		controlButtonsPanel.add(staffConsumptionButton);
 	}
 
 	private void addKassenstandButton(final JPanel controlButtonsPanel) {

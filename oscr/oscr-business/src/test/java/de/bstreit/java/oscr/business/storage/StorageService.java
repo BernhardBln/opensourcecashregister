@@ -126,7 +126,7 @@ public class StorageService {
 	}
 
 	public Collection<Bill> getBillsOfToday() {
-		return billRepository.getBillsForToday();
+		return billRepository.getBillsForTodayWithoutStaff();
 	}
 
 }

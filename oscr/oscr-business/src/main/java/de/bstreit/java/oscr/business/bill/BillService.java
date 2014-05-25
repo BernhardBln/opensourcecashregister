@@ -137,6 +137,17 @@ public class BillService {
 		fireBillChangedEvent();
 	}
 
+	public void clearStaffConsumer() {
+		if (currentBill == null) {
+			return;
+		}
+
+		currentBill.setStaffConsumer(null);
+
+		saveBill();
+		fireBillChangedEvent();
+	}
+
 	public void undoLastAction() {
 		if (currentBill == null) {
 			return;
@@ -154,14 +165,14 @@ public class BillService {
 
 	@Transactional
 	public IMultipleBillsCalculator getTotalForToday() {
-		final Collection<Bill> todaysBills = billRepository.getBillsForToday();
+		final Collection<Bill> todaysBills = billRepository.getBillsForTodayWithoutStaff();
 		return multipleBillsCalculatorFactory.create(todaysBills);
 	}
 
 	@Transactional
 	public IMultipleBillsCalculator getTotalForYesterday() {
 		final Collection<Bill> yesterdaysBills = billRepository
-				.getBillsForYesterday();
+				.getBillsForYesterdayWithoutStaff();
 		return multipleBillsCalculatorFactory.create(yesterdaysBills);
 	}
 
@@ -275,7 +286,7 @@ public class BillService {
 	@Transactional
 	public void processTodaysBills(IBillProcessor billProcessor) {
 		final Collection<Bill> allBillsForToday = billRepository
-				.getBillsForToday();
+				.getBillsForTodayWithoutStaff();
 
 		for (final Bill bill : allBillsForToday) {
 			billProcessor.processBill(bill);
