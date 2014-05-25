@@ -24,7 +24,7 @@
  * See /README.txt for more information about the software and the author(s).
  * 
  */
-package de.bstreit.java.oscr.business.user;
+package de.bstreit.java.oscr.business.staff;
 
 import javax.persistence.Entity;
 
@@ -58,6 +58,14 @@ public class User extends AbstractPersistentObjectWithContinuance<User> {
 		this.fullname = fullname;
 	}
 
+	public String getName() {
+		return loginname;
+	}
+
+	public String getFullname() {
+		return fullname;
+	}
+
 	@Override
 	protected void additionalEqualsForSubclasses(EqualsBuilder equalsBuilder,
 			User otherObject) {
@@ -69,12 +77,11 @@ public class User extends AbstractPersistentObjectWithContinuance<User> {
 		builder.append(loginname);
 	}
 
-	public String getName() {
-		return loginname;
-	}
-
-	public String getFullname() {
-		return fullname;
+	@Override
+	public String toString() {
+		return "User [loginname=" + loginname + ", fullname=" + fullname
+				+ ", getValidFrom()=" + getValidFrom() + ", getValidTo()="
+				+ getValidTo() + "]";
 	}
 
 }

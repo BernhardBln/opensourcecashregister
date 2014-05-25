@@ -24,21 +24,14 @@
  * See /README.txt for more information about the software and the author(s).
  * 
  */
-package de.bstreit.java.oscr.business.user;
+package de.bstreit.java.oscr.business.staff.dao;
 
+import org.springframework.data.jpa.repository.JpaRepository;
 
-/**
- * Provide access to users.
- * 
- * @author streit
- */
-public interface IUserService {
+import de.bstreit.java.oscr.business.staff.User;
 
-  /**
-   * 
-   * @return the user object from database that corresponds to the currently
-   *         logged in user
-   */
-  public User getCurrentUser();
+public interface IUserRepository extends JpaRepository<User, Long> {
+
+	public User findByLoginname(String loginname);
 
 }

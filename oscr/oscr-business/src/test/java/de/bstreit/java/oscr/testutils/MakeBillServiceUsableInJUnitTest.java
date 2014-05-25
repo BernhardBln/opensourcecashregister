@@ -20,8 +20,8 @@ import de.bstreit.java.oscr.business.base.date.ICurrentDateProvider;
 import de.bstreit.java.oscr.business.bill.Bill;
 import de.bstreit.java.oscr.business.bill.BillService;
 import de.bstreit.java.oscr.business.bill.dao.IBillRepository;
+import de.bstreit.java.oscr.business.staff.IUserService;
 import de.bstreit.java.oscr.business.taxation.TaxInfo;
-import de.bstreit.java.oscr.business.user.IUserService;
 import de.bstreit.java.oscr.testutils.business.bill.FixDateProvider;
 
 /**

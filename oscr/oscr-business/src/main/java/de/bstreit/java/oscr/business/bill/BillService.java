@@ -43,9 +43,9 @@ import de.bstreit.java.oscr.business.export.IExportService;
 import de.bstreit.java.oscr.business.offers.ExtraOffer;
 import de.bstreit.java.oscr.business.offers.ProductOffer;
 import de.bstreit.java.oscr.business.offers.VariationOffer;
+import de.bstreit.java.oscr.business.staff.IUserService;
+import de.bstreit.java.oscr.business.staff.User;
 import de.bstreit.java.oscr.business.taxation.TaxInfo;
-import de.bstreit.java.oscr.business.user.IUserService;
-import de.bstreit.java.oscr.business.user.User;
 
 /**
  * For the bill management. Creates new bills, keeps one bill as "active" (i.e.

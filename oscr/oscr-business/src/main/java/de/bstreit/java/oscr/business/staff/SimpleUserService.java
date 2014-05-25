@@ -24,14 +24,14 @@
  * See /README.txt for more information about the software and the author(s).
  * 
  */
-package de.bstreit.java.oscr.business.user;
+package de.bstreit.java.oscr.business.staff;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.commons.lang3.StringUtils;
 
-import de.bstreit.java.oscr.business.user.dao.IUserRepository;
+import de.bstreit.java.oscr.business.staff.dao.IUserRepository;
 
 /**
  * TODO: This needs to return the actual logged-in user, not just any user from
@@ -68,4 +68,5 @@ public class SimpleUserService implements IUserService {
 			currentUser = userRepository.save(new User(loginName, loginName));
 		}
 	}
+
 }

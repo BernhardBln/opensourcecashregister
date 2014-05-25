@@ -44,8 +44,8 @@ import javax.persistence.OneToMany;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 
+import de.bstreit.java.oscr.business.staff.User;
 import de.bstreit.java.oscr.business.taxation.TaxInfo;
-import de.bstreit.java.oscr.business.user.User;
 
 /**
  * 
