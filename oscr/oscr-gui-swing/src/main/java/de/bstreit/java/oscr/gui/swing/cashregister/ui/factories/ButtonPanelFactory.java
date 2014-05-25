@@ -9,6 +9,7 @@ import java.util.Collection;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -55,6 +56,7 @@ public class ButtonPanelFactory {
 	private ProductCategory weeklyCategory;
 
 	private JPanel buttonPanel;
+	private JPanel weeklyAndDrinksPanel;
 	private JPanel drinksPanel;
 	private JPanel weeklyPanel;
 
@@ -91,6 +93,12 @@ public class ButtonPanelFactory {
 		buttonPanel.removeAll();
 		buttonPanel.setLayout(new BorderLayout(0, 0));
 		buttonPanel.setPreferredSize(new Dimension(10, 340));
+
+		weeklyAndDrinksPanel = new JPanel();
+		weeklyAndDrinksPanel.setLayout(new BoxLayout(weeklyAndDrinksPanel,
+				BoxLayout.X_AXIS));
+
+		buttonPanel.add(weeklyAndDrinksPanel, BorderLayout.CENTER);
 	}
 
 	private void buildAndAddWeeklyPanelToMainPanel() {
@@ -107,7 +115,7 @@ public class ButtonPanelFactory {
 		}
 
 		weeklyPanel = new JPanel();
-		buttonPanel.add(weeklyPanel, BorderLayout.WEST);
+		weeklyAndDrinksPanel.add(weeklyPanel);
 
 		final int rows = 4;
 		final int cols = 2;
@@ -126,7 +134,7 @@ public class ButtonPanelFactory {
 	private void buildAndAddDrinksPanelToMainPanel() {
 
 		drinksPanel = new JPanel();
-		buttonPanel.add(drinksPanel, BorderLayout.CENTER);
+		weeklyAndDrinksPanel.add(drinksPanel);
 
 		final int rows = 4;
 		final int cols = 5;
