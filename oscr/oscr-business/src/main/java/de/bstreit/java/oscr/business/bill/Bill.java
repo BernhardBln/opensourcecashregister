@@ -132,6 +132,14 @@ public class Bill implements Iterable<BillItem> {
 		return globalTaxInfo;
 	}
 
+	public boolean isConsumedByStaff() {
+		return internalConsumer != null;
+	}
+
+	public User getStaffConsumer() {
+		return internalConsumer;
+	}
+
 	/**
 	 * @param globalTaxInfo
 	 *            the {@link #globalTaxInfo} to set
