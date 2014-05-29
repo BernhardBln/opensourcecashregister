@@ -142,7 +142,7 @@ public class BillService {
 			return;
 		}
 
-		currentBill.setStaffConsumer(null);
+		currentBill.clearStaffConsumer();
 
 		saveBill();
 		fireBillChangedEvent();
@@ -165,7 +165,8 @@ public class BillService {
 
 	@Transactional
 	public IMultipleBillsCalculator getTotalForToday() {
-		final Collection<Bill> todaysBills = billRepository.getBillsForTodayWithoutStaff();
+		final Collection<Bill> todaysBills = billRepository
+				.getBillsForTodayWithoutStaff();
 		return multipleBillsCalculatorFactory.create(todaysBills);
 	}
 
