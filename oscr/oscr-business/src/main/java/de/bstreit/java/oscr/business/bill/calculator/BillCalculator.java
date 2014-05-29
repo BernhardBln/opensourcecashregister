@@ -97,15 +97,8 @@ class BillCalculator implements IBillCalculator {
 		Money total = ZERO;
 
 		for (final BillItem item : bill) {
-			final Money currentPriceGross = item.getOffer().getPriceGross();
+			final Money currentPriceGross = item.getPriceGross();
 			total = total.add(currentPriceGross);
-
-			// add variations
-			if (item.getVariationOffer() != null) {
-				final Money variationOfferPriceGross = item.getVariationOffer()
-						.getPriceGross();
-				total = total.add(variationOfferPriceGross);
-			}
 		}
 
 		return total;
@@ -118,18 +111,11 @@ class BillCalculator implements IBillCalculator {
 		for (final BillItem item : bill) {
 			if (vatClass.equals(vatFinder.getVATClassFor(item, bill))) {
 
-				final Money currentPriceGross = item.getOffer().getPriceGross();
+				final Money currentPriceGross = item.getPriceGross();
 				final Money currentPriceNet = currentPriceGross
 						.getNet(vatClass);
+
 				total = total.add(currentPriceNet);
-
-				if (item.getVariationOffer() != null) {
-					final Money variationOfferPriceGross = item
-							.getVariationOffer().getPriceGross();
-					total = total
-							.add(variationOfferPriceGross.getNet(vatClass));
-				}
-
 			}
 		}
 
@@ -142,10 +128,7 @@ class BillCalculator implements IBillCalculator {
 
 		for (final BillItem item : bill) {
 			if (vatClass.equals(vatFinder.getVATClassFor(item, bill))) {
-				total = total.add(item.getOffer().getPriceGross());
-				if (item.getVariationOffer() != null) {
-					total = total.add(item.getVariationOffer().getPriceGross());
-				}
+				total = total.add(item.getPriceGross());
 			}
 		}
 

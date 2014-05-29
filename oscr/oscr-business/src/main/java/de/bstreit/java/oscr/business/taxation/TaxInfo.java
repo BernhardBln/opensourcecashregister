@@ -28,8 +28,6 @@ package de.bstreit.java.oscr.business.taxation;
 
 import java.util.Date;
 
-import javax.persistence.Access;
-import javax.persistence.AccessType;
 import javax.persistence.Entity;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -68,37 +66,35 @@ import de.bstreit.java.oscr.business.products.AbstractSalesItem;
 @Entity
 public class TaxInfo extends AbstractPersistentObjectWithContinuance<TaxInfo> {
 
-  @NaturalId
-  @Access(AccessType.FIELD)
-  private String denotation;
+	@NaturalId
+	private String denotation;
 
+	@SuppressWarnings("unused")
+	private TaxInfo() {
+	}
 
-  @SuppressWarnings("unused")
-  private TaxInfo() {
-  }
+	public TaxInfo(String denotation, Date validFrom, Date validTo) {
+		super(validFrom, validTo);
+		this.denotation = denotation;
+	}
 
-  public TaxInfo(String denotation, Date validFrom, Date validTo) {
-    super(validFrom, validTo);
-    this.denotation = denotation;
-  }
+	/**
+	 * @return the {@link #denotation}
+	 */
+	public String getDenotation() {
+		return denotation;
+	}
 
+	@Override
+	protected void additionalEqualsForSubclasses(EqualsBuilder equalsBuilder,
+			TaxInfo otherObject) {
+		equalsBuilder.append(denotation, otherObject.denotation);
 
-  /**
-   * @return the {@link #denotation}
-   */
-  public String getDenotation() {
-    return denotation;
-  }
+	}
 
-  @Override
-  protected void additionalEqualsForSubclasses(EqualsBuilder equalsBuilder, TaxInfo otherObject) {
-    equalsBuilder.append(denotation, otherObject.denotation);
-
-  }
-
-  @Override
-  protected void additionalHashcodeForSubclasses(HashCodeBuilder builder) {
-    builder.append(denotation);
-  }
+	@Override
+	protected void additionalHashcodeForSubclasses(HashCodeBuilder builder) {
+		builder.append(denotation);
+	}
 
 }

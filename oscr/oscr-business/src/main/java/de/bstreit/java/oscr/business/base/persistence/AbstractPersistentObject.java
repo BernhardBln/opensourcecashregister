@@ -44,6 +44,9 @@ public abstract class AbstractPersistentObject {
 	@GeneratedValue
 	private Long id;
 
+	public Long getId() {
+		return id;
+	}
 
 	@Override
 	public String toString() {
