@@ -9,8 +9,10 @@ import java.util.Collection;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.swing.AbstractAction;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JToggleButton;
@@ -26,6 +28,8 @@ import de.bstreit.java.oscr.business.offers.dao.IProductOfferRepository;
 import de.bstreit.java.oscr.business.offers.dao.IVariationOfferRepository;
 import de.bstreit.java.oscr.business.products.category.ProductCategory;
 import de.bstreit.java.oscr.business.products.category.dao.IProductCategoryRepository;
+import de.bstreit.java.oscr.business.staff.User;
+import de.bstreit.java.oscr.business.staff.dao.IUserRepository;
 import de.bstreit.java.oscr.gui.swing.cashregister.ui.IResetListener;
 import de.bstreit.java.oscr.gui.swing.cashregister.ui.MainWindowController;
 
@@ -46,6 +50,9 @@ public class ButtonPanelFactory {
 
 	@Inject
 	private IProductCategoryRepository productCategoryRepository;
+
+	@Inject
+	private IUserRepository userRepository;
 
 	@Inject
 	private ButtonFactory buttonFactory;
@@ -243,6 +250,26 @@ public class ButtonPanelFactory {
 			}
 		});
 
+		final JPopupMenu popupMenu = new JPopupMenu();
+		for (final User staffMember : userRepository.findAll()) {
+			popupMenu.add(createMenuItem(staffMember));
+		}
+
+		staffConsumptionButton.add(popupMenu);
+
+		// staffConsumptionButton.addMouseListener(new MouseAdapter() {
+		//
+		// @Override
+		// public void mouseClicked(MouseEvent e) {
+		// if (e.getButton() == MouseEvent.BUTTON3) {
+		//
+		//
+		// e.consume();
+		// }
+		// }
+		//
+		// });
+
 		appController.addGuiResetListener(new IResetListener() {
 			@Override
 			public void resetState() {
@@ -253,6 +280,22 @@ public class ButtonPanelFactory {
 		staffConsumptionButton.setMinimumSize(new Dimension(0, 40));
 
 		controlButtonsPanel.add(staffConsumptionButton);
+	}
+
+	private JMenuItem createMenuItem(final User staffMember) {
+
+		final JMenuItem menuItem = new JMenuItem(new AbstractAction(
+				staffMember.getFullname()) {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				System.out.println("staff consumption triggered for "
+						+ staffMember);
+				appController.setStaffConsumption(staffMember);
+			}
+		});
+
+		return menuItem;
 	}
 
 	private void addKassenstandButton(final JPanel controlButtonsPanel) {
