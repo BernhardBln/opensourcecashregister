@@ -38,15 +38,14 @@ import de.bstreit.java.oscr.business.products.Variation;
 @DiscriminatorValue(value = "VariationOffer")
 public class VariationOffer extends AbstractOffer<Variation> {
 
-
 	@SuppressWarnings("unused")
 	private VariationOffer() {
-		this(null, null, null, null);
+		this(null, null, null, null, null);
 	}
 
-	public VariationOffer(Variation variation, Money price, Date validFrom, Date validТо) {
-		super(variation, price, validFrom, validТо);
+	public VariationOffer(Variation variation, Money priceGross,
+			Money costsNet, Date validFrom, Date validТо) {
+		super(variation, priceGross, costsNet, validFrom, validТо);
 	}
-
 
 }
