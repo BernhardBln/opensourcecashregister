@@ -48,4 +48,9 @@ public class ProductOffer extends AbstractOffer<Product> {
 		super(product, priceGross, costsNet, validFrom, validТо);
 	}
 
+	@Override
+	public String toString() {
+		return getOfferedItem().getName() + " - price (gross): "
+				+ getPriceGross() + " - costs (net): " + getCostsNet();
+	}
 }

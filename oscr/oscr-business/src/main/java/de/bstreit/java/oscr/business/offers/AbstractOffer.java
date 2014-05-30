@@ -73,7 +73,6 @@ public abstract class AbstractOffer<OFFERED_ITEM extends AbstractSalesItem>
 	@Type(type = "de.bstreit.java.oscr.business.base.finance.money.MoneyType")
 	@Columns(columns = { @Column(name = "priceValue"),
 			@Column(name = "priceCurrency") })
-	// @Access(AccessType.FIELD)
 	private final Money priceGross;
 
 	@Type(type = "de.bstreit.java.oscr.business.base.finance.money.MoneyType")
@@ -85,7 +84,6 @@ public abstract class AbstractOffer<OFFERED_ITEM extends AbstractSalesItem>
 	 * The item contained in this offer.
 	 */
 	@NaturalId
-	// @Access(AccessType.FIELD)
 	@ManyToOne(targetEntity = AbstractSalesItem.class, cascade = CascadeType.ALL)
 	private final OFFERED_ITEM offeredItem;
 
