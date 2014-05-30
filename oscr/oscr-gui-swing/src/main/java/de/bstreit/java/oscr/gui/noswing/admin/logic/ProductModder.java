@@ -19,7 +19,7 @@ import de.bstreit.java.oscr.business.products.category.dao.IProductCategoryRepos
 import de.bstreit.java.oscr.gui.noswing.admin.util.ChoiceHelper;
 
 @Named
-public class ProductAdder implements IAdminBean {
+public class ProductModder implements IAdminBean {
 
 	@Inject
 	private IProductOfferRepository productOfferRepository;
@@ -37,16 +37,43 @@ public class ProductAdder implements IAdminBean {
 	@Override
 	public void performTask() {
 
-		System.out.println("Add product:\n" + "============\n\n");
+		System.out.println("Modify product:\n" + "============\n\n");
 
-		final Product product = getProduct();
-		final Money price = getPrice("price (gross)", false);
-		final Money costsNet = getPrice("costs (net)", true);
+		System.out.println("Choose product:");
+		System.out.println();
+		final ProductOffer selectedOffer = selectProductOffer();
 
-		final ProductOffer productOffer = new ProductOffer(product, price,
-				costsNet, new Date(), null);
+		System.out.println(" -> " + selectedOffer);
 
-		productOfferRepository.save(productOffer);
+		// final Product product = getProduct();
+		// final Money price = getPrice("price (gross)", false);
+		// final Money costsNet = getPrice("costs (net)", true);
+		//
+		// final ProductOffer productOffer = new ProductOffer(product, price,
+		// costsNet, new Date(), null);
+		//
+		// productOfferRepository.save(productOffer);
+	}
+
+	private ProductOffer selectProductOffer() {
+
+		final List<ProductOffer> allActiveOffers = productOfferRepository
+				.findAllActiveOffers();
+
+		int i = 1;
+		for (final ProductOffer productOffer : allActiveOffers) {
+			System.out.println(i++ + ") " + productOffer);
+		}
+		System.out.println();
+		System.out.println("0) Exit");
+
+		final int choice = Integer.valueOf(scanner.nextLine().trim());
+
+		if (choice == 0) {
+			return null;
+		}
+
+		return allActiveOffers.get(choice - 1);
 	}
 
 	private Money getPrice(String label, boolean isOptional) {
@@ -95,6 +122,6 @@ public class ProductAdder implements IAdminBean {
 
 	@Override
 	public String toString() {
-		return "Add a product";
+		return "Modify a product";
 	}
 }
