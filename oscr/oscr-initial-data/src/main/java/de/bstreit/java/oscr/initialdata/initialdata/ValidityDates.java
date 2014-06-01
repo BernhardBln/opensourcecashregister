@@ -28,7 +28,7 @@ package de.bstreit.java.oscr.initialdata.initialdata;
 
 import java.util.Date;
 
-import de.bstreit.java.oscr.initialdata.util.DateFactory;
+import de.bstreit.java.oscr.business.util.DateFactory;
 
 public class ValidityDates {
 

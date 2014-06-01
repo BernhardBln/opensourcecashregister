@@ -41,153 +41,156 @@ import de.bstreit.java.oscr.business.base.finance.tax.VATClass;
 
 public class Money implements Serializable {
 
-  private static final BigDecimal HUNDRED = new BigDecimal("100");
+	private static final BigDecimal HUNDRED = new BigDecimal("100");
 
-  private static transient NumberFormat nf = NumberFormat.getCurrencyInstance();
+	private static transient NumberFormat nf = NumberFormat
+			.getCurrencyInstance();
 
-  private final BigDecimal amount;
+	private final BigDecimal amount;
 
-  private final Currency currency;
+	private final Currency currency;
 
+	/**
+	 * 
+	 * @param amount
+	 *            The amount as string, to be parsed by
+	 *            {@link BigDecimal#BigDecimal(String)}
+	 * @param currencyCode
+	 *            The ISO 4217 code of the currency
+	 */
+	public Money(String amount, String currencyCode) {
+		Preconditions.checkNotNull(amount);
+		Preconditions.checkNotNull(currencyCode);
 
-  /**
-   * 
-   * @param amount
-   *          The amount as string, to be parsed by
-   *          {@link BigDecimal#BigDecimal(String)}
-   * @param currencyCode
-   *          The ISO 4217 code of the currency
-   */
-  public Money(String amount, String currencyCode) {
-    Preconditions.checkNotNull(amount);
-    Preconditions.checkNotNull(currencyCode);
+		this.amount = resetAmountScale(new BigDecimal(amount));
 
-    this.amount = resetAmountScale(new BigDecimal(amount));
+		this.currency = Currency.getInstance(currencyCode);
+	}
 
-    this.currency = Currency.getInstance(currencyCode);
-  }
+	public Money(BigDecimal amount, Currency currency) {
+		Preconditions.checkNotNull(amount);
+		Preconditions.checkNotNull(currency);
 
-  public Money(BigDecimal amount, Currency currency) {
-    Preconditions.checkNotNull(amount);
-    Preconditions.checkNotNull(currency);
+		this.amount = resetAmountScale(amount);
 
-    this.amount = resetAmountScale(amount);
+		this.currency = currency;
+	}
 
-    this.currency = currency;
-  }
+	/**
+	 * We always reset the scale, as the scale influences equals and hashcode.
+	 * 
+	 * @param amount
+	 * @return the amount with scale set to 2
+	 */
+	private BigDecimal resetAmountScale(BigDecimal amount) {
+		return amount.setScale(2, RoundingMode.HALF_EVEN);
+	}
 
-  /**
-   * We always reset the scale, as the scale influences equals and hashcode.
-   * 
-   * @param amount
-   * @return the amount with scale set to 2
-   */
-  private BigDecimal resetAmountScale(BigDecimal amount) {
-    return amount.setScale(2, RoundingMode.HALF_EVEN);
-  }
+	public BigDecimal getAmount() {
+		return amount;
+	}
 
-  public BigDecimal getAmount() {
-    return amount;
-  }
+	public Currency getCurrency() {
+		return currency;
+	}
 
-  public Currency getCurrency() {
-    return currency;
-  }
+	@Override
+	public String toString() {
+		return nf.format(amount);
+	}
 
-  @Override
-  public String toString() {
-    return nf.format(amount);
-  }
+	@Override
+	public int hashCode() {
+		return Objects.hash(amount, currency);
+	}
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(amount, currency);
-  }
+	@Override
+	public boolean equals(Object obj) {
+		final boolean isNull = (obj == null);
+		final boolean wrongClass = !(obj instanceof Money);
 
-  @Override
-  public boolean equals(Object obj) {
-    final boolean isNull = (obj == null);
-    final boolean wrongClass = !(obj instanceof Money);
+		if (isNull || wrongClass) {
+			return false;
+		}
 
-    if (isNull || wrongClass) {
-      return false;
-    }
+		final Money otherObj = (Money) obj;
 
-    final Money otherObj = (Money) obj;
+		final boolean sameAmount = Objects.equals(amount, otherObj.getAmount());
+		final boolean sameCurrency = Objects.equals(currency,
+				otherObj.getCurrency());
 
-    final boolean sameAmount = Objects.equals(amount, otherObj.getAmount());
-    final boolean sameCurrency = Objects.equals(currency, otherObj.getCurrency());
+		return sameAmount && sameCurrency;
+	}
 
-    return sameAmount && sameCurrency;
-  }
+	public static String getClassname() {
+		return Money.class.getName();
+	}
 
-  public static String getClassname() {
-    return Money.class.getName();
-  }
+	/**
+	 * Ugly - find a better way! Helps in case the system locale was changed by
+	 * the program.
+	 */
+	public static void resetNumberFormatter() {
+		nf = NumberFormat.getCurrencyInstance();
+	}
 
-  /**
-   * Ugly - find a better way! Helps in case the system locale was changed by
-   * the program.
-   */
-  public static void resetNumberFormatter() {
-    nf = NumberFormat.getCurrencyInstance();
-  }
+	public Money add(Money otherMoney) {
+		checkNotNull(otherMoney);
+		assertSameCurrency(otherMoney,
+				"Cannot sum up two prices with different currencies!");
 
-  public Money add(Money otherMoney) {
-    checkNotNull(otherMoney);
-    assertSameCurrency(otherMoney, "Cannot sum up two prices with different currencies!");
+		final BigDecimal newValue = amount.add(otherMoney.getAmount());
 
-    final BigDecimal newValue = amount.add(otherMoney.getAmount());
+		return new Money(newValue, currency);
+	}
 
-    return new Money(newValue, currency);
-  }
+	public Money subtract(Money otherMoney) {
+		checkNotNull(otherMoney);
+		assertSameCurrency(otherMoney,
+				"Cannot subtract two prices with different currencies!");
 
+		final BigDecimal newValue = amount.subtract(otherMoney.getAmount());
 
-  public Money subtract(Money otherMoney) {
-    checkNotNull(otherMoney);
-    assertSameCurrency(otherMoney, "Cannot subtract two prices with different currencies!");
+		return new Money(newValue, currency);
+	}
 
-    final BigDecimal newValue = amount.subtract(otherMoney.getAmount());
+	/**
+	 * @param otherMoney
+	 * @param message
+	 *            TODO
+	 */
+	private void assertSameCurrency(Money otherMoney, String message) {
+		if (!currency.equals(otherMoney.getCurrency())) {
+			throw new DifferentCurrenciesException(message);
+		}
+	}
 
-    return new Money(newValue, currency);
-  }
+	/**
+	 * <p>
+	 * Assuming this to be a gross value, calculate the corresponding net value
+	 * for the given vatClass.
+	 * </p>
+	 * 
+	 * <pre>
+	 * gross = net * (100 + vatRate)
+	 * net = gross / (1 + vatRate / 100)
+	 * </pre>
+	 * 
+	 * @param vatClass
+	 * @return the net value of this price
+	 */
+	public Money getNet(VATClass vatClass) {
+		final BigDecimal vatRateDivBy100 = vatClass.getRate().divide(HUNDRED);
+		final BigDecimal divider = BigDecimal.ONE.add(vatRateDivBy100);
+		final BigDecimal netValue = amount
+				.divide(divider, RoundingMode.HALF_UP);
+		return new Money(netValue, currency);
+	}
 
-
-  /**
-   * @param otherMoney
-   * @param message
-   *          TODO
-   */
-  private void assertSameCurrency(Money otherMoney, String message) {
-    if (!currency.equals(otherMoney.getCurrency())) {
-      throw new DifferentCurrenciesException(message);
-    }
-  }
-
-  /**
-   * <p>
-   * Assuming this to be a gross value, calculate the corresponding net value
-   * for the given vatClass.
-   * </p>
-   * 
-   * <pre>
-   * gross = net * (100 + vatRate)
-   * net = gross / (1 + vatRate / 100)
-   * </pre>
-   * 
-   * @param vatClass
-   * @return the net value of this price
-   */
-  public Money getNet(VATClass vatClass) {
-    final BigDecimal vatRateDivBy100 = vatClass.getRate().divide(HUNDRED);
-    final BigDecimal divider = BigDecimal.ONE.add(vatRateDivBy100);
-    final BigDecimal netValue = amount.divide(divider, RoundingMode.HALF_UP);
-    return new Money(netValue, currency);
-  }
-
-  public Money getVAT(VATClass vatClass) {
-    final BigDecimal netValue = amount.multiply(vatClass.getRate()).divide(HUNDRED);
-    return new Money(netValue, currency);
-  }
+	public Money getVAT(VATClass vatClass) {
+		final BigDecimal netValue = amount.multiply(vatClass.getRate()).divide(
+				HUNDRED);
+		return new Money(netValue, currency);
+	}
 
 }

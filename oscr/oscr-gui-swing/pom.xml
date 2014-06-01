@@ -27,14 +27,6 @@
 			<version>${project.version}</version>
 		</dependency>
 
-		<dependency>
-			<groupId>de.bstreit.java.oscr</groupId>
-			<artifactId>oscr-test-base</artifactId>
-			<version>${project.version}</version>
-			<type>test-jar</type>
-			<scope>test</scope>
-		</dependency>
-
 		<!-- Spring Core -->
 
 		<dependency>

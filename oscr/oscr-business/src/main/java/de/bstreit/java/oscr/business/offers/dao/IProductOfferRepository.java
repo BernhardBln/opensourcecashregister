@@ -32,21 +32,34 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import de.bstreit.java.oscr.business.offers.ProductOffer;
+import de.bstreit.java.oscr.business.products.category.ProductCategory;
 
-public interface IProductOfferRepository extends JpaRepository<ProductOffer, Long> {
+public interface IProductOfferRepository extends
+		JpaRepository<ProductOffer, Long> {
 
+	@Query("select productOffer " + "  from ProductOffer productOffer "
+			+ "  where productOffer.validTo is null"
+			+ "    and productOffer.offeredItem.name = ?1"
+			+ "    and productOffer.offeredItem.validTo is null")
+	public ProductOffer findActiveOfferByProductName(String name);
 
-  @Query("select productOffer "
-      + "  from ProductOffer productOffer "
-      + "  where productOffer.validTo is null"
-      + "    and productOffer.offeredItem.name = ?1"
-      + "    and productOffer.offeredItem.validTo is null")
-  public ProductOffer findActiveOfferByProductName(String name);
+	@Query("select productOffer " + "  from ProductOffer productOffer "
+			+ "  where productOffer.validTo is null"
+			+ "    and productOffer.offeredItem.productCategory = ?1"
+			+ "    and productOffer.offeredItem.validTo is null")
+	public Collection<ProductOffer> findActiveOffersByProductCategory(
+			ProductCategory productCategory);
 
-  @Query("select productOffer "
-      + "  from ProductOffer productOffer "
-      + "  where productOffer.validTo is null"
-      + "    and productOffer.offeredItem.validTo is null")
-  public Collection<ProductOffer> findAllActiveOffers();
+	@Query("select productOffer " + "  from ProductOffer productOffer "
+			+ "  where productOffer.validTo is null"
+			+ "    and productOffer.offeredItem.productCategory <> ?1"
+			+ "    and productOffer.offeredItem.validTo is null")
+	public Collection<ProductOffer> findActiveOffersByIsNotProductCategory(
+			ProductCategory productCategory);
+
+	@Query("select productOffer " + "  from ProductOffer productOffer "
+			+ "  where productOffer.validTo is null"
+			+ "    and productOffer.offeredItem.validTo is null")
+	public Collection<ProductOffer> findAllActiveOffers();
 
 }

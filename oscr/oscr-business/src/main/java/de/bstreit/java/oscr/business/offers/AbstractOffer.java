@@ -54,66 +54,69 @@ import de.bstreit.java.oscr.business.products.AbstractSalesItem;
 @Table(name = "Offers")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "type", discriminatorType = DiscriminatorType.STRING)
-public abstract class AbstractOffer<OFFERED_ITEM extends AbstractSalesItem> extends
-    AbstractPersistentObjectWithContinuance<AbstractOffer<OFFERED_ITEM>> implements
-    ILabelledItem {
+public abstract class AbstractOffer<OFFERED_ITEM extends AbstractSalesItem>
+		extends
+		AbstractPersistentObjectWithContinuance<AbstractOffer<OFFERED_ITEM>>
+		implements ILabelledItem {
 
-  /**
-   * <p>
-   * The gross price of this offer. Since this is fixed, the net price will vary
-   * depending on the vat class.
-   * </p>
-   * <p>
-   * This is not considered in {@link #equals(Object)} and {@link #hashCode()}
-   * as the sales items and the validFrom and validTo dates are already
-   * sufficient and serve as a natural key.
-   * </p>
-   */
-  @Type(type = "de.bstreit.java.oscr.business.base.finance.money.MoneyType")
-  @Columns(columns = { @Column(name = "priceValue"), @Column(name = "priceCurrency") })
-  // @Access(AccessType.FIELD)
-  private final Money priceGross;
+	/**
+	 * <p>
+	 * The gross price of this offer. Since this is fixed, the net price will
+	 * vary depending on the vat class.
+	 * </p>
+	 * <p>
+	 * This is not considered in {@link #equals(Object)} and {@link #hashCode()}
+	 * as the sales items and the validFrom and validTo dates are already
+	 * sufficient and serve as a natural key.
+	 * </p>
+	 */
+	@Type(type = "de.bstreit.java.oscr.business.base.finance.money.MoneyType")
+	@Columns(columns = { @Column(name = "priceValue"),
+			@Column(name = "priceCurrency") })
+	// @Access(AccessType.FIELD)
+	private final Money priceGross;
 
-  /**
-   * The item contained in this offer.
-   */
-  @NaturalId
-  // @Access(AccessType.FIELD)
-  @ManyToOne(targetEntity = AbstractSalesItem.class, cascade = CascadeType.ALL)
-  private OFFERED_ITEM offeredItem;
+	/**
+	 * The item contained in this offer.
+	 */
+	@NaturalId
+	// @Access(AccessType.FIELD)
+	@ManyToOne(targetEntity = AbstractSalesItem.class, cascade = CascadeType.ALL)
+	private final OFFERED_ITEM offeredItem;
 
-  @Transient
-  private transient String label = null;
+	@Transient
+	private transient String label = null;
 
+	AbstractOffer(OFFERED_ITEM item, Money priceGross, Date validFrom,
+			Date validТо) {
+		super(validFrom, validТо);
+		this.offeredItem = item;
+		this.priceGross = priceGross;
+	}
 
-  AbstractOffer(OFFERED_ITEM item, Money priceGross, Date validFrom, Date validТо) {
-    super(validFrom, validТо);
-    this.offeredItem = item;
-    this.priceGross = priceGross;
-  }
+	public Money getPriceGross() {
+		return priceGross;
+	}
 
-  public Money getPriceGross() {
-    return priceGross;
-  }
+	@Override
+	public String getLabel() {
+		return "<html><center>" + offeredItem.getLabel() + "<BR>"
+				+ getPriceGross().toString() + "</center></html>";
+	}
 
-  public String getLabel() {
-    return "<html><center>" + offeredItem.getLabel() + "<BR>" + getPriceGross().toString()
-        + "</center></html>";
-  }
+	@Override
+	protected final void additionalEqualsForSubclasses(EqualsBuilder builder,
+			AbstractOffer<OFFERED_ITEM> obj) {
+		builder.append(offeredItem, obj.offeredItem);
+	}
 
-  @Override
-  protected final void additionalEqualsForSubclasses(EqualsBuilder builder, AbstractOffer<OFFERED_ITEM> obj) {
-    builder.append(offeredItem, obj.offeredItem);
-  }
+	@Override
+	protected final void additionalHashcodeForSubclasses(HashCodeBuilder builder) {
+		builder.append(offeredItem);
+	}
 
-  @Override
-  protected final void additionalHashcodeForSubclasses(HashCodeBuilder builder) {
-    builder.append(offeredItem);
-  }
-
-  public OFFERED_ITEM getOfferedItem() {
-    return offeredItem;
-  }
-
+	public OFFERED_ITEM getOfferedItem() {
+		return offeredItem;
+	}
 
 }

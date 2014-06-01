@@ -26,7 +26,6 @@ public class MultipleBillsCalculator implements IMultipleBillsCalculator {
 	@Inject
 	private IBillCalculatorFactory billCalculatorFactory;
 
-	private Collection<Bill> bills;
 	private IBillCalculator currentBillCalculator;
 
 	private Money totalGross;
