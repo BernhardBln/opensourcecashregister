@@ -255,20 +255,7 @@ public class ButtonPanelFactory {
 			popupMenu.add(createMenuItem(staffMember));
 		}
 
-		staffConsumptionButton.add(popupMenu);
-
-		// staffConsumptionButton.addMouseListener(new MouseAdapter() {
-		//
-		// @Override
-		// public void mouseClicked(MouseEvent e) {
-		// if (e.getButton() == MouseEvent.BUTTON3) {
-		//
-		//
-		// e.consume();
-		// }
-		// }
-		//
-		// });
+		staffConsumptionButton.addMouseListener(new PopupListener(popupMenu));
 
 		appController.addGuiResetListener(new IResetListener() {
 			@Override
@@ -292,6 +279,7 @@ public class ButtonPanelFactory {
 				System.out.println("staff consumption triggered for "
 						+ staffMember);
 				appController.setStaffConsumption(staffMember);
+				// TODO: set button state
 			}
 		});
 

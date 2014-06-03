@@ -11,6 +11,8 @@ import javax.swing.JButton;
 
 import org.apache.commons.lang3.StringUtils;
 
+import de.bstreit.java.oscr.business.eventbroadcasting.EventBroadcaster;
+import de.bstreit.java.oscr.business.eventbroadcasting.OfferChangeListener;
 import de.bstreit.java.oscr.business.offers.AbstractOffer;
 import de.bstreit.java.oscr.business.offers.ExtraOffer;
 import de.bstreit.java.oscr.business.offers.ProductOffer;
@@ -24,6 +26,8 @@ public class ButtonFactory {
 	@Inject
 	private MainWindowController appController;
 
+	@Inject
+	private EventBroadcaster eventBroadcaster;
 
 	public JButton createButtonFor(AbstractOffer<?> offer) {
 
@@ -51,6 +55,28 @@ public class ButtonFactory {
 			}
 		});
 
+		eventBroadcaster.addListener(new OfferChangeListener() {
+
+			@Override
+			public void offerUpdated(AbstractOffer<?> oldItem,
+					AbstractOffer<?> newItem) {
+
+				// TODO: remove old action listener!!
+				button.setText(newItem.getLabel());
+			}
+
+			@Override
+			public void offerDeleted(AbstractOffer<?> item) {
+				button.setEnabled(false);
+				button.setToolTipText("This offer has been deleted");
+			}
+
+			@Override
+			public void offerCreated(AbstractOffer<?> newItem) {
+
+			}
+		});
+
 		setColourIfNotEmpty(button, productOffer);
 
 		return button;
@@ -64,14 +90,14 @@ public class ButtonFactory {
 	}
 
 	private void setColourIfNotEmpty(final JButton button,
-	    final ProductOffer productOffer) {
+			final ProductOffer productOffer) {
 
 		final Product product = productOffer.getOfferedItem();
 
 		if (product.getProductCategory() != null) {
 
 			final String colourAsString = product.getProductCategory()
-			    .getColour();
+					.getColour();
 
 			if (StringUtils.isNotBlank(colourAsString)) {
 				final Color colour = Color.decode(colourAsString);
