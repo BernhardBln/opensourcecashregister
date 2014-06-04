@@ -2,8 +2,8 @@ package de.bstreit.java.oscr.gui.swing.cashregister.ui;
 
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -72,48 +72,13 @@ public class MainWindow implements IBillDisplay {
 		jFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		jFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 
-		jFrame.addWindowListener(new WindowListener() {
-
-			@Override
-			public void windowOpened(WindowEvent arg0) {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void windowIconified(WindowEvent arg0) {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void windowDeiconified(WindowEvent arg0) {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void windowDeactivated(WindowEvent arg0) {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void windowClosing(WindowEvent arg0) {
-				// TODO Auto-generated method stub
-
-			}
+		jFrame.addWindowListener(new WindowAdapter() {
 
 			@Override
 			public void windowClosed(WindowEvent arg0) {
 				appController.notifyShutdown();
 			}
 
-			@Override
-			public void windowActivated(WindowEvent arg0) {
-				// TODO Auto-generated method stub
-
-			}
 		});
 
 		// if child of abstractview, use getPanel!
@@ -129,6 +94,11 @@ public class MainWindow implements IBillDisplay {
 	@Override
 	public void scrollToBeginning() {
 		billView.setCaretPosition(0);
+	}
+
+	@Override
+	public void clear() {
+		billView.setText("");
 	}
 
 }

@@ -8,4 +8,6 @@ public interface IBillDisplay {
 
 	void scrollToBeginning();
 
+	void clear();
+
 }
