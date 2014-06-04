@@ -1,22 +1,21 @@
 package de.bstreit.java.oscr.gui.swing.cashregister.ui;
 
-import java.util.Collection;
-
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.google.common.collect.Sets;
+import com.google.common.base.Optional;
 
 import de.bstreit.java.oscr.business.base.finance.money.Money;
 import de.bstreit.java.oscr.business.base.finance.tax.VATClass;
 import de.bstreit.java.oscr.business.bill.Bill;
 import de.bstreit.java.oscr.business.bill.BillService;
-import de.bstreit.java.oscr.business.bill.IBillChangedListener;
 import de.bstreit.java.oscr.business.bill.IBillProcessor;
 import de.bstreit.java.oscr.business.bill.IMultipleBillsCalculator;
+import de.bstreit.java.oscr.business.eventbroadcasting.BillChangeListener;
+import de.bstreit.java.oscr.business.eventbroadcasting.EventBroadcaster;
 import de.bstreit.java.oscr.business.offers.ExtraOffer;
 import de.bstreit.java.oscr.business.offers.ProductOffer;
 import de.bstreit.java.oscr.business.offers.VariationOffer;
@@ -27,7 +26,7 @@ import de.bstreit.java.oscr.business.taxation.dao.ITaxInfoRepository;
 import de.bstreit.java.oscr.text.formatting.BillFormatter;
 
 @Named
-public class MainWindowController implements IBillChangedListener {
+public class MainWindowController implements BillChangeListener {
 
 	@Inject
 	private IBillDisplay billDisplay;
@@ -44,15 +43,16 @@ public class MainWindowController implements IBillChangedListener {
 	@Inject
 	private IUserService userService;
 
+	@Inject
+	private EventBroadcaster eventBroadcaster;
+
 	private TaxInfo toGoTaxInfo;
 
 	private TaxInfo inHouseTaxInfo;
 
-	private final Collection<IResetListener> resetListeners = Sets.newHashSet();
-
 	@PostConstruct
 	private void initController() {
-		billService.addBillChangedListener(this);
+		eventBroadcaster.addBillChangeListener(this);
 		toGoTaxInfo = taxInfoRepository
 				.findByDenotationAndValidToIsNull("to go");
 		inHouseTaxInfo = taxInfoRepository
@@ -73,27 +73,10 @@ public class MainWindowController implements IBillChangedListener {
 
 	public void showMainwindow() {
 		billDisplay.show();
-		resetGui();
-	}
-
-	@Override
-	public void billChanged(Bill bill) {
-		billDisplay.printBill(billFormatter.formatBill(bill));
 	}
 
 	public void closeBill() {
 		billService.closeBill();
-		resetGui();
-	}
-
-	private void resetGui() {
-		for (final IResetListener resetListener : resetListeners) {
-			resetListener.resetState();
-		}
-	}
-
-	public void addGuiResetListener(IResetListener resetListener) {
-		resetListeners.add(resetListener);
 	}
 
 	public void printTodaysTotal() {
@@ -162,6 +145,10 @@ public class MainWindowController implements IBillChangedListener {
 		}
 	}
 
+	public boolean isBillToGo() {
+		return toGoTaxInfo.equals(billService.getGlobalTaxInfo());
+	}
+
 	public void undoLastAction() {
 		billService.undoLastAction();
 	}
@@ -188,5 +175,14 @@ public class MainWindowController implements IBillChangedListener {
 
 	public void clearStaffConsumption() {
 		billService.clearStaffConsumer();
+	}
+
+	@Override
+	public void billUpdated(Optional<Bill> newBill) {
+		if (newBill.isPresent()) {
+			billDisplay.printBill(billFormatter.formatBill(newBill.get()));
+		} else {
+			billDisplay.clear();
+		}
 	}
 }

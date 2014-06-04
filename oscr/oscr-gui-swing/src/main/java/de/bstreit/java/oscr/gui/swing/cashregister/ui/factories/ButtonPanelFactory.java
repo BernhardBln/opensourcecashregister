@@ -9,13 +9,10 @@ import java.util.Collection;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.swing.AbstractAction;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.JToggleButton;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,9 +25,6 @@ import de.bstreit.java.oscr.business.offers.dao.IProductOfferRepository;
 import de.bstreit.java.oscr.business.offers.dao.IVariationOfferRepository;
 import de.bstreit.java.oscr.business.products.category.ProductCategory;
 import de.bstreit.java.oscr.business.products.category.dao.IProductCategoryRepository;
-import de.bstreit.java.oscr.business.staff.User;
-import de.bstreit.java.oscr.business.staff.dao.IUserRepository;
-import de.bstreit.java.oscr.gui.swing.cashregister.ui.IResetListener;
 import de.bstreit.java.oscr.gui.swing.cashregister.ui.MainWindowController;
 
 @Named
@@ -50,9 +44,6 @@ public class ButtonPanelFactory {
 
 	@Inject
 	private IProductCategoryRepository productCategoryRepository;
-
-	@Inject
-	private IUserRepository userRepository;
 
 	@Inject
 	private ButtonFactory buttonFactory;
@@ -215,75 +206,11 @@ public class ButtonPanelFactory {
 	}
 
 	private void addToGoButton(final JPanel controlButtonsPanel) {
-		final JToggleButton btnToGo = new JToggleButton("To go");
-		btnToGo.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				appController.setBillToGo(btnToGo.isSelected());
-			}
-		});
-
-		appController.addGuiResetListener(new IResetListener() {
-			@Override
-			public void resetState() {
-				btnToGo.setSelected(true);
-			}
-		});
-
-		btnToGo.setMinimumSize(new Dimension(0, 40));
-		controlButtonsPanel.add(btnToGo);
+		controlButtonsPanel.add(buttonFactory.createToGoButton());
 	}
 
 	private void addStaffConsumptionButton(JPanel controlButtonsPanel) {
-		final JToggleButton staffConsumptionButton = new JToggleButton("Staff");
-
-		staffConsumptionButton.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (staffConsumptionButton.isSelected()) {
-					appController.setStaffConsumption();
-				} else {
-					appController.clearStaffConsumption();
-				}
-			}
-		});
-
-		final JPopupMenu popupMenu = new JPopupMenu();
-		for (final User staffMember : userRepository.findAll()) {
-			popupMenu.add(createMenuItem(staffMember));
-		}
-
-		staffConsumptionButton.addMouseListener(new PopupListener(popupMenu));
-
-		appController.addGuiResetListener(new IResetListener() {
-			@Override
-			public void resetState() {
-				staffConsumptionButton.setSelected(false);
-			}
-		});
-
-		staffConsumptionButton.setMinimumSize(new Dimension(0, 40));
-
-		controlButtonsPanel.add(staffConsumptionButton);
-	}
-
-	private JMenuItem createMenuItem(final User staffMember) {
-
-		final JMenuItem menuItem = new JMenuItem(new AbstractAction(
-				staffMember.getFullname()) {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				System.out.println("staff consumption triggered for "
-						+ staffMember);
-				appController.setStaffConsumption(staffMember);
-				// TODO: set button state
-			}
-		});
-
-		return menuItem;
+		controlButtonsPanel.add(buttonFactory.createStaffConsumptionButton());
 	}
 
 	private void addKassenstandButton(final JPanel controlButtonsPanel) {
