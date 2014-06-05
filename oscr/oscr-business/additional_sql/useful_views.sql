@@ -82,3 +82,94 @@ CREATE VIEW STAT_BILLITEMS_BY_HOUR_AND_NAME AS
 	ORDER BY
 		hour, 
 		name;
+
+CREATE VIEW BILLS_SUMMED_UP_BY_DAY_THIS_MONTH AS
+        SELECT
+                CAST(billclosed AS DATE) AS date,
+                SUM(total) AS total,
+                pricecurrency
+
+        FROM
+                BILLS_SUMMED_UP
+
+        WHERE
+		billopened >= formatdatetime(current_timestamp, 'YYYY-MM-01')
+        GROUP BY
+                pricecurrency, date;
+
+CREATE VIEW BILLS_SUMMED_UP_BY_DAY_LAST_MONTH AS
+        SELECT
+                CAST(billclosed AS DATE) AS date,
+                SUM(total) AS total,
+                pricecurrency
+
+        FROM
+                BILLS_SUMMED_UP
+
+        WHERE
+		billopened >= formatdatetime(dateadd('Month', -1, current_timestamp), 'YYYY-MM-01')
+		AND billopened < formatdatetime(current_timestamp, 'YYYY-MM-01')
+
+        GROUP BY
+                pricecurrency, date;
+
+
+CREATE VIEW STAT_BILLITEMS_PER_HOUR_THIS_MONTH AS
+        SELECT
+                SUBSTRING(billopened, 12, 2) AS hour,
+                COUNT(*)
+        FROM
+                BILLS_WITH_PRODUCTS
+	WHERE
+		billopened >= formatdatetime(current_timestamp, 'YYYY-MM-01')
+        GROUP BY
+                hour
+        ORDER BY
+                hour;
+
+CREATE VIEW STAT_BILLITEMS_PER_HOUR_LAST_MONTH AS
+        SELECT
+                SUBSTRING(billopened, 12, 2) AS hour,
+                COUNT(*)
+        FROM
+                BILLS_WITH_PRODUCTS
+        WHERE
+                billopened >= formatdatetime(dateadd('Month', -1, current_timestamp), 'YYYY-MM-01')
+                AND billopened < formatdatetime(current_timestamp, 'YYYY-MM-01')
+        GROUP BY
+                hour
+        ORDER BY
+                hour;
+
+
+CREATE VIEW BILLS_TOTAL_THIS_MONTH AS
+        SELECT
+                formatdatetime(current_timestamp, 'YYYY-MM'),
+                SUM(total) AS total,
+                pricecurrency
+
+        FROM
+                BILLS_SUMMED_UP
+
+        WHERE
+                billopened >= formatdatetime(current_timestamp, 'YYYY-MM-01')
+        GROUP BY
+                pricecurrency;
+
+CREATE VIEW BILLS_TOTAL_LAST_MONTH AS
+        SELECT
+                formatdatetime(current_timestamp, 'YYYY-MM'),
+                SUM(total) AS total,
+                pricecurrency
+
+        FROM
+                BILLS_SUMMED_UP
+        WHERE
+                billopened >= formatdatetime(dateadd('Month', -1, current_timestamp), 'YYYY-MM-01')
+                AND billopened < formatdatetime(current_timestamp, 'YYYY-MM-01')
+
+        GROUP BY
+                pricecurrency;
+
+
+
