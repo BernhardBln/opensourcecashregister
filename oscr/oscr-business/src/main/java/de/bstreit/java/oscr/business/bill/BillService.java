@@ -29,16 +29,14 @@ package de.bstreit.java.oscr.business.bill;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.Collection;
-import java.util.Set;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.transaction.Transactional;
 
-import com.google.common.collect.Sets;
-
 import de.bstreit.java.oscr.business.base.date.ICurrentDateProvider;
 import de.bstreit.java.oscr.business.bill.dao.IBillRepository;
+import de.bstreit.java.oscr.business.eventbroadcasting.EventBroadcaster;
 import de.bstreit.java.oscr.business.export.IExportService;
 import de.bstreit.java.oscr.business.offers.ExtraOffer;
 import de.bstreit.java.oscr.business.offers.ProductOffer;
@@ -76,21 +74,15 @@ public class BillService {
 	@Inject
 	private IExportService exportService;
 
-	private final Set<IBillChangedListener> billChangedListener = Sets
-			.newHashSet();
+	@Inject
+	private EventBroadcaster eventBroadcaster;
 
 	private Bill currentBill;
 
 	private BillItem lastAddedItem;
 
-	public void addBillChangedListener(IBillChangedListener listener) {
-		billChangedListener.add(listener);
-	}
-
 	private void fireBillChangedEvent() {
-		for (final IBillChangedListener listener : billChangedListener) {
-			listener.billChanged(currentBill);
-		}
+		eventBroadcaster.notifyBillUpdated(this, currentBill);
 	}
 
 	/**
@@ -282,6 +274,14 @@ public class BillService {
 		saveBill();
 
 		fireBillChangedEvent();
+	}
+
+	public TaxInfo getGlobalTaxInfo() {
+		if (currentBill == null) {
+			return null;
+		}
+
+		return currentBill.getGlobalTaxInfo();
 	}
 
 	@Transactional

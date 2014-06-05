@@ -93,6 +93,8 @@ local.properties
 
 
 
+**/*.properties
+
 **/pom.xml.versionsBackup
 
 **/*.properties
