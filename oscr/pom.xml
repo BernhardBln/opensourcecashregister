@@ -137,7 +137,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
-				<version>2.3</version>
 				<configuration>
 					<excludes>
 						<exclude>**/*.properties</exclude>
@@ -145,6 +144,14 @@
 				</configuration>
 			</plugin>
 
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-release-plugin</artifactId>
+				<version>2.5</version>
+				<configuration>
+					<autoVersionSubmodules>true</autoVersionSubmodules>
+				</configuration>
+			</plugin>
 		</plugins>
 
 	</build>
@@ -201,4 +208,9 @@
 	</reporting>
 
 
+	<scm>
+		<developerConnection>scm:git:git@github.com:BernhardBln/opensourcecashregister.git</developerConnection>
+		<url>https://github.com/BernhardBln/opensourcecashregister</url>
+		<connection>scm:git:https://github.com/BernhardBln/opensourcecashregister.git</connection>
+	</scm>
 </project>
