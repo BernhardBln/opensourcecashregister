@@ -13,10 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import de.bstreit.java.oscr.business.base.finance.money.Money;
 import de.bstreit.java.oscr.business.offers.ProductOffer;
 import de.bstreit.java.oscr.business.offers.dao.IProductOfferRepository;
-import de.bstreit.java.oscr.business.products.Product;
-import de.bstreit.java.oscr.business.products.category.ProductCategory;
 import de.bstreit.java.oscr.business.products.category.dao.IProductCategoryRepository;
-import de.bstreit.java.oscr.gui.noswing.admin.util.ChoiceHelper;
 
 @Named
 public class ProductModder implements IAdminBean {
@@ -41,18 +38,23 @@ public class ProductModder implements IAdminBean {
 
 		System.out.println("Choose product:");
 		System.out.println();
-		final ProductOffer selectedOffer = selectProductOffer();
+		final ProductOffer selectedOldOffer = selectProductOffer();
 
-		System.out.println(" -> " + selectedOffer);
+		System.out.println(" -> " + selectedOldOffer);
 
-		// final Product product = getProduct();
-		// final Money price = getPrice("price (gross)", false);
-		// final Money costsNet = getPrice("costs (net)", true);
-		//
-		// final ProductOffer productOffer = new ProductOffer(product, price,
-		// costsNet, new Date(), null);
-		//
-		// productOfferRepository.save(productOffer);
+		final Money price = getPrice("price (gross)", false);
+		final Money costsNet = getPrice("costs (net)", true);
+
+		final Date changeDate = new Date();
+
+		final ProductOffer newProductOffer = new ProductOffer(
+				selectedOldOffer.getOfferedItem(), price, costsNet, changeDate,
+				null);
+
+		selectedOldOffer.setValidTo(changeDate);
+
+		productOfferRepository.save(newProductOffer);
+		productOfferRepository.save(selectedOldOffer);
 	}
 
 	private ProductOffer selectProductOffer() {
@@ -70,7 +72,7 @@ public class ProductModder implements IAdminBean {
 		final int choice = Integer.valueOf(scanner.nextLine().trim());
 
 		if (choice == 0) {
-			return null;
+			throw new AbortedException();
 		}
 
 		return allActiveOffers.get(choice - 1);
@@ -95,29 +97,6 @@ public class ProductModder implements IAdminBean {
 			currencyCode = "EUR";
 		}
 		return new Money(amount, currencyCode);
-	}
-
-	private Product getProduct() {
-		System.out.println("Enter product name: ");
-		final String name = scanner.nextLine().trim();
-
-		final Product product = new Product(name, new Date(), null);
-
-		final ProductCategory productCategory = getProductCategory();
-		product.setProductCategory(productCategory);
-
-		return product;
-	}
-
-	private ProductCategory getProductCategory() {
-
-		final List<ProductCategory> categories = productCategoryRepository
-				.findActiveProductCategories();
-
-		final ChoiceHelper<ProductCategory> choiceHelper = ChoiceHelper
-				.withoutCancelOption(categories, "Select category:", scanner);
-
-		return choiceHelper.makeChoice();
 	}
 
 	@Override

@@ -11,6 +11,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 
 import com.google.common.collect.Lists;
 
+import de.bstreit.java.oscr.gui.noswing.admin.logic.AbortedException;
 import de.bstreit.java.oscr.gui.noswing.admin.logic.IAdminBean;
 import de.bstreit.java.oscr.gui.noswing.admin.util.ChoiceHelper;
 
@@ -38,7 +39,11 @@ public class NoswingAdminController {
 					return;
 				}
 
-				adminBean.performTask();
+				try {
+					adminBean.performTask();
+				} catch (final AbortedException e) {
+
+				}
 			}
 		}
 	}
