@@ -225,7 +225,7 @@
 	<scm>
 		<!-- developerConnection>scm:git:git@github.com:BernhardBln/opensourcecashregister.git</developerConnection -->
 		<!-- Guess we only want to prepare stuff locally and push manually to github -->
-		<developerConnection>scm:git:file:.</developerConnection>
+		<developerConnection>scm:git:file:${gitRepoPath}</developerConnection>
 
 		<url>https://github.com/BernhardBln/opensourcecashregister</url>
 		<connection>scm:git:https://github.com/BernhardBln/opensourcecashregister.git</connection>
