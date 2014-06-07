@@ -38,17 +38,17 @@ import de.bstreit.java.oscr.business.products.Product;
  */
 public class ProductOffers {
 
-	public static final ProductOffer ESPRESSO = addProductOffer(Products.ESPRESSO, new Money("1.00", "EUR"));
+	public static final ProductOffer ESPRESSO = addProductOffer(
+			Products.ESPRESSO, new Money("1.00", "EUR"));
 
-	public static final ProductOffer CAPPUCCINO = addProductOffer(Products.CAPPUCCINO, new Money("1.80",
-			"EUR"));
+	public static final ProductOffer CAPPUCCINO = addProductOffer(
+			Products.CAPPUCCINO, new Money("1.80", "EUR"));
 
-	public static final ProductOffer LATTE_MACCHIATO = addProductOffer(Products.LATTE_MACCHIATO, new Money(
-			"2.30", "EUR"));
-
+	public static final ProductOffer LATTE_MACCHIATO = addProductOffer(
+			Products.LATTE_MACCHIATO, new Money("2.30", "EUR"));
 
 	private static ProductOffer addProductOffer(Product product, Money price) {
-		return new ProductOffer(product, price, new Date(), null);
+		return new ProductOffer(product, price, null, new Date(), null);
 	}
 
 }
