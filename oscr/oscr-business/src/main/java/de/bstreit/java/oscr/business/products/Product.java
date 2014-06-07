@@ -89,17 +89,4 @@ public class Product extends AbstractSalesItem {
 		this.productCategory = productCategory;
 	}
 
-	@Override
-	public String getLabel() {
-
-		final String name = getName();
-
-		String containerSizeStr = "";
-		if (containerSize != null) {
-			containerSizeStr = "<BR><i>[" + containerSize.getSize() + "]</i>";
-		}
-
-		return name + containerSizeStr;
-	}
-
 }
