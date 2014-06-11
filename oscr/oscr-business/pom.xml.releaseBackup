@@ -1,31 +1,17 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
 	<modelVersion>4.0.0</modelVersion>
+
+	<name>Open Source Cash Register - Business Code</name>
+	<artifactId>oscr-business</artifactId>
 
 	<parent>
 		<groupId>de.bstreit.java.oscr</groupId>
 		<artifactId>oscr</artifactId>
-		<version>0.1.5-SNAPSHOT</version>
+		<version>0.1.4-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>oscr-gui-swing</artifactId>
-	<name>Open Source Cash Register - Swing GUI</name>
-
-	<properties>
-		<jdal.version>2.0-SNAPSHOT</jdal.version>
-		<jdal.version>2.0.M1</jdal.version>
-	</properties>
-
-	<!-- <repositories> <repository> <id>jdal</id> <name>JDAL Repository</name> 
-		<url>http://www.jdal.org/repo</url> </repository> </repositories> -->
-
 	<dependencies>
-
-		<dependency>
-			<groupId>de.bstreit.java.oscr</groupId>
-			<artifactId>oscr-business</artifactId>
-			<version>${project.version}</version>
-		</dependency>
 
 		<!-- Spring Core -->
 
@@ -67,6 +53,16 @@
 		</dependency>
 
 		<dependency>
+			<groupId>joda-time</groupId>
+			<artifactId>joda-time</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+		</dependency>
+
+		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
 		</dependency>
@@ -100,5 +96,6 @@
 
 
 	</dependencies>
+
 
 </project>

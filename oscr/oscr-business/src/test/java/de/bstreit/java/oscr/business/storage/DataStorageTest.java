@@ -48,74 +48,73 @@ import de.bstreit.java.oscr.business.products.Product;
 @Ignore
 public class DataStorageTest extends AbstractSpringTestWithContext {
 
-  private static final Locale defaultLocale = Locale.getDefault();
+	private static final Locale defaultLocale = Locale.getDefault();
 
+	@BeforeClass
+	public static void setDefaultLocale() {
+		Locale.setDefault(Locale.GERMANY);
+		Money.resetNumberFormatter();
+	}
 
-  @BeforeClass
-  public static void setDefaultLocale() {
-    Locale.setDefault(Locale.GERMANY);
-    Money.resetNumberFormatter();
-  }
+	@AfterClass
+	public static void restoreLocale() {
+		// reset locale for next test
+		Locale.setDefault(defaultLocale);
+		Money.resetNumberFormatter();
+	}
 
-  @AfterClass
-  public static void restoreLocale() {
-    // reset locale for next test
-    Locale.setDefault(defaultLocale);
-    Money.resetNumberFormatter();
-  }
+	@Test
+	public void testDataStorage() {
 
-  @Test
-  public void testDataStorage() {
+		// -INIT
+		final StorageService service = context.getBean(StorageService.class);
+		service.saveSomeProductsAndOffers();
 
-    // -INIT
-    final StorageService service = context.getBean(StorageService.class);
-    service.saveSomeProductsAndOffers();
+		// -RUN
+		final List<Product> products = service.getProducts();
+		final List<ProductOffer> offers = service.getOffers();
 
-    // -RUN
-    final List<Product> products = service.getProducts();
-    final List<ProductOffer> offers = service.getOffers();
+		// -ASSERT
+		Assert.assertEquals(3, products.size());
+		Assert.assertEquals(3, offers.size());
 
-    // -ASSERT
-    Assert.assertEquals(3, products.size());
-    Assert.assertEquals(3, offers.size());
+		Assert.assertTrue(products.contains(Products.ESPRESSO));
+		Assert.assertTrue(products.contains(Products.CAPPUCCINO));
+		Assert.assertTrue(products.contains(Products.LATTE_MACCHIATO));
 
-    Assert.assertTrue(products.contains(Products.ESPRESSO));
-    Assert.assertTrue(products.contains(Products.CAPPUCCINO));
-    Assert.assertTrue(products.contains(Products.LATTE_MACCHIATO));
+		Assert.assertTrue(offers.contains(ProductOffers.ESPRESSO));
+		Assert.assertTrue(offers.contains(ProductOffers.CAPPUCCINO));
+		Assert.assertTrue(offers.contains(ProductOffers.LATTE_MACCHIATO));
 
-    Assert.assertTrue(offers.contains(ProductOffers.ESPRESSO));
-    Assert.assertTrue(offers.contains(ProductOffers.CAPPUCCINO));
-    Assert.assertTrue(offers.contains(ProductOffers.LATTE_MACCHIATO));
+		Assert.assertEquals(
+				"<html><center>Espresso<BR>[Cup 100 ml]<BR><BR>1,00 €</center></html>",
+				offers.get(0).getLabel());
+		Assert.assertEquals(
+				"<html><center>Cappuccino<BR>[Cup 200 ml]<BR><BR>1,80 €</center></html>",
+				offers.get(1).getLabel());
+		Assert.assertEquals(
+				"<html><center>Latte Macchiato<BR>[Cup 200 ml]<BR><BR>2,30 €</center></html>",
+				offers.get(2).getLabel());
+	}
 
-    Assert.assertEquals(
-        "<html><center>Espresso<BR>[Cup 100 ml]<BR><BR>1,00 €</center></html>",
-        offers.get(0).getLabel());
-    Assert.assertEquals(
-        "<html><center>Cappuccino<BR>[Cup 200 ml]<BR><BR>1,80 €</center></html>",
-        offers.get(1).getLabel());
-    Assert.assertEquals(
-        "<html><center>Latte Macchiato<BR>[Cup 200 ml]<BR><BR>2,30 €</center></html>",
-        offers.get(2).getLabel());
-  }
+	@Test
+	public void testBilling() {
 
-  @Test
-  public void testBilling() {
+		// -INIT
+		final StorageService service = context.getBean(StorageService.class);
+		service.saveSomeProductsAndOffers();
+		service.saveSomeBills();
 
-    // -INIT
-    final StorageService service = context.getBean(StorageService.class);
-    service.saveSomeProductsAndOffers();
-    service.saveSomeBills();
+		// -RUN
+		final Collection<Bill> billsOfToday = service.getBillsOfToday();
 
-    // -RUN
-    final Collection<Bill> billsOfToday = service.getBillsOfToday();
-
-    // -ASSERT
-    assertEquals(2, billsOfToday.size());
-    final Date today = new Date();
-    final int day = today.getDate();
-    for (final Bill bill : billsOfToday) {
-      assertEquals(day, bill.getBillOpened().getDate());
-    }
-  }
+		// -ASSERT
+		assertEquals(2, billsOfToday.size());
+		final Date today = new Date();
+		final int day = today.getDate();
+		for (final Bill bill : billsOfToday) {
+			assertEquals(day, bill.getBillOpened().getDate());
+		}
+	}
 
 }

@@ -13,53 +13,53 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.jpa.vendor.Database;
 
 @Configuration
-@PropertySource({ "classpath:database.properties", "classpath:general.properties" })
+@PropertySource({ "classpath:database.properties",
+		"classpath:database.properties", "classpath:general.properties" })
 public class SwingSpringConfiguration {
 
-  private static final Logger logger = LoggerFactory
-      .getLogger(SwingSpringConfiguration.class);
+	private static final Logger logger = LoggerFactory
+			.getLogger(SwingSpringConfiguration.class);
 
-  @Value("${database.type}")
-  private String databaseType;
+	@Value("${database.type}")
+	private String databaseType;
 
-  @Value("${database.url}")
-  private String databaseURL;
+	@Value("${database.url}")
+	private String databaseURL;
 
-  @Value("${database.username}")
-  private String username;
+	@Value("${database.username}")
+	private String username;
 
-  @Value("${database.password}")
-  private String password;
+	@Value("${database.password}")
+	private String password;
 
+	@Bean
+	public DataSource dataSource() {
+		return new DriverManagerDataSource(databaseURL, username, password);
+	}
 
-  @Bean
-  public DataSource dataSource() {
-    return new DriverManagerDataSource(databaseURL, username, password);
-  }
+	@Bean
+	protected Database getDatabaseForVendorAdapter() {
 
-  @Bean
-  protected Database getDatabaseForVendorAdapter() {
+		try {
 
-    try {
+			return Database.valueOf(databaseType);
 
-      return Database.valueOf(databaseType);
+		} catch (NullPointerException | IllegalArgumentException e) {
 
-    } catch (NullPointerException | IllegalArgumentException e) {
+			logger.warn("Database type " + databaseType
+					+ " is unknown! Check database.properties!");
+			return Database.DEFAULT;
 
-      logger.warn("Database type " + databaseType
-          + " is unknown! Check database.properties!");
-      return Database.DEFAULT;
+		}
 
-    }
+	}
 
-  }
-
-  /**
-   * Needed to make the {@link Value} annotations work with the property file
-   * given by {@link PropertySource}.
-   */
-  @Bean
-  public static PropertySourcesPlaceholderConfigurer placeHolderConfigurer() {
-    return new PropertySourcesPlaceholderConfigurer();
-  }
+	/**
+	 * Needed to make the {@link Value} annotations work with the property file
+	 * given by {@link PropertySource}.
+	 */
+	@Bean
+	public static PropertySourcesPlaceholderConfigurer placeHolderConfigurer() {
+		return new PropertySourcesPlaceholderConfigurer();
+	}
 }
