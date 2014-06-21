@@ -14,7 +14,7 @@
 	<groupId>de.bstreit.java.oscr</groupId>
 	<artifactId>oscr</artifactId>
 	<name>oscr</name>
-	<version>0.1.5</version>
+	<version>0.1.6-SNAPSHOT</version>
 
 	<packaging>pom</packaging>
 
