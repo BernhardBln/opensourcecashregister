@@ -171,7 +171,7 @@ public class ButtonPanelFactory {
     final JPanel controlButtonsPanel = new JPanel();
 
     buttonPanel.add(controlButtonsPanel, BorderLayout.EAST);
-    controlButtonsPanel.setLayout(new GridLayout(5, 1, 0, 0));
+    controlButtonsPanel.setLayout(new GridLayout(6, 1, 0, 0));
 
     addUndoButton(controlButtonsPanel);
     addPayButton(controlButtonsPanel);
