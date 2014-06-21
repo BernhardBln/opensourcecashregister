@@ -140,7 +140,7 @@ public class BillService {
 		fireBillChangedEvent();
 	}
 
-	public void setIsFreePromotionOffer() {
+	public void setFreePromotion() {
 		if (currentBill == null) {
 			return;
 		}
@@ -151,7 +151,7 @@ public class BillService {
 		fireBillChangedEvent();
 	}
 
-	public void clearFreePromotionOffer() {
+	public void clearFreePromotion() {
 		if (currentBill == null) {
 			return;
 		}
