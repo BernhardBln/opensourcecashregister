@@ -96,6 +96,13 @@ public class Bill implements Iterable<BillItem> {
 	@ManyToOne(optional = true)
 	private User internalConsumer = null;
 
+	/**
+	 * In case the customer didn't pay for this, e.g. because of an promotion,
+	 * as apologies for sth or because he brought a full loyalty card.
+	 */
+	@Column(nullable = false)
+	private boolean freePromotionOffer = false;
+
 	Bill(TaxInfo defaultGlobalTaxInfo, Date billOpeningDate) {
 		checkNotNull(defaultGlobalTaxInfo);
 		setGlobalTaxInfo(defaultGlobalTaxInfo);
@@ -146,6 +153,14 @@ public class Bill implements Iterable<BillItem> {
 	 */
 	public void setGlobalTaxInfo(TaxInfo globalTaxInfo) {
 		this.globalTaxInfo = globalTaxInfo;
+	}
+
+	public void setFreePromotionOffer(boolean freePromotionOffer) {
+		this.freePromotionOffer = freePromotionOffer;
+	}
+
+	public boolean isFreePromotionOffer() {
+		return freePromotionOffer;
 	}
 
 	/**
