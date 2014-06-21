@@ -26,7 +26,7 @@
  */
 package de.bstreit.java.oscr.business.offers.dao;
 
-import java.util.Collection;
+import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -47,19 +47,19 @@ public interface IProductOfferRepository extends
 			+ "  where productOffer.validTo is null"
 			+ "    and productOffer.offeredItem.productCategory = ?1"
 			+ "    and productOffer.offeredItem.validTo is null")
-	public Collection<ProductOffer> findActiveOffersByProductCategory(
+	public List<ProductOffer> findActiveOffersByProductCategory(
 			ProductCategory productCategory);
 
 	@Query("select productOffer " + "  from ProductOffer productOffer "
 			+ "  where productOffer.validTo is null"
 			+ "    and productOffer.offeredItem.productCategory <> ?1"
 			+ "    and productOffer.offeredItem.validTo is null")
-	public Collection<ProductOffer> findActiveOffersByIsNotProductCategory(
+	public List<ProductOffer> findActiveOffersByIsNotProductCategory(
 			ProductCategory productCategory);
 
 	@Query("select productOffer " + "  from ProductOffer productOffer "
 			+ "  where productOffer.validTo is null"
 			+ "    and productOffer.offeredItem.validTo is null")
-	public Collection<ProductOffer> findAllActiveOffers();
+	public List<ProductOffer> findAllActiveOffers();
 
 }

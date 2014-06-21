@@ -38,15 +38,19 @@ import de.bstreit.java.oscr.business.products.Product;
 @DiscriminatorValue(value = "ProductOffer")
 public class ProductOffer extends AbstractOffer<Product> {
 
-
 	@SuppressWarnings("unused")
 	private ProductOffer() {
-		this(null, null, null, null);
+		this(null, null, null, null, null);
 	}
 
-	public ProductOffer(Product product, Money price, Date validFrom, Date validТо) {
-		super(product, price, validFrom, validТо);
+	public ProductOffer(Product product, Money priceGross, Money costsNet,
+			Date validFrom, Date validТо) {
+		super(product, priceGross, costsNet, validFrom, validТо);
 	}
 
-
+	@Override
+	public String toString() {
+		return getOfferedItem().getName() + " - price (gross): "
+				+ getPriceGross() + " - costs (net): " + getCostsNet();
+	}
 }

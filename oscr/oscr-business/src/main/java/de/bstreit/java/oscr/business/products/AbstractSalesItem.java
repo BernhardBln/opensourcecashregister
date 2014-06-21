@@ -104,6 +104,7 @@ public abstract class AbstractSalesItem extends
 
 	@Override
 	public String getLabel() {
+		// TODO: take out of bo!
 		return name;
 	}
 

@@ -13,13 +13,10 @@ import org.apache.commons.lang3.StringUtils;
 import de.bstreit.java.oscr.business.base.finance.money.Money;
 import de.bstreit.java.oscr.business.offers.ProductOffer;
 import de.bstreit.java.oscr.business.offers.dao.IProductOfferRepository;
-import de.bstreit.java.oscr.business.products.Product;
-import de.bstreit.java.oscr.business.products.category.ProductCategory;
 import de.bstreit.java.oscr.business.products.category.dao.IProductCategoryRepository;
-import de.bstreit.java.oscr.gui.noswing.admin.util.ChoiceHelper;
 
 @Named
-public class ProductAdder implements IAdminBean {
+public class ProductModder implements IAdminBean {
 
 	@Inject
 	private IProductOfferRepository productOfferRepository;
@@ -37,16 +34,48 @@ public class ProductAdder implements IAdminBean {
 	@Override
 	public void performTask() {
 
-		System.out.println("Add product:\n" + "============\n\n");
+		System.out.println("Modify product:\n" + "============\n\n");
 
-		final Product product = getProduct();
+		System.out.println("Choose product:");
+		System.out.println();
+		final ProductOffer selectedOldOffer = selectProductOffer();
+
+		System.out.println(" -> " + selectedOldOffer);
+
 		final Money price = getPrice("price (gross)", false);
 		final Money costsNet = getPrice("costs (net)", true);
 
-		final ProductOffer productOffer = new ProductOffer(product, price,
-				costsNet, new Date(), null);
+		final Date changeDate = new Date();
 
-		productOfferRepository.save(productOffer);
+		final ProductOffer newProductOffer = new ProductOffer(
+				selectedOldOffer.getOfferedItem(), price, costsNet, changeDate,
+				null);
+
+		selectedOldOffer.setValidTo(changeDate);
+
+		productOfferRepository.save(newProductOffer);
+		productOfferRepository.save(selectedOldOffer);
+	}
+
+	private ProductOffer selectProductOffer() {
+
+		final List<ProductOffer> allActiveOffers = productOfferRepository
+				.findAllActiveOffers();
+
+		int i = 1;
+		for (final ProductOffer productOffer : allActiveOffers) {
+			System.out.println(i++ + ") " + productOffer);
+		}
+		System.out.println();
+		System.out.println("0) Exit");
+
+		final int choice = Integer.valueOf(scanner.nextLine().trim());
+
+		if (choice == 0) {
+			throw new AbortedException();
+		}
+
+		return allActiveOffers.get(choice - 1);
 	}
 
 	private Money getPrice(String label, boolean isOptional) {
@@ -70,31 +99,8 @@ public class ProductAdder implements IAdminBean {
 		return new Money(amount, currencyCode);
 	}
 
-	private Product getProduct() {
-		System.out.println("Enter product name: ");
-		final String name = scanner.nextLine().trim();
-
-		final Product product = new Product(name, new Date(), null);
-
-		final ProductCategory productCategory = getProductCategory();
-		product.setProductCategory(productCategory);
-
-		return product;
-	}
-
-	private ProductCategory getProductCategory() {
-
-		final List<ProductCategory> categories = productCategoryRepository
-				.findActiveProductCategories();
-
-		final ChoiceHelper<ProductCategory> choiceHelper = ChoiceHelper
-				.withoutCancelOption(categories, "Select category:", scanner);
-
-		return choiceHelper.makeChoice();
-	}
-
 	@Override
 	public String toString() {
-		return "Add a product";
+		return "Modify a product";
 	}
 }

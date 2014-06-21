@@ -54,171 +54,186 @@ import de.bstreit.java.oscr.business.taxation.TaxInfo;
 @Entity
 public class Bill implements Iterable<BillItem> {
 
-	@Id
-	@Column(length = 36)
-	private final String id = UUID.randomUUID().toString();
+  @Id
+  @Column(length = 36)
+  private final String id = UUID.randomUUID().toString();
 
-	/**
-	 * An optional description of the bill, can help to identify an opened bill
-	 * (e.g. "table 3")
-	 */
-	@Column(nullable = true)
-	private String description;
+  /**
+   * An optional description of the bill, can help to identify an opened bill
+   * (e.g. "table 3")
+   */
+  @Column(nullable = true)
+  private String description;
 
-	@OneToMany(cascade = CascadeType.ALL)
-	private final List<BillItem> billItems = new ArrayList<BillItem>();
+  @OneToMany(cascade = CascadeType.ALL)
+  private final List<BillItem> billItems = new ArrayList<BillItem>();
 
-	/** The date when the bill was opened. */
-	@Column(nullable = false)
-	private Date billOpened;
+  /** The date when the bill was opened. */
+  @Column(nullable = false)
+  private Date billOpened;
 
-	/** The date when the bill was closed and paid. */
-	@Column(nullable = true)
-	private Date billClosed;
+  /** The date when the bill was closed and paid. */
+  @Column(nullable = true)
+  private Date billClosed;
 
-	/**
-	 * The global tax info. Must not be null; default value must be set within
-	 * the app
-	 */
-	// TODO [10]: check which cascade types we really need here. Same at
-	// AbstractSalesItem.overridingTaxInfo
-	@ManyToOne(cascade = { CascadeType.REFRESH }, optional = false)
-	private TaxInfo globalTaxInfo;
+  /**
+   * The global tax info. Must not be null; default value must be set within the
+   * app
+   */
+  // TODO [10]: check which cascade types we really need here. Same at
+  // AbstractSalesItem.overridingTaxInfo
+  @ManyToOne(cascade = { CascadeType.REFRESH }, optional = false)
+  private TaxInfo globalTaxInfo;
 
-	/**
-	 * The user who was logged in when the bill was closed. This is not
-	 * necessarily the person that opened the bill, but that received the
-	 * payment.
-	 */
-	@ManyToOne(optional = true)
-	private User cashier;
+  /**
+   * The user who was logged in when the bill was closed. This is not
+   * necessarily the person that opened the bill, but that received the payment.
+   */
+  @ManyToOne(optional = true)
+  private User cashier;
 
-	@ManyToOne(optional = true)
-	private User internalConsumer = null;
+  @ManyToOne(optional = true)
+  private User internalConsumer = null;
 
-	Bill(TaxInfo defaultGlobalTaxInfo, Date billOpeningDate) {
-		checkNotNull(defaultGlobalTaxInfo);
-		setGlobalTaxInfo(defaultGlobalTaxInfo);
-		billOpened = billOpeningDate;
-	}
+  /**
+   * In case the customer didn't pay for this, e.g. because of an promotion, as
+   * apologies for sth or because he brought a full loyalty card.
+   */
+  @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
+  private boolean freePromotionOffer = false;
 
-	public Bill() {
-		// for spring
-	}
 
-	void addBillItem(BillItem item) {
-		billItems.add(item);
-	}
+  Bill(TaxInfo defaultGlobalTaxInfo, Date billOpeningDate) {
+    checkNotNull(defaultGlobalTaxInfo);
+    setGlobalTaxInfo(defaultGlobalTaxInfo);
+    billOpened = billOpeningDate;
+  }
 
-	/**
-	 * In case this was consumed by a member of the staff
-	 * 
-	 * @param consumer
-	 */
-	public void setStaffConsumer(User internalConsumer) {
-		Preconditions.checkNotNull(internalConsumer);
+  public Bill() {
+    // for spring
+  }
 
-		this.internalConsumer = internalConsumer;
-	}
+  void addBillItem(BillItem item) {
+    billItems.add(item);
+  }
 
-	public void clearStaffConsumer() {
-		this.internalConsumer = null;
-	}
+  /**
+   * In case this was consumed by a member of the staff
+   * 
+   * @param consumer
+   */
+  public void setStaffConsumer(User internalConsumer) {
+    Preconditions.checkNotNull(internalConsumer);
 
-	/**
-	 * @return the {@link #globalTaxInfo}
-	 */
-	public TaxInfo getGlobalTaxInfo() {
-		return globalTaxInfo;
-	}
+    this.internalConsumer = internalConsumer;
+  }
 
-	public boolean isConsumedByStaff() {
-		return internalConsumer != null;
-	}
+  public void clearStaffConsumer() {
+    this.internalConsumer = null;
+  }
 
-	public User getStaffConsumer() {
-		return internalConsumer;
-	}
+  /**
+   * @return the {@link #globalTaxInfo}
+   */
+  public TaxInfo getGlobalTaxInfo() {
+    return globalTaxInfo;
+  }
 
-	/**
-	 * @param globalTaxInfo
-	 *            the {@link #globalTaxInfo} to set
-	 */
-	public void setGlobalTaxInfo(TaxInfo globalTaxInfo) {
-		this.globalTaxInfo = globalTaxInfo;
-	}
+  public boolean isConsumedByStaff() {
+    return internalConsumer != null;
+  }
 
-	/**
-	 * @return the {@link #billClosed}
-	 */
-	public Date getBillClosed() {
-		return billClosed;
-	}
+  public User getStaffConsumer() {
+    return internalConsumer;
+  }
 
-	/**
-	 * Invoked when an open bill is getting paid and hence closed.
-	 * 
-	 * @param billClosed
-	 * @param billClosingDate
-	 */
-	void closeBill(User cashier, Date billClosingDate) {
-		this.billClosed = billClosingDate;
-		this.cashier = cashier;
-	}
+  /**
+   * @param globalTaxInfo
+   *          the {@link #globalTaxInfo} to set
+   */
+  public void setGlobalTaxInfo(TaxInfo globalTaxInfo) {
+    this.globalTaxInfo = globalTaxInfo;
+  }
 
-	public List<BillItem> getBillItems() {
-		return ImmutableList.copyOf(billItems);
-	}
+  public void setFreePromotionOffer(boolean freePromotionOffer) {
+    this.freePromotionOffer = freePromotionOffer;
+  }
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		return result;
-	}
+  public boolean isFreePromotionOffer() {
+    return freePromotionOffer;
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		final Bill other = (Bill) obj;
-		if (id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
-			return false;
-		return true;
-	}
+  /**
+   * @return the {@link #billClosed}
+   */
+  public Date getBillClosed() {
+    return billClosed;
+  }
 
-	@Override
-	public Iterator<BillItem> iterator() {
-		return getBillItems().iterator();
-	}
+  /**
+   * Invoked when an open bill is getting paid and hence closed.
+   * 
+   * @param billClosed
+   * @param billClosingDate
+   */
+  void closeBill(User cashier, Date billClosingDate) {
+    this.billClosed = billClosingDate;
+    this.cashier = cashier;
+  }
 
-	public Date getBillOpened() {
-		return billOpened;
-	}
+  public List<BillItem> getBillItems() {
+    return ImmutableList.copyOf(billItems);
+  }
 
-	public void undoLastAction() {
-		final int lastItemIndex = billItems.size() - 1;
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((id == null) ? 0 : id.hashCode());
+    return result;
+  }
 
-		final BillItem lastItem = billItems.get(lastItemIndex);
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    final Bill other = (Bill) obj;
+    if (id == null) {
+      if (other.id != null)
+        return false;
+    } else if (!id.equals(other.id))
+      return false;
+    return true;
+  }
 
-		if (lastItem.hasUndoable()) {
-			lastItem.undoLastAction();
-		} else {
-			billItems.remove(lastItemIndex);
-		}
+  @Override
+  public Iterator<BillItem> iterator() {
+    return getBillItems().iterator();
+  }
 
-	}
+  public Date getBillOpened() {
+    return billOpened;
+  }
 
-	public boolean isEmpty() {
-		return billItems.isEmpty();
-	}
+  public void undoLastAction() {
+    final int lastItemIndex = billItems.size() - 1;
+
+    final BillItem lastItem = billItems.get(lastItemIndex);
+
+    if (lastItem.hasUndoable()) {
+      lastItem.undoLastAction();
+    } else {
+      billItems.remove(lastItemIndex);
+    }
+
+  }
+
+  public boolean isEmpty() {
+    return billItems.isEmpty();
+  }
 
 }

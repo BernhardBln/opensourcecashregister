@@ -44,7 +44,8 @@ import com.google.common.base.Objects;
 
 public class MoneyType implements CompositeUserType {
 
-	private static final Type[] FIELD_TYPES = { BigDecimalType.INSTANCE, CurrencyType.INSTANCE };
+	private static final Type[] FIELD_TYPES = { BigDecimalType.INSTANCE,
+			CurrencyType.INSTANCE };
 	private static final String[] FIELD_NAMES = { "amount", "currency" };
 
 	@Override
@@ -62,40 +63,53 @@ public class MoneyType implements CompositeUserType {
 		return Objects.hashCode(x);
 	}
 
-	public Object nullSafeGet(ResultSet rs, String[] names, SessionImplementor session, Object owner)
-			throws SQLException {
+	@Override
+	public Object nullSafeGet(ResultSet rs, String[] names,
+			SessionImplementor session, Object owner) throws SQLException {
 
 		assert names.length == 2;
 
 		// already handles null check:
-		BigDecimal amount = (BigDecimal) BigDecimalType.INSTANCE.get(rs, names[0], session);
+		final BigDecimal amount = (BigDecimal) BigDecimalType.INSTANCE.get(rs,
+				names[0], session);
 
 		// already handles null check:
-		Currency currency = (Currency) CurrencyType.INSTANCE.get(rs, names[1], session);
+		final Currency currency = (Currency) CurrencyType.INSTANCE.get(rs,
+				names[1], session);
 
-		return amount == null || currency == null ? null : new Money(amount, currency);
+		return amount == null || currency == null ? null : new Money(amount,
+				currency);
 	}
 
 	@Override
-	public void nullSafeSet(PreparedStatement st, Object value, int index, SessionImplementor session)
-			throws HibernateException, SQLException {
+	public void nullSafeSet(PreparedStatement st, Object value, int index,
+			SessionImplementor session) throws HibernateException, SQLException {
+
 		if (value == null) {
 			BigDecimalType.INSTANCE.set(st, null, index, session);
 			CurrencyType.INSTANCE.set(st, null, index + 1, session);
+
 		} else {
 			final Money money = (Money) value;
 			BigDecimalType.INSTANCE.set(st, money.getAmount(), index, session);
-			CurrencyType.INSTANCE.set(st, money.getCurrency(), index + 1, session);
+			CurrencyType.INSTANCE.set(st, money.getCurrency(), index + 1,
+					session);
 		}
+
 	}
 
 	@Override
 	public Object deepCopy(Object value) throws HibernateException {
-		if (value == null || !(value instanceof Money)) {
+
+		if (value == null) {
+			return null;
+		}
+
+		if (!(value instanceof Money)) {
 			throw new HibernateException("value is not of type Money!");
 		}
 
-		Money money = (Money) value;
+		final Money money = (Money) value;
 		return new Money(money.getAmount(), money.getCurrency());
 	}
 
@@ -116,7 +130,8 @@ public class MoneyType implements CompositeUserType {
 	}
 
 	@Override
-	public Object getPropertyValue(Object component, int property) throws HibernateException {
+	public Object getPropertyValue(Object component, int property)
+			throws HibernateException {
 		if (component == null || !(component instanceof Money)) {
 			return null;
 		}
@@ -129,24 +144,26 @@ public class MoneyType implements CompositeUserType {
 	}
 
 	@Override
-	public void setPropertyValue(Object component, int property, Object value) throws HibernateException {
+	public void setPropertyValue(Object component, int property, Object value)
+			throws HibernateException {
 		throw new UnsupportedOperationException("Money is immutable!");
 	}
 
 	@Override
-	public Serializable disassemble(Object value, SessionImplementor session) throws HibernateException {
+	public Serializable disassemble(Object value, SessionImplementor session)
+			throws HibernateException {
 		return (Serializable) deepCopy(value);
 	}
 
 	@Override
-	public Object assemble(Serializable cached, SessionImplementor session, Object owner)
-			throws HibernateException {
+	public Object assemble(Serializable cached, SessionImplementor session,
+			Object owner) throws HibernateException {
 		return deepCopy(cached);
 	}
 
 	@Override
-	public Object replace(Object original, Object target, SessionImplementor session, Object owner)
-			throws HibernateException {
+	public Object replace(Object original, Object target,
+			SessionImplementor session, Object owner) throws HibernateException {
 		return original;
 	}
 

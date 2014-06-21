@@ -9,7 +9,7 @@
 	<parent>
 		<groupId>de.bstreit.java.oscr</groupId>
 		<artifactId>oscr</artifactId>
-		<version>0.1.1-SNAPSHOT</version>
+		<version>0.1.4</version>
 	</parent>
 
 	<dependencies>
@@ -44,6 +44,11 @@
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-entitymanager</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-dbcp2</artifactId>
 		</dependency>
 
 		<!-- Tools -->

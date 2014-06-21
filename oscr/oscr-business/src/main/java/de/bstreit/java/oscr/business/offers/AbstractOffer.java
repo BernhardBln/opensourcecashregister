@@ -73,29 +73,37 @@ public abstract class AbstractOffer<OFFERED_ITEM extends AbstractSalesItem>
 	@Type(type = "de.bstreit.java.oscr.business.base.finance.money.MoneyType")
 	@Columns(columns = { @Column(name = "priceValue"),
 			@Column(name = "priceCurrency") })
-	// @Access(AccessType.FIELD)
 	private final Money priceGross;
+
+	@Type(type = "de.bstreit.java.oscr.business.base.finance.money.MoneyType")
+	@Columns(columns = { @Column(name = "costsNetValue"),
+			@Column(name = "costsNetCurrency") })
+	private final Money costsNet;
 
 	/**
 	 * The item contained in this offer.
 	 */
 	@NaturalId
-	// @Access(AccessType.FIELD)
 	@ManyToOne(targetEntity = AbstractSalesItem.class, cascade = CascadeType.ALL)
 	private final OFFERED_ITEM offeredItem;
 
 	@Transient
 	private transient String label = null;
 
-	AbstractOffer(OFFERED_ITEM item, Money priceGross, Date validFrom,
-			Date validТо) {
+	AbstractOffer(OFFERED_ITEM item, Money priceGross, Money costsNet,
+			Date validFrom, Date validТо) {
 		super(validFrom, validТо);
 		this.offeredItem = item;
 		this.priceGross = priceGross;
+		this.costsNet = costsNet;
 	}
 
 	public Money getPriceGross() {
 		return priceGross;
+	}
+
+	public Money getCostsNet() {
+		return costsNet;
 	}
 
 	@Override

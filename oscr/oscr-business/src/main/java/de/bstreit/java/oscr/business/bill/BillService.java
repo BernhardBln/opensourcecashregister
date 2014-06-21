@@ -140,6 +140,28 @@ public class BillService {
 		fireBillChangedEvent();
 	}
 
+	public void setFreePromotion() {
+		if (currentBill == null) {
+			return;
+		}
+
+		currentBill.setFreePromotionOffer(true);
+
+		saveBill();
+		fireBillChangedEvent();
+	}
+
+	public void clearFreePromotion() {
+		if (currentBill == null) {
+			return;
+		}
+
+		currentBill.setFreePromotionOffer(false);
+
+		saveBill();
+		fireBillChangedEvent();
+	}
+
 	public void undoLastAction() {
 		if (currentBill == null) {
 			return;
@@ -166,6 +188,20 @@ public class BillService {
 	public IMultipleBillsCalculator getTotalForYesterday() {
 		final Collection<Bill> yesterdaysBills = billRepository
 				.getBillsForYesterdayWithoutStaff();
+		return multipleBillsCalculatorFactory.create(yesterdaysBills);
+	}
+
+	@Transactional
+	public IMultipleBillsCalculator getFreePomotionTotalForToday() {
+		final Collection<Bill> todaysBills = billRepository
+				.getPromotionBillsForTodayWithoutStaff();
+		return multipleBillsCalculatorFactory.create(todaysBills);
+	}
+
+	@Transactional
+	public IMultipleBillsCalculator getFreePomotionTotalForYesterday() {
+		final Collection<Bill> yesterdaysBills = billRepository
+				.getPromotionBillsForYesterdayWithoutStaff();
 		return multipleBillsCalculatorFactory.create(yesterdaysBills);
 	}
 

@@ -36,11 +36,25 @@ import de.bstreit.java.oscr.business.bill.Bill;
 
 public interface IBillRepository extends JpaRepository<Bill, String> {
 
+	/**
+	 * @return all bills opened today, including promotional offers
+	 *         ("free drinks") but excluding staff consumption
+	 */
 	@Query("from Bill where billOpened >= current_date and internalConsumer is NULL order by billOpened desc")
 	public Collection<Bill> getBillsForTodayWithoutStaff();
 
+	/**
+	 * @return all bills opened yesterday, including promotional offers
+	 *         ("free drinks") but excluding staff consumption
+	 */
 	@Query("from Bill where billOpened >= current_date - 1 and internalConsumer is NULL AND billOpened < current_date")
 	public Collection<Bill> getBillsForYesterdayWithoutStaff();
+
+	@Query("from Bill where billOpened >= current_date and internalConsumer is NULL AND freePromotionOffer = TRUE order by billOpened desc")
+	public Collection<Bill> getPromotionBillsForTodayWithoutStaff();
+
+	@Query("from Bill where billOpened >= current_date - 1 and internalConsumer is NULL AND billOpened < current_date AND freePromotionOffer = TRUE")
+	public Collection<Bill> getPromotionBillsForYesterdayWithoutStaff();
 
 	/**
 	 * 

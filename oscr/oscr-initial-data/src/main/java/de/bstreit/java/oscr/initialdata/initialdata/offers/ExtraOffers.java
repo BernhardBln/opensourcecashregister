@@ -38,18 +38,17 @@ import de.bstreit.java.oscr.initialdata.initialdata.products.Extras;
 @Named
 public class ExtraOffers extends AbstractDataContainer<ExtraOffer> {
 
-  public static final ExtraOffer MILCH = create(Extras.MILCH, new Money("0.30", "EUR"));
+	public static final ExtraOffer MILCH = create(Extras.MILCH, new Money(
+			"0.30", "EUR"));
 
+	private static ExtraOffer create(Extra extra, Money price) {
+		return new ExtraOffer(extra, price, null,
+				ValidityDates.VALID_FROM_DATE, ValidityDates.VALID_TO_DATE);
+	}
 
-  private static ExtraOffer create(Extra extra, Money price) {
-    return new ExtraOffer(extra, price, ValidityDates.VALID_FROM_DATE,
-        ValidityDates.VALID_TO_DATE);
-  }
-
-
-  @Override
-  public Class<ExtraOffer> getType() {
-    return ExtraOffer.class;
-  }
+	@Override
+	public Class<ExtraOffer> getType() {
+		return ExtraOffer.class;
+	}
 
 }

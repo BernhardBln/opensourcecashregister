@@ -23,125 +23,135 @@ import de.bstreit.java.oscr.business.bill.IMultipleBillsCalculator;
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class MultipleBillsCalculator implements IMultipleBillsCalculator {
 
-	@Inject
-	private IBillCalculatorFactory billCalculatorFactory;
+  @Inject
+  private IBillCalculatorFactory billCalculatorFactory;
 
-	private IBillCalculator currentBillCalculator;
+  private IBillCalculator currentBillCalculator;
 
-	private Money totalGross;
-	private final Map<VATClass, Money> totalNetByVatClass = Maps.newHashMap();
-	private final Map<VATClass, Money> totalGrossByVatClass = Maps.newHashMap();
-	private final Map<VATClass, Money> totalVatByVatClass = Maps.newHashMap();
+  private boolean filled = false;
 
-	@Override
-	public Money getTotalGross() {
-		return totalGross;
-	}
+  private Money totalGross;
+  private final Map<VATClass, Money> totalNetByVatClass = Maps.newHashMap();
+  private final Map<VATClass, Money> totalGrossByVatClass = Maps.newHashMap();
+  private final Map<VATClass, Money> totalVatByVatClass = Maps.newHashMap();
 
-	@Override
-	public Money getTotalNetFor(VATClass vatClass) {
-		return totalNetByVatClass.get(vatClass);
-	}
 
-	@Override
-	public Money getTotalGrossFor(VATClass vatClass) {
-		return totalGrossByVatClass.get(vatClass);
-	}
+  @Override
+  public Money getTotalGross() {
+    return totalGross;
+  }
 
-	@Override
-	public Money getTotalVATFor(VATClass vatClass) {
-		return totalVatByVatClass.get(vatClass);
-	}
+  @Override
+  public Money getTotalNetFor(VATClass vatClass) {
+    return totalNetByVatClass.get(vatClass);
+  }
 
-	public Set<VATClass> getAllVatClasses() {
-		return totalVatByVatClass.keySet();
-	}
+  @Override
+  public Money getTotalGrossFor(VATClass vatClass) {
+    return totalGrossByVatClass.get(vatClass);
+  }
 
-	void analyse(Collection<Bill> bills) {
+  @Override
+  public Money getTotalVATFor(VATClass vatClass) {
+    return totalVatByVatClass.get(vatClass);
+  }
 
-		for (final Bill bill : bills) {
-			currentBillCalculator = billCalculatorFactory.create(bill);
+  public Set<VATClass> getAllVatClasses() {
+    return totalVatByVatClass.keySet();
+  }
 
-			try {
-				addTotalGross();
-				addTotalNetByVAT();
-				addTotalGrossByVatClass();
-				addTotalVatByVatClass();
+  void analyse(Collection<Bill> bills) {
 
-			} finally {
-				currentBillCalculator.close();
-			}
-		}
+    filled = !bills.isEmpty();
 
-	}
+    for (final Bill bill : bills) {
+      currentBillCalculator = billCalculatorFactory.create(bill);
 
-	private void addTotalNetByVAT() {
-		for (final char abbreviation : currentBillCalculator
-				.allFoundVATClassesAbbreviated()) {
+      try {
+        addTotalGross();
+        addTotalNetByVAT();
+        addTotalGrossByVatClass();
+        addTotalVatByVatClass();
 
-			final VATClass vatClass = currentBillCalculator
-					.getVATClassForAbbreviation(abbreviation);
+      } finally {
+        currentBillCalculator.close();
+      }
+    }
 
-			if (totalNetByVatClass.containsKey(vatClass)) {
-				final Money newTotalNet = totalNetByVatClass.get(vatClass).add(
-						currentBillCalculator.getTotalNetFor(vatClass));
+  }
 
-				totalNetByVatClass.put(vatClass, newTotalNet);
-			} else {
-				totalNetByVatClass.put(vatClass,
-						currentBillCalculator.getTotalNetFor(vatClass));
-			}
+  private void addTotalNetByVAT() {
+    for (final char abbreviation : currentBillCalculator
+        .allFoundVATClassesAbbreviated()) {
 
-		}
-	}
+      final VATClass vatClass = currentBillCalculator
+          .getVATClassForAbbreviation(abbreviation);
 
-	private void addTotalGrossByVatClass() {
+      if (totalNetByVatClass.containsKey(vatClass)) {
+        final Money newTotalNet = totalNetByVatClass.get(vatClass).add(
+            currentBillCalculator.getTotalNetFor(vatClass));
 
-		for (final char abbreviation : currentBillCalculator
-				.allFoundVATClassesAbbreviated()) {
+        totalNetByVatClass.put(vatClass, newTotalNet);
+      } else {
+        totalNetByVatClass.put(vatClass,
+            currentBillCalculator.getTotalNetFor(vatClass));
+      }
 
-			final VATClass vatClass = currentBillCalculator
-					.getVATClassForAbbreviation(abbreviation);
+    }
+  }
 
-			if (totalGrossByVatClass.containsKey(vatClass)) {
-				final Money newTotalGross = totalGrossByVatClass.get(vatClass)
-						.add(currentBillCalculator.getTotalGrossFor(vatClass));
+  private void addTotalGrossByVatClass() {
 
-				totalGrossByVatClass.put(vatClass, newTotalGross);
-			} else {
-				totalGrossByVatClass.put(vatClass,
-						currentBillCalculator.getTotalGrossFor(vatClass));
-			}
+    for (final char abbreviation : currentBillCalculator
+        .allFoundVATClassesAbbreviated()) {
 
-		}
-	}
+      final VATClass vatClass = currentBillCalculator
+          .getVATClassForAbbreviation(abbreviation);
 
-	private void addTotalVatByVatClass() {
+      if (totalGrossByVatClass.containsKey(vatClass)) {
+        final Money newTotalGross = totalGrossByVatClass.get(vatClass)
+            .add(currentBillCalculator.getTotalGrossFor(vatClass));
 
-		for (final char abbreviation : currentBillCalculator
-				.allFoundVATClassesAbbreviated()) {
+        totalGrossByVatClass.put(vatClass, newTotalGross);
+      } else {
+        totalGrossByVatClass.put(vatClass,
+            currentBillCalculator.getTotalGrossFor(vatClass));
+      }
 
-			final VATClass vatClass = currentBillCalculator
-					.getVATClassForAbbreviation(abbreviation);
+    }
+  }
 
-			if (totalVatByVatClass.containsKey(vatClass)) {
-				final Money newTotalVat = totalVatByVatClass.get(vatClass).add(
-						currentBillCalculator.getTotalVATFor(vatClass));
+  private void addTotalVatByVatClass() {
 
-				totalVatByVatClass.put(vatClass, newTotalVat);
-			} else {
-				totalVatByVatClass.put(vatClass,
-						currentBillCalculator.getTotalVATFor(vatClass));
-			}
+    for (final char abbreviation : currentBillCalculator
+        .allFoundVATClassesAbbreviated()) {
 
-		}
-	}
+      final VATClass vatClass = currentBillCalculator
+          .getVATClassForAbbreviation(abbreviation);
 
-	private void addTotalGross() {
-		if (totalGross == null) {
-			totalGross = currentBillCalculator.getTotalGross();
-		} else {
-			totalGross = totalGross.add(currentBillCalculator.getTotalGross());
-		}
-	}
+      if (totalVatByVatClass.containsKey(vatClass)) {
+        final Money newTotalVat = totalVatByVatClass.get(vatClass).add(
+            currentBillCalculator.getTotalVATFor(vatClass));
+
+        totalVatByVatClass.put(vatClass, newTotalVat);
+      } else {
+        totalVatByVatClass.put(vatClass,
+            currentBillCalculator.getTotalVATFor(vatClass));
+      }
+
+    }
+  }
+
+  private void addTotalGross() {
+    if (totalGross == null) {
+      totalGross = currentBillCalculator.getTotalGross();
+    } else {
+      totalGross = totalGross.add(currentBillCalculator.getTotalGross());
+    }
+  }
+
+  @Override
+  public boolean isFilled() {
+    return filled;
+  }
 }

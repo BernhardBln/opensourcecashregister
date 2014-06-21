@@ -131,6 +131,8 @@ public class HtmlExportService implements IExportService, BillChangeListener,
 		final StringBuilder sb = new StringBuilder();
 
 		addBills(billService.getTotalForToday(), "today", sb);
+		addBills(billService.getFreePomotionTotalForToday(),
+				"promotion expenses for today", sb);
 
 		sb.append("\n\nAll bills for today:\n" + "====================\n\n");
 
@@ -145,6 +147,8 @@ public class HtmlExportService implements IExportService, BillChangeListener,
 
 		sb.append("\n\n").append(StringUtils.repeat("-", 80)).append("\n\n");
 		addBills(billService.getTotalForYesterday(), "yesterday", sb);
+		addBills(billService.getFreePomotionTotalForYesterday(),
+				"promotion expenses for yesterday", sb);
 
 		final String changedHtmlFile = htmlFile.replace("$CONTENT",
 				sb.toString());

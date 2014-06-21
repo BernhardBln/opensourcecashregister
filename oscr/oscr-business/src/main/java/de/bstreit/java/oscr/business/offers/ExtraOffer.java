@@ -40,12 +40,12 @@ public class ExtraOffer extends AbstractOffer<Extra> {
 
 	@SuppressWarnings("unused")
 	private ExtraOffer() {
-		this(null, null, null, null);
+		this(null, null, null, null, null);
 	}
 
-	public ExtraOffer(Extra extra, Money price, Date validFromDate, Date validToDate) {
-		super(extra, price, validFromDate, validToDate);
+	public ExtraOffer(Extra extra, Money priceGross, Money costsNet,
+			Date validFromDate, Date validToDate) {
+		super(extra, priceGross, costsNet, validFromDate, validToDate);
 	}
-
 
 }
