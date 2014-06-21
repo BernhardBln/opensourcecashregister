@@ -2,6 +2,7 @@ package de.bstreit.java.oscr;
 
 import javax.sql.DataSource;
 
+import org.apache.commons.dbcp2.BasicDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,7 +10,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.jpa.vendor.Database;
 
 @Configuration
@@ -34,7 +34,14 @@ public class SwingSpringConfiguration {
 
   @Bean
   public DataSource dataSource() {
-    return new DriverManagerDataSource(databaseURL, username, password);
+
+    BasicDataSource basicDataSource = new BasicDataSource();
+
+    basicDataSource.setUrl(databaseURL);
+    basicDataSource.setUsername(username);
+    basicDataSource.setPassword(password);
+
+    return basicDataSource;
   }
 
   @Bean
