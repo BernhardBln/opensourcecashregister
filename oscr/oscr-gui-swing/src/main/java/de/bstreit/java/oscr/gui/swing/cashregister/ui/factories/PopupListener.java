@@ -8,6 +8,7 @@ import javax.swing.JPopupMenu;
 class PopupListener extends MouseAdapter {
 
 	private final JPopupMenu popup;
+	private boolean active = false;
 
 	public PopupListener(JPopupMenu popup) {
 		super();
@@ -25,8 +26,12 @@ class PopupListener extends MouseAdapter {
 	}
 
 	private void maybeShowPopup(MouseEvent e) {
-		if (e.isPopupTrigger()) {
+		if (active && e.isPopupTrigger()) {
 			popup.show(e.getComponent(), e.getX(), e.getY());
 		}
+	}
+
+	public void setActive(boolean present) {
+		active = present;
 	}
 }

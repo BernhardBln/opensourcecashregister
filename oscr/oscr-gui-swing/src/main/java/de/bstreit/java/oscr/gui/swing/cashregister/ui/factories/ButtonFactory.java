@@ -17,6 +17,7 @@ import javax.swing.JToggleButton;
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
 
 import de.bstreit.java.oscr.business.bill.Bill;
 import de.bstreit.java.oscr.business.eventbroadcasting.BillChangeListener;
@@ -34,283 +35,284 @@ import de.bstreit.java.oscr.gui.swing.cashregister.ui.MainWindowController;
 @Named
 public class ButtonFactory {
 
-  @Inject
-  private MainWindowController appController;
+	@Inject
+	private MainWindowController appController;
 
-  @Inject
-  private EventBroadcaster eventBroadcaster;
+	@Inject
+	private EventBroadcaster eventBroadcaster;
 
-  @Inject
-  private IUserRepository userRepository;
+	@Inject
+	private IUserRepository userRepository;
 
+	public JButton createButtonFor(AbstractOffer<?> offer) {
 
-  public JButton createButtonFor(AbstractOffer<?> offer) {
+		if (offer instanceof ProductOffer) {
+			return createProductOfferButton((ProductOffer) offer);
+		} else if (offer instanceof VariationOffer) {
+			return createVariationOfferButton((VariationOffer) offer);
+		} else if (offer instanceof ExtraOffer) {
+			return createExtraOfferButton((ExtraOffer) offer);
+		}
 
-    if (offer instanceof ProductOffer) {
-      return createProductOfferButton((ProductOffer) offer);
-    } else if (offer instanceof VariationOffer) {
-      return createVariationOfferButton((VariationOffer) offer);
-    } else if (offer instanceof ExtraOffer) {
-      return createExtraOfferButton((ExtraOffer) offer);
-    }
+		throw new OfferClassNotImplementedException();
+	}
 
-    throw new OfferClassNotImplementedException();
-  }
+	private JButton createProductOfferButton(final ProductOffer productOffer) {
 
-  private JButton createProductOfferButton(final ProductOffer productOffer) {
+		final JButton button = new JButton(productOffer.getLabel());
+		setDefaults(button);
 
-    final JButton button = new JButton(productOffer.getLabel());
-    setDefaults(button);
+		button.addActionListener(new ActionListener() {
 
-    button.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				appController.addToBill(productOffer);
+			}
+		});
 
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        appController.addToBill(productOffer);
-      }
-    });
+		eventBroadcaster.addListener(new OfferChangeListener() {
 
-    eventBroadcaster.addListener(new OfferChangeListener() {
+			@Override
+			public void offerUpdated(AbstractOffer<?> oldItem,
+					AbstractOffer<?> newItem) {
 
-      @Override
-      public void offerUpdated(AbstractOffer<?> oldItem,
-          AbstractOffer<?> newItem) {
+				// TODO: remove old action listener!!
+				button.setText(newItem.getLabel());
+			}
 
-        // TODO: remove old action listener!!
-        button.setText(newItem.getLabel());
-      }
+			@Override
+			public void offerDeleted(AbstractOffer<?> item) {
+				button.setEnabled(false);
+				button.setToolTipText("This offer has been deleted");
+			}
 
-      @Override
-      public void offerDeleted(AbstractOffer<?> item) {
-        button.setEnabled(false);
-        button.setToolTipText("This offer has been deleted");
-      }
+			@Override
+			public void offerCreated(AbstractOffer<?> newItem) {
 
-      @Override
-      public void offerCreated(AbstractOffer<?> newItem) {
+			}
+		});
 
-      }
-    });
+		setColourIfNotEmpty(button, productOffer);
 
-    setColourIfNotEmpty(button, productOffer);
+		return button;
+	}
 
-    return button;
-  }
+	private void setDefaults(JButton button) {
+		button.setMinimumSize(new Dimension(0, 40));
+		button.setPreferredSize(new Dimension(120, 40));
+		button.setMaximumSize(new Dimension(120, 40));
+		button.setInheritsPopupMenu(true);
+	}
 
-  private void setDefaults(JButton button) {
-    button.setMinimumSize(new Dimension(0, 40));
-    button.setPreferredSize(new Dimension(120, 40));
-    button.setMaximumSize(new Dimension(120, 40));
-    button.setInheritsPopupMenu(true);
-  }
+	private void setColourIfNotEmpty(final JButton button,
+			final ProductOffer productOffer) {
 
-  private void setColourIfNotEmpty(final JButton button,
-      final ProductOffer productOffer) {
+		final Product product = productOffer.getOfferedItem();
 
-    final Product product = productOffer.getOfferedItem();
+		if (product.getProductCategory() != null) {
 
-    if (product.getProductCategory() != null) {
+			final String colourAsString = product.getProductCategory()
+					.getColour();
 
-      final String colourAsString = product.getProductCategory()
-          .getColour();
+			if (StringUtils.isNotBlank(colourAsString)) {
+				final Color colour = Color.decode(colourAsString);
+				button.setBackground(colour);
+			}
+		}
 
-      if (StringUtils.isNotBlank(colourAsString)) {
-        final Color colour = Color.decode(colourAsString);
-        button.setBackground(colour);
-      }
-    }
+	}
 
-  }
+	private JButton createVariationOfferButton(final VariationOffer offer) {
 
-  private JButton createVariationOfferButton(final VariationOffer offer) {
+		final JButton button = new JButton(offer.getLabel());
+		setDefaults(button);
 
-    final JButton button = new JButton(offer.getLabel());
-    setDefaults(button);
+		button.addActionListener(new ActionListener() {
 
-    button.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				appController.setVariationOffer(offer);
+			}
+		});
 
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        appController.setVariationOffer(offer);
-      }
-    });
+		return button;
+	}
 
-    return button;
-  }
+	private JButton createExtraOfferButton(final ExtraOffer offer) {
 
-  private JButton createExtraOfferButton(final ExtraOffer offer) {
+		final JButton button = new JButton(offer.getLabel());
+		setDefaults(button);
 
-    final JButton button = new JButton(offer.getLabel());
-    setDefaults(button);
+		button.addActionListener(new ActionListener() {
 
-    button.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				appController.addExtraOffer(offer);
+			}
+		});
 
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        appController.addExtraOffer(offer);
-      }
-    });
+		return button;
+	}
 
-    return button;
-  }
+	public Component createFreePromotionButton() {
+		final JToggleButton freePromotionButton = new JToggleButton(
+				"Free / Promo");
 
-  public Component createFreePromotionButton() {
-    final JToggleButton freePromotionButton = new JToggleButton("Free / Promo");
+		addFfreePromotionActionListener(freePromotionButton);
 
-    addFfreePromotionActionListener(freePromotionButton);
+		setToggleButtonUponBillChangeAndDisableUponMissingBill(
+				freePromotionButton, new Predicate<Bill>() {
 
-    receiveBillUpdatedEventsForFreePromotion(freePromotionButton);
+					@Override
+					public boolean apply(Bill bill) {
+						return bill.isFreePromotionOffer();
+					}
+				});
 
-    freePromotionButton.setMinimumSize(new Dimension(0, 40));
+		freePromotionButton.setMinimumSize(new Dimension(0, 40));
+		freePromotionButton.setEnabled(false);
 
-    return freePromotionButton;
-  }
+		return freePromotionButton;
+	}
 
-  private void receiveBillUpdatedEventsForFreePromotion(final JToggleButton freePromotionButton) {
+	private void setToggleButtonUponBillChangeAndDisableUponMissingBill(
+			final JToggleButton toggleButton,
+			final Predicate<Bill> selectedPredicate) {
 
-    eventBroadcaster.addBillChangeListener(new BillChangeListener() {
+		eventBroadcaster.addBillChangeListener(new BillChangeListener() {
 
-      @Override
-      public void billUpdated(Optional<Bill> newBill) {
+			@Override
+			public void billUpdated(Optional<Bill> newBill) {
 
-        final boolean isFreePromotion;
-        if (newBill.isPresent()) {
-          isFreePromotion = newBill.get().isFreePromotionOffer();
-        } else {
-          isFreePromotion = false;
-        }
+				toggleButton.setEnabled(newBill.isPresent());
 
-        if (freePromotionButton.isSelected() != isFreePromotion) {
-          freePromotionButton.setSelected(isFreePromotion);
-        }
+				final boolean selected;
 
-      }
-    });
-  }
+				if (newBill.isPresent()) {
+					selected = selectedPredicate.apply(newBill.get());
+				} else {
+					selected = false;
+				}
 
-  private void addFfreePromotionActionListener(final JToggleButton freePromotionButton) {
-    freePromotionButton.addActionListener(new ActionListener() {
+				if (toggleButton.isSelected() != selected) {
+					toggleButton.setSelected(selected);
+				}
 
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        if (freePromotionButton.isSelected()) {
-          appController.setFreePromotion();
-        } else {
-          appController.clearFreePromotion();
-        }
-      }
-    });
-  }
+			}
+		});
+	}
 
-  public Component createStaffConsumptionButton() {
-    final JToggleButton staffConsumptionButton = new JToggleButton("Staff");
+	private void addFfreePromotionActionListener(
+			final JToggleButton freePromotionButton) {
+		freePromotionButton.addActionListener(new ActionListener() {
 
-    addStaffConsumptionActionListener(staffConsumptionButton);
-    addPopupMenuForOtherStaffMembers(staffConsumptionButton);
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (freePromotionButton.isSelected()) {
+					appController.setFreePromotion();
+				} else {
+					appController.clearFreePromotion();
+				}
+			}
+		});
+	}
 
-    receiveBillUpdatedEventsForStaffConsumption(staffConsumptionButton);
+	public Component createStaffConsumptionButton() {
+		final JToggleButton staffConsumptionButton = new JToggleButton("Staff");
 
-    staffConsumptionButton.setMinimumSize(new Dimension(0, 40));
+		addStaffConsumptionActionListener(staffConsumptionButton);
+		addPopupMenuForOtherStaffMembers(staffConsumptionButton);
 
-    return staffConsumptionButton;
-  }
+		setToggleButtonUponBillChangeAndDisableUponMissingBill(
+				staffConsumptionButton, new Predicate<Bill>() {
 
-  private void addStaffConsumptionActionListener(
-      final JToggleButton staffConsumptionButton) {
+					@Override
+					public boolean apply(Bill bill) {
+						return bill.isConsumedByStaff();
+					}
+				});
 
-    staffConsumptionButton.addActionListener(new ActionListener() {
+		staffConsumptionButton.setMinimumSize(new Dimension(0, 40));
+		staffConsumptionButton.setEnabled(false);
 
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        if (staffConsumptionButton.isSelected()) {
-          appController.setStaffConsumption();
-        } else {
-          appController.clearStaffConsumption();
-        }
-      }
-    });
+		return staffConsumptionButton;
+	}
 
-  }
+	private void addStaffConsumptionActionListener(
+			final JToggleButton staffConsumptionButton) {
 
-  private void addPopupMenuForOtherStaffMembers(
-      final JToggleButton staffConsumptionButton) {
+		staffConsumptionButton.addActionListener(new ActionListener() {
 
-    final JPopupMenu popupMenu = new JPopupMenu();
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (staffConsumptionButton.isSelected()) {
+					appController.setStaffConsumption();
+				} else {
+					appController.clearStaffConsumption();
+				}
+			}
+		});
 
-    for (final User staffMember : userRepository.findAll()) {
-      popupMenu.add(createMenuItem(staffMember));
-    }
+	}
 
-    staffConsumptionButton.addMouseListener(new PopupListener(popupMenu));
-  }
+	private void addPopupMenuForOtherStaffMembers(
+			final JToggleButton staffConsumptionButton) {
 
-  private void receiveBillUpdatedEventsForStaffConsumption(
-      final JToggleButton staffConsumptionButton) {
+		final JPopupMenu popupMenu = new JPopupMenu();
 
-    eventBroadcaster.addBillChangeListener(new BillChangeListener() {
+		for (final User staffMember : userRepository.findAll()) {
+			popupMenu.add(createMenuItem(staffMember));
+		}
 
-      @Override
-      public void billUpdated(Optional<Bill> newBill) {
+		final PopupListener popupListener = new PopupListener(popupMenu);
 
-        final boolean isConsumedByStaff;
-        if (newBill.isPresent()) {
-          isConsumedByStaff = newBill.get().isConsumedByStaff();
-        } else {
-          isConsumedByStaff = false;
-        }
+		eventBroadcaster.addBillChangeListener(new BillChangeListener() {
 
-        if (staffConsumptionButton.isSelected() != isConsumedByStaff) {
-          staffConsumptionButton.setSelected(isConsumedByStaff);
-        }
+			@Override
+			public void billUpdated(Optional<Bill> newBill) {
+				popupListener.setActive(newBill.isPresent());
+			}
+		});
 
-      }
-    });
-  }
+		staffConsumptionButton.addMouseListener(popupListener);
+	}
 
-  private JMenuItem createMenuItem(final User staffMember) {
+	private JMenuItem createMenuItem(final User staffMember) {
 
-    final JMenuItem menuItem = new JMenuItem(new AbstractAction(
-        staffMember.getFullname()) {
+		final JMenuItem menuItem = new JMenuItem(new AbstractAction(
+				staffMember.getFullname()) {
 
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        System.out.println("staff consumption triggered for "
-            + staffMember);
-        appController.setStaffConsumption(staffMember);
-        // TODO: set button state
-      }
-    });
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				appController.setStaffConsumption(staffMember);
+			}
+		});
 
-    return menuItem;
-  }
+		return menuItem;
+	}
 
-  public Component createToGoButton() {
-    final JToggleButton btnToGo = new JToggleButton("To go");
-    btnToGo.addActionListener(new ActionListener() {
+	public Component createToGoButton() {
+		final JToggleButton btnToGo = new JToggleButton("To go");
+		btnToGo.addActionListener(new ActionListener() {
 
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        appController.setBillToGo(btnToGo.isSelected());
-      }
-    });
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				appController.setBillToGo(btnToGo.isSelected());
+			}
+		});
 
-    eventBroadcaster.addBillChangeListener(new BillChangeListener() {
+		setToggleButtonUponBillChangeAndDisableUponMissingBill(btnToGo,
+				new Predicate<Bill>() {
+					@Override
+					public boolean apply(Bill bill) {
+						return appController.isBillToGo();
+					}
+				});
 
-      @Override
-      public void billUpdated(Optional<Bill> newBill) {
+		btnToGo.setMinimumSize(new Dimension(0, 40));
+		btnToGo.setEnabled(false);
 
-        if (newBill.isPresent()) {
-          btnToGo.setSelected(appController.isBillToGo());
-        } else {
-          btnToGo.setSelected(false);
-        }
-      }
-
-    });
-
-    btnToGo.setMinimumSize(new Dimension(0, 40));
-    return btnToGo;
-  }
-
+		return btnToGo;
+	}
 
 }
