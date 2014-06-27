@@ -98,16 +98,18 @@ public class StorageService {
 
 		final TaxInfo taxInfo = new TaxInfo("19%", null, null);
 		final Bill billYesterdayOneHourEarlier = billTestFactory.create(
-				taxInfo, yesterdayOneHourEarlier.getTime());
+				taxInfo, yesterdayOneHourEarlier.getTime(),
+				yesterdayOneHourEarlier.getTime());
 
 		final Bill billYesterdayOneHourLater = billTestFactory.create(taxInfo,
+				yesterdayOneHourLater.getTime(),
 				yesterdayOneHourLater.getTime());
 
 		final Bill billTodayOneHourEarlier = billTestFactory.create(taxInfo,
-				todayOneHourEarlier.getTime());
+				todayOneHourEarlier.getTime(), todayOneHourEarlier.getTime());
 
 		final Bill billTodayOneHourLater = billTestFactory.create(taxInfo,
-				todayOneHourLater.getTime());
+				todayOneHourLater.getTime(), todayOneHourLater.getTime());
 
 		taxInfoRepository.save(taxInfo);
 
@@ -115,6 +117,27 @@ public class StorageService {
 		billRepository.save(billYesterdayOneHourLater);
 		billRepository.save(billTodayOneHourEarlier);
 		billRepository.save(billTodayOneHourLater);
+	}
+
+	@Transactional
+	public void saveSomeOpenBills() {
+		// hard to prevent - we can use fix times here, but the database uses
+		// system time.
+		// maybe modify query so it gets todays date from outside
+		assertTrue("Test does only run during datetime :)",
+				new Date().getHours() > 1 && new Date().getHours() < 21);
+
+		final Calendar todayOneHourEarlier = Calendar.getInstance();
+		todayOneHourEarlier.roll(Calendar.HOUR_OF_DAY, false);
+
+		final TaxInfo taxInfo = new TaxInfo("19%", null, null);
+
+		final Bill billTodayOneHourEarlier = billTestFactory.create(taxInfo,
+				todayOneHourEarlier.getTime(), null);
+
+		taxInfoRepository.save(taxInfo);
+
+		billRepository.save(billTodayOneHourEarlier);
 	}
 
 	public List<Product> getProducts() {

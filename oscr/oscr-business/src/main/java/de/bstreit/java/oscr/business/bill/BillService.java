@@ -29,10 +29,13 @@ package de.bstreit.java.oscr.business.bill;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.Collection;
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.transaction.Transactional;
+
+import org.hibernate.Hibernate;
 
 import de.bstreit.java.oscr.business.base.date.ICurrentDateProvider;
 import de.bstreit.java.oscr.business.bill.dao.IBillRepository;
@@ -333,5 +336,40 @@ public class BillService {
 
 	public void notifyShutdown() {
 		exportService.stopService();
+	}
+
+	@Transactional
+	public List<Bill> getOpenBills() {
+		final List<Bill> openBills = billRepository.billClosedIsNull();
+
+		initialise(openBills);
+
+		return openBills;
+	}
+
+	private void initialise(List<Bill> openBills) {
+		for (final Bill bill : openBills) {
+
+			Hibernate.initialize(bill);
+
+			initialise(bill.getBillItems());
+		}
+	}
+
+	private void initialise(Collection<BillItem> billItems) {
+		for (final BillItem billItem : billItems) {
+			Hibernate.initialize(billItem);
+			Hibernate.initialize(billItem.getExtraAndVariationOffers());
+		}
+	}
+
+	public void newBill() {
+		currentBill = null;
+		fireBillChangedEvent();
+	}
+
+	public void loadBill(Bill bill) {
+		currentBill = bill;
+		fireBillChangedEvent();
 	}
 }
