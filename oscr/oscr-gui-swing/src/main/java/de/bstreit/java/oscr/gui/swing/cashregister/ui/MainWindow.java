@@ -39,32 +39,47 @@ public class MainWindow implements IBillDisplay {
 		billView.setText(billAsText);
 	}
 
-	/**
-	 * @wbp.parser.entryPoint
-	 */
 	// @Override
 	protected JComponent buildPanel() {
-		final JSplitPane splitPane = new JSplitPane();
-		splitPane.setBounds(100, 100, 757, 555);
-		splitPane.setResizeWeight(1.0);
-		splitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+		final JSplitPane mainSplitPane = new JSplitPane();
+		mainSplitPane.setBounds(100, 100, 757, 555);
+		mainSplitPane.setResizeWeight(1.0);
+		mainSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
 
-		billView = new JTextPane();
-		billView.setFont(new Font("Courier New", Font.PLAIN, 12));
-		billView.setPreferredSize(new Dimension(6, 150));
-
-		scrollPane = new JScrollPane(billView);
-		splitPane.setLeftComponent(scrollPane);
+		setTopPanel(mainSplitPane);
 
 		buttonPanel = buttonPanelFactory.createButtonPanel();
 
 		buttonPanel.validate();
 
-		splitPane.setRightComponent(buttonPanel);
+		mainSplitPane.setRightComponent(buttonPanel);
 
-		return splitPane;
+		return mainSplitPane;
 	}
 
+	private void setTopPanel(final JSplitPane mainSplitPane) {
+		billView = new JTextPane();
+		billView.setFont(new Font("Courier New", Font.PLAIN, 12));
+		billView.setPreferredSize(new Dimension(6, 150));
+
+		scrollPane = new JScrollPane(billView);
+
+		final JSplitPane splitPane = new JSplitPane();
+		// splitPane.setBounds(100, 100, 757, 555);
+		splitPane.setResizeWeight(1.0);
+		splitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
+
+		splitPane.setLeftComponent(scrollPane);
+
+		splitPane.setRightComponent(buttonPanelFactory
+				.createControlButtonsPanel());
+
+		mainSplitPane.setLeftComponent(splitPane);
+	}
+
+	/**
+	 * @wbp.parser.entryPoint
+	 */
 	@Override
 	public void show() {
 		jFrame = new JFrame();

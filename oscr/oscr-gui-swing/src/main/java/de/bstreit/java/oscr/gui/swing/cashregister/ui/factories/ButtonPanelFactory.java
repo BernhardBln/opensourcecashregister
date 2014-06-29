@@ -75,7 +75,6 @@ public class ButtonPanelFactory {
 
 			buildAndAddWeeklyPanelToMainPanel();
 			buildAndAddDrinksPanelToMainPanel();
-			buildAndAddControlButtonsPanelToMainPanel();
 
 			return buttonPanel;
 
@@ -166,10 +165,9 @@ public class ButtonPanelFactory {
 
 	}
 
-	private void buildAndAddControlButtonsPanelToMainPanel() {
+	public JPanel createControlButtonsPanel() {
 		final JPanel controlButtonsPanel = new JPanel();
 
-		buttonPanel.add(controlButtonsPanel, BorderLayout.EAST);
 		controlButtonsPanel.setLayout(new GridLayout(6, 1, 0, 0));
 
 		addUndoButton(controlButtonsPanel);
@@ -180,6 +178,8 @@ public class ButtonPanelFactory {
 		addFreePromotionButton(controlButtonsPanel);
 		addStaffConsumptionButton(controlButtonsPanel);
 		addKassenstandButton(controlButtonsPanel);
+
+		return controlButtonsPanel;
 	}
 
 	private void addUndoButton(final JPanel controlButtonsPanel) {
