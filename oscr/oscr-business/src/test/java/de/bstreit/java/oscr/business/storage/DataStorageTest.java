@@ -123,16 +123,32 @@ public class DataStorageTest extends AbstractSpringTestWithContext {
 		service.saveSomeProductsAndOffers();
 		service.saveSomeBills();
 
+		final Collection<Bill> closedBillsOfToday = service.getBillsOfToday();
+		assertEquals(2, closedBillsOfToday.size());
+
+		service.saveSomeOpenBills();
+
 		// -RUN
-		final Collection<Bill> billsOfToday = service.getBillsOfToday();
+		Collection<Bill> billsOfToday = service.getBillsOfToday();
+		assertEquals(3, billsOfToday.size());
+
+		Collection<Bill> openBillsOfToday = service.getOpenBillsOfToday();
+		assertEquals(1, openBillsOfToday.size());
+
+		service.saveSomeBills();
+
+		billsOfToday = service.getBillsOfToday();
+		assertEquals(5, billsOfToday.size());
+
+		openBillsOfToday = service.getOpenBillsOfToday();
+		assertEquals(1, openBillsOfToday.size());
 
 		// -ASSERT
-		assertEquals(2, billsOfToday.size());
-		final Date today = new Date();
-		final int day = today.getDate();
-		for (final Bill bill : billsOfToday) {
-			assertEquals(day, bill.getBillOpened().getDate());
-		}
+		// final Date today = new Date();
+		// final int day = today.getDate();
+		// for (final Bill bill : billsOfToday) {
+		// assertEquals(day, bill.getBillOpened().getDate());
+		// }
 	}
 
 }

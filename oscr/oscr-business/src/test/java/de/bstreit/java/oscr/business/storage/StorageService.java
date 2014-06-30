@@ -39,8 +39,6 @@ import javax.inject.Named;
 
 import org.springframework.transaction.annotation.Transactional;
 
-import com.google.common.collect.Lists;
-
 import de.bstreit.java.oscr.business.bill.Bill;
 import de.bstreit.java.oscr.business.bill.BillTestFactory;
 import de.bstreit.java.oscr.business.bill.dao.IBillRepository;
@@ -65,7 +63,8 @@ public class StorageService {
 	@Inject
 	private ITaxInfoRepository taxInfoRepository;
 
-	private final BillTestFactory billTestFactory = new BillTestFactory();
+	@Inject
+	private BillTestFactory billTestFactory;
 
 	@Transactional
 	public void saveSomeProductsAndOffers() {
@@ -141,15 +140,19 @@ public class StorageService {
 	}
 
 	public List<Product> getProducts() {
-		return Lists.newArrayList(prodRepository.findAll());
+		return prodRepository.findAll();
 	}
 
 	public List<ProductOffer> getOffers() {
-		return Lists.newArrayList(offerRepository.findAll());
+		return offerRepository.findAll();
 	}
 
 	public Collection<Bill> getBillsOfToday() {
 		return billRepository.getBillsForTodayWithoutStaff();
+	}
+
+	public Collection<Bill> getOpenBillsOfToday() {
+		return billRepository.billClosedIsNull();
 	}
 
 }
