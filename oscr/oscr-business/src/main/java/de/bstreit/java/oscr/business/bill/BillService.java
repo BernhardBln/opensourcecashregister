@@ -28,14 +28,19 @@ package de.bstreit.java.oscr.business.bill;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import java.text.DateFormat;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.transaction.Transactional;
 
 import org.hibernate.Hibernate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.bstreit.java.oscr.business.base.date.ICurrentDateProvider;
 import de.bstreit.java.oscr.business.bill.dao.IBillRepository;
@@ -57,6 +62,9 @@ import de.bstreit.java.oscr.business.taxation.TaxInfo;
  */
 @Named
 public class BillService {
+
+	private static final Logger logger = LoggerFactory
+			.getLogger(BillService.class);
 
 	@Inject
 	private IBillRepository billRepository;
@@ -80,9 +88,20 @@ public class BillService {
 	@Inject
 	private EventBroadcaster eventBroadcaster;
 
+	@Inject
+	private Locale currentLocale;
+
+	private DateFormat dateFormat;
+
 	private Bill currentBill;
 
 	private BillItem lastAddedItem;
+
+	@PostConstruct
+	private void init() {
+		dateFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM,
+				DateFormat.SHORT, currentLocale);
+	}
 
 	private void fireBillChangedEvent() {
 		eventBroadcaster.notifyBillUpdated(this, currentBill);
@@ -99,6 +118,9 @@ public class BillService {
 	public BillItem addProductOffer(ProductOffer productOffer) {
 		initBillIfEmpty();
 
+		logAction("adds product offer",
+				productOffer.getOfferedItem().getName(), "to bill opened at",
+				dateFormat.format(currentBill.getBillOpened()));
 		final BillItem billItem = new BillItem(productOffer);
 		currentBill.addBillItem(billItem);
 
@@ -108,6 +130,24 @@ public class BillService {
 		fireBillChangedEvent();
 
 		return billItem;
+	}
+
+	private void logAction(String... chunks) {
+
+		final User currentUser = userProvider.getCurrentUser();
+
+		final StringBuilder sb = new StringBuilder();
+
+		sb.append(currentUser.getFullname())//
+				.append(" [")//
+				.append(currentUser.getId())//
+				.append("] ");
+
+		for (final String chunk : chunks) {
+			sb.append(chunk).append(" ");
+		}
+
+		logger.info(sb.toString().trim());
 	}
 
 	public void toggleProductVariationOffer(VariationOffer variationOffer) {
