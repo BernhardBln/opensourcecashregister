@@ -155,4 +155,8 @@ public class StorageService {
 		return billRepository.billClosedIsNull();
 	}
 
+	public void clearDatabase() {
+		billRepository.deleteAll();
+	}
+
 }

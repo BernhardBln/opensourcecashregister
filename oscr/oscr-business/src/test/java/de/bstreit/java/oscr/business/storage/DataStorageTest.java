@@ -33,8 +33,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import javax.inject.Inject;
+
 import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -47,6 +50,9 @@ import de.bstreit.java.oscr.business.products.Product;
 public class DataStorageTest extends AbstractSpringTestWithContext {
 
 	private static final Locale defaultLocale = Locale.getDefault();
+
+	@Inject
+	private StorageService storageService;
 
 	@BeforeClass
 	public static void setDefaultLocale() {
@@ -61,16 +67,20 @@ public class DataStorageTest extends AbstractSpringTestWithContext {
 		Money.resetNumberFormatter();
 	}
 
+	@Before
+	public void initDataStore() {
+		storageService.clearDatabase();
+	}
+
 	@Test
 	public void testDataStorage() {
 
 		// -INIT
-		final StorageService service = context.getBean(StorageService.class);
-		service.saveSomeProductsAndOffers();
+		storageService.saveSomeProductsAndOffers();
 
 		// -RUN
-		final List<Product> products = service.getProducts();
-		final List<ProductOffer> offers = service.getOffers();
+		final List<Product> products = storageService.getProducts();
+		final List<ProductOffer> offers = storageService.getOffers();
 
 		// -ASSERT
 		Assert.assertEquals(3, products.size());
@@ -84,14 +94,13 @@ public class DataStorageTest extends AbstractSpringTestWithContext {
 		Assert.assertTrue(offers.contains(ProductOffers.CAPPUCCINO));
 		Assert.assertTrue(offers.contains(ProductOffers.LATTE_MACCHIATO));
 
-		Assert.assertEquals(
-				"<html><center>Espresso<BR>[Cup 100 ml]<BR><BR>1,00 €</center></html>",
+		Assert.assertEquals("<html><center>Espresso<BR>1,00 €</center></html>",
 				offers.get(0).getLabel());
 		Assert.assertEquals(
-				"<html><center>Cappuccino<BR>[Cup 200 ml]<BR><BR>1,80 €</center></html>",
-				offers.get(1).getLabel());
+				"<html><center>Cappuccino<BR>1,80 €</center></html>", offers
+						.get(1).getLabel());
 		Assert.assertEquals(
-				"<html><center>Latte Macchiato<BR>[Cup 200 ml]<BR><BR>2,30 €</center></html>",
+				"<html><center>Latte Macchiato<BR>2,30 €</center></html>",
 				offers.get(2).getLabel());
 	}
 
