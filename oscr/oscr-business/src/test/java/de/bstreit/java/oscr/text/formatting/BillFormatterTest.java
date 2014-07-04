@@ -9,33 +9,25 @@ import javax.inject.Inject;
 
 import org.junit.After;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import de.bstreit.java.oscr.business.AbstractSpringTestWithContext;
 import de.bstreit.java.oscr.business.base.finance.money.Money;
 import de.bstreit.java.oscr.business.bill.Bill;
 import de.bstreit.java.oscr.business.bill.BillItem;
 import de.bstreit.java.oscr.business.bill.BillService;
+import de.bstreit.java.oscr.business.bill.IBillCalculatorFactory;
 import de.bstreit.java.oscr.business.offers.ProductOffer;
 import de.bstreit.java.oscr.business.offers.VariationOffer;
 import de.bstreit.java.oscr.business.products.Product;
 import de.bstreit.java.oscr.business.products.Variation;
 import de.bstreit.java.oscr.business.taxation.TaxInfo;
-import de.bstreit.java.oscr.testutils.MakeBillServiceUsableInJUnitTest;
 import de.bstreit.java.oscr.testutils.business.bill.JUnitBillCalculatorFactory;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { BillFormatterTest.class })
-@Import(MakeBillServiceUsableInJUnitTest.class)
-@ComponentScan(basePackageClasses = TaxInfo.class)
 @Configuration
-public class BillFormatterTest {
+public class BillFormatterTest extends AbstractSpringTestWithContext {
 
 	private static final TaxInfo NON_FOOD_TAX_INFO = new TaxInfo("non-food",
 			null, null);
@@ -71,12 +63,17 @@ public class BillFormatterTest {
 	}
 
 	@Bean
-	public JUnitBillCalculatorFactory getBillCalculatorFactory() {
+	public IBillCalculatorFactory getBillCalculatorFactory() {
 		return new JUnitBillCalculatorFactory();
 	}
 
 	@Bean(name = "togoTaxInfo")
 	public TaxInfo togoTaxInfo() {
+		return TO_GO_TAX_INFO;
+	}
+
+	@Bean(name = "defaultGlobalTaxInfoForNewBills")
+	public TaxInfo defaultTaxInfoForNewBills() {
 		return TO_GO_TAX_INFO;
 	}
 
