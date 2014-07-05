@@ -172,4 +172,64 @@ CREATE VIEW BILLS_TOTAL_LAST_MONTH AS
                 pricecurrency;
 
 
+CREATE VIEW PIVOTSTAT_BILLITEMS_PER_HOUR_THIS_MONTH AS
+        SELECT
 
+              replace(
+              replace(
+              replace(
+              replace(
+              replace(
+              replace(
+              replace(
+formatdatetime(billopened, 'E'), 
+  'Mo', '1 Mo'), 
+  'Di', '2 Di'), 
+  'Mi', '3 Mi'), 
+  'Do', '4 Do'), 
+  'Fr', '5 Fr'), 
+  'Sa', '6 Sa'), 
+  'So', '7 So')
+                    AS weekday,
+                SUBSTRING(billopened, 12, 2) AS hour,
+                COUNT(*)
+        FROM
+                BILLS_WITH_PRODUCTS
+	WHERE
+		billopened >= formatdatetime(current_timestamp, 'YYYY-MM-01')
+        GROUP BY
+                weekday, hour
+        ORDER BY
+                hour;
+ 
+
+CREATE VIEW PIVOTSTAT_BILLITEMS_PER_HOUR_LAST_MONTH AS
+        SELECT
+
+              replace(
+              replace(
+              replace(
+              replace(
+              replace(
+              replace(
+              replace(
+formatdatetime(billopened, 'E'), 
+  'Mo', '1 Mo'), 
+  'Di', '2 Di'), 
+  'Mi', '3 Mi'), 
+  'Do', '4 Do'), 
+  'Fr', '5 Fr'), 
+  'Sa', '6 Sa'), 
+  'So', '7 So')
+                    AS weekday,
+                SUBSTRING(billopened, 12, 2) AS hour,
+                COUNT(*)
+        FROM
+                BILLS_WITH_PRODUCTS
+        WHERE
+                billopened >= formatdatetime(dateadd('Month', -1, current_timestamp), 'YYYY-MM-01')
+                AND billopened < formatdatetime(current_timestamp, 'YYYY-MM-01')
+        GROUP BY
+                weekday, hour
+        ORDER BY
+                hour;
