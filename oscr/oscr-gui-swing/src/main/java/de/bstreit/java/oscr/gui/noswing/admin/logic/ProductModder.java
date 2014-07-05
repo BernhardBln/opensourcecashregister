@@ -13,15 +13,12 @@ import org.apache.commons.lang3.StringUtils;
 import de.bstreit.java.oscr.business.base.finance.money.Money;
 import de.bstreit.java.oscr.business.offers.ProductOffer;
 import de.bstreit.java.oscr.business.offers.dao.IProductOfferRepository;
-import de.bstreit.java.oscr.business.products.category.dao.IProductCategoryRepository;
 
 @Named
 public class ProductModder implements IAdminBean {
 
 	@Inject
 	private IProductOfferRepository productOfferRepository;
-	@Inject
-	private IProductCategoryRepository productCategoryRepository;
 
 	private Scanner scanner;
 
