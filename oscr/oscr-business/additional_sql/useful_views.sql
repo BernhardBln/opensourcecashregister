@@ -246,6 +246,8 @@ CREATE VIEW AVG_TOTALS_THIS_MONTH AS
 			'So', '7 So') AS weekday,		
 		SUM(total) AS total,
 		AVG(total) as avg_total,
+		MIN(total) as min_total,
+		MAX(total) as max_total,
 		pricecurrency
 		
 	FROM
@@ -287,6 +289,8 @@ create view avg_totals_last_month as
 			'So', '7 So') AS weekday,	
 		SUM(total) AS total,
 		AVG(total) as avg_total,
+		MIN(total) as min_total,
+		MAX(total) as max_total,
 		pricecurrency
 		
 	FROM
