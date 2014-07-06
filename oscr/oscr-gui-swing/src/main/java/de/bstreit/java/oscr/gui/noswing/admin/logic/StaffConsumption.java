@@ -32,185 +32,187 @@ import de.bstreit.java.oscr.business.util.DateFactory;
 @Named
 public class StaffConsumption implements IAdminBean {
 
-	@Inject
-	private IBillRepository billRepository;
+  @Inject
+  private IBillRepository billRepository;
 
-	@Inject
-	private Currency currency;
+  @Inject
+  private Currency currency;
 
-	@Inject
-	private IMultipleBillsCalculatorFactory multipleBillsCalculatorFactory;
+  @Inject
+  private IMultipleBillsCalculatorFactory multipleBillsCalculatorFactory;
 
-	@Value("${staffConsumption.breakfast.price}")
-	private String breakfastPriceStr;
+  @Value("${staffConsumption.breakfast.price}")
+  private String breakfastPriceStr;
 
-	private Money breakfastPrice;
+  private Money breakfastPrice;
 
-	@Value("${staffConsumption.lunch.price}")
-	private String lunchPriceStr;
+  @Value("${staffConsumption.lunch.price}")
+  private String lunchPriceStr;
 
-	private Money lunchPrice;
+  private Money lunchPrice;
 
-	@Value("${staffConsumption.dinner.price}")
-	private String dinnerPriceStr;
+  @Value("${staffConsumption.dinner.price}")
+  private String dinnerPriceStr;
 
-	@Value("${staffConsumption.managementUser}")
-	private String managementUser;
+  @Value("${staffConsumption.managementUser}")
+  private String managementUser;
 
-	private Money dinnerPrice;
+  private Money dinnerPrice;
 
-	private transient Map<User, ConsumptionCounter> consumption = Maps
-			.newHashMap();
+  private transient Map<User, ConsumptionCounter> consumption = Maps
+      .newHashMap();
 
-	private transient List<Bill> managementConsumption = Lists.newArrayList();
+  private transient List<Bill> managementConsumption = Lists.newArrayList();
 
-	@PostConstruct
-	public void init() {
-		breakfastPrice = new Money(breakfastPriceStr, currency);
-		lunchPrice = new Money(lunchPriceStr, currency);
-		dinnerPrice = new Money(dinnerPriceStr, currency);
-	}
 
-	@Transactional
-	@Override
-	public void performTask() {
-		try {
-			final Calendar calendar = Calendar.getInstance();
+  @PostConstruct
+  public void init() {
+    breakfastPrice = new Money(breakfastPriceStr, currency);
+    lunchPrice = new Money(lunchPriceStr, currency);
+    dinnerPrice = new Money(dinnerPriceStr, currency);
+  }
 
-			final Collection<Bill> billsForStaff = getBillsForLastMonth(calendar);
+  @Transactional
+  @Override
+  public void performTask() {
+    try {
+      final Calendar calendar = Calendar.getInstance();
 
-			printHeader(calendar);
+      final Collection<Bill> billsForStaff = getBillsForLastMonth(calendar);
 
-			countBills(billsForStaff);
-			printResults();
+      printHeader(calendar);
 
-			printManagementConsumption();
+      countBills(billsForStaff);
+      printResults();
 
-		} finally {
-			consumption.clear();
-			managementConsumption.clear();
-		}
-	}
+      printManagementConsumption();
 
-	private void printManagementConsumption() {
-		final IMultipleBillsCalculator multipleBillsCalculator = multipleBillsCalculatorFactory
-				.create(managementConsumption);
+    } finally {
+      consumption.clear();
+      managementConsumption.clear();
+    }
+  }
 
-		Money totalNet = new Money("0", currency);
+  private void printManagementConsumption() {
+    final IMultipleBillsCalculator multipleBillsCalculator = multipleBillsCalculatorFactory
+        .create(managementConsumption);
 
-		for (final VATClass vatClass : multipleBillsCalculator
-				.getAllVatClasses()) {
-			totalNet = totalNet.add(multipleBillsCalculator
-					.getTotalNetFor(vatClass));
-		}
+    Money totalNet = new Money("0", currency);
 
-		System.out.println(MessageFormat.format(
-				"\nManagement consumption: GROS {0} - NET {1}",
-				multipleBillsCalculator.getTotalGross(), totalNet));
+    for (final VATClass vatClass : multipleBillsCalculator
+        .getAllVatClasses()) {
+      totalNet = totalNet.add(multipleBillsCalculator
+          .getTotalNetFor(vatClass));
+    }
 
-		for (final VATClass vatClass : multipleBillsCalculator
-				.getAllVatClasses()) {
-			System.out.println(" -> " + vatClass + " -> "
-					+ multipleBillsCalculator.getTotalVATFor(vatClass));
-		}
+    System.out.println(MessageFormat.format(
+        "\nManagement consumption: GROS {0} - NET {1}",
+        multipleBillsCalculator.getTotalGross(), totalNet));
 
-		System.out.println("\n");
-	}
+    for (final VATClass vatClass : multipleBillsCalculator
+        .getAllVatClasses()) {
+      System.out.println(" -> " + vatClass + " of " + multipleBillsCalculator.getTotalGrossFor(vatClass)
+          + " (gros) -> "
+          + multipleBillsCalculator.getTotalVATFor(vatClass));
+    }
 
-	private void printResults() {
-		for (final User staffMember : consumption.keySet()) {
-			System.out.println(staffMember.getFullname());
+    System.out.println("\n");
+  }
 
-			final ConsumptionCounter consumptionCounter = consumption
-					.get(staffMember);
+  private void printResults() {
+    for (final User staffMember : consumption.keySet()) {
+      System.out.println(staffMember.getFullname());
 
-			printoutMeal(breakfastPrice, consumptionCounter.getBreakfast(),
-					"Breakfast");
-			printoutMeal(lunchPrice, consumptionCounter.getLunch(), "Lunch");
-			printoutMeal(dinnerPrice, consumptionCounter.getDinner(), "Dinner");
+      final ConsumptionCounter consumptionCounter = consumption
+          .get(staffMember);
 
-			Money total = new Money("0", currency);
-			total = total.add(breakfastPrice.multiply(consumptionCounter
-					.getBreakfast()));
-			total = total
-					.add(lunchPrice.multiply(consumptionCounter.getLunch()));
-			total = total.add(dinnerPrice.multiply(consumptionCounter
-					.getDinner()));
+      printoutMeal(breakfastPrice, consumptionCounter.getBreakfast(),
+          "Breakfast");
+      printoutMeal(lunchPrice, consumptionCounter.getLunch(), "Lunch");
+      printoutMeal(dinnerPrice, consumptionCounter.getDinner(), "Dinner");
 
-			System.out.println("TOTAL: " + total);
-			System.out.println("");
-		}
-	}
+      Money total = new Money("0", currency);
+      total = total.add(breakfastPrice.multiply(consumptionCounter
+          .getBreakfast()));
+      total = total
+          .add(lunchPrice.multiply(consumptionCounter.getLunch()));
+      total = total.add(dinnerPrice.multiply(consumptionCounter
+          .getDinner()));
 
-	private void countBills(final Collection<Bill> billsForStaff) {
-		for (final Bill bill : billsForStaff) {
-			if (!bill.isConsumedByStaff()) {
-				continue;
-			}
+      System.out.println("TOTAL: " + total);
+      System.out.println("");
+    }
+  }
 
-			final User staffMember = bill.getStaffConsumer();
+  private void countBills(final Collection<Bill> billsForStaff) {
+    for (final Bill bill : billsForStaff) {
+      if (!bill.isConsumedByStaff()) {
+        continue;
+      }
 
-			if (staffMember.getName().equals(managementUser)) {
-				managementConsumption.add(bill);
-			} else {
-				if (!consumption.containsKey(staffMember)) {
-					consumption.put(staffMember, new ConsumptionCounter(11, 4));
-				}
+      final User staffMember = bill.getStaffConsumer();
 
-				consumption.get(staffMember).countConsumption(bill);
-			}
-		}
-	}
+      if (staffMember.getName().equals(managementUser)) {
+        managementConsumption.add(bill);
+      } else {
+        if (!consumption.containsKey(staffMember)) {
+          consumption.put(staffMember, new ConsumptionCounter(11, 4));
+        }
 
-	private void printHeader(final Calendar calendar) {
-		System.out.println("Bills for staff - " + getMonth(calendar));
-		System.out.println("===============");
-		System.out.println("");
-		System.out.println("Breakfast: until 11 (costs: " + breakfastPrice
-				+ ")");
-		System.out.println("Lunch: 11 - 4 (costs: " + lunchPrice + ")");
-		System.out.println("Dinner: from 4 (costs: " + dinnerPrice + ")");
-		System.out.println("");
-	}
+        consumption.get(staffMember).countConsumption(bill);
+      }
+    }
+  }
 
-	private void printoutMeal(Money mealPrice, int amount, String label) {
-		final Money total = mealPrice.multiply(amount);
-		System.out.println(" " + label + ": " + amount + " (" + total + ")");
-	}
+  private void printHeader(final Calendar calendar) {
+    System.out.println("Bills for staff - " + getMonth(calendar));
+    System.out.println("===============");
+    System.out.println("");
+    System.out.println("Breakfast: until 11 (costs: " + breakfastPrice
+        + ")");
+    System.out.println("Lunch: 11 - 4 (costs: " + lunchPrice + ")");
+    System.out.println("Dinner: from 4 (costs: " + dinnerPrice + ")");
+    System.out.println("");
+  }
 
-	private Collection<Bill> getBillsForLastMonth(final Calendar calendar) {
-		final Date to = getDate(calendar);
+  private void printoutMeal(Money mealPrice, int amount, String label) {
+    final Money total = mealPrice.multiply(amount);
+    System.out.println(" " + label + ": " + amount + " (" + total + ")");
+  }
 
-		calendar.roll(Calendar.MONTH, false);
-		final Date from = getDate(calendar);
+  private Collection<Bill> getBillsForLastMonth(final Calendar calendar) {
+    final Date to = getDate(calendar);
 
-		final Collection<Bill> billsForStaff = billRepository.getBillsForStaff(
-				from, to);
-		return billsForStaff;
-	}
+    calendar.roll(Calendar.MONTH, false);
+    final Date from = getDate(calendar);
 
-	private String getMonth(Calendar calendar) {
-		final String monthName = calendar.getDisplayName(Calendar.MONTH,
-				Calendar.LONG, Locale.getDefault());
-		final int year = calendar.get(Calendar.YEAR);
+    final Collection<Bill> billsForStaff = billRepository.getBillsForStaff(
+        from, to);
+    return billsForStaff;
+  }
 
-		return monthName + " " + year;
-	}
+  private String getMonth(Calendar calendar) {
+    final String monthName = calendar.getDisplayName(Calendar.MONTH,
+        Calendar.LONG, Locale.getDefault());
+    final int year = calendar.get(Calendar.YEAR);
 
-	private Date getDate(final Calendar calendar) {
-		final int month = calendar.get(Calendar.MONTH) + 1;
-		final int year = calendar.get(Calendar.YEAR);
+    return monthName + " " + year;
+  }
 
-		return DateFactory.getDateWithTimeMidnight(year, month, 1);
-	}
+  private Date getDate(final Calendar calendar) {
+    final int month = calendar.get(Calendar.MONTH) + 1;
+    final int year = calendar.get(Calendar.YEAR);
 
-	@Override
-	public void setScanner(Scanner scanner) {
+    return DateFactory.getDateWithTimeMidnight(year, month, 1);
+  }
 
-	}
+  @Override
+  public void setScanner(Scanner scanner) {
 
-	@Override
-	public String toString() {
-		return "Staff Consumption for previous month";
-	}
+  }
+
+  @Override
+  public String toString() {
+    return "Staff Consumption for previous month";
+  }
 }
