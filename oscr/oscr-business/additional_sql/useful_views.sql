@@ -315,3 +315,24 @@ create view avg_totals_last_month as
 	order by 
 		weekday;
 		
+CREATE VIEW avg_totals_stats AS
+	SELECT 
+		T.weekday, 
+	
+		T.TOTAL as Total_THIS_month,
+		L.TOTAL as Total_last_month,
+		
+		T.avg_total as Avg_Total_THIS_month,
+		L.avg_total as Avg_Total_last_month,
+		
+		T.min_total as MinTotal_THIS_month,
+		L.min_total as MinTotal_last_month,
+		
+		T.max_total as MaxTotal_THIS_month,
+		L.max_total as MaxTotal_last_month
+	
+	FROM   
+		AVG_TOTALS_THIS_MONTH T,  
+		avg_totals_last_month L 
+	WHERE 
+		T.weekday = L.weekday;
