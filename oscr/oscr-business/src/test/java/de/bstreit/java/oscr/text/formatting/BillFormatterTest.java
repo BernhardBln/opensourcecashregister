@@ -5,13 +5,17 @@ import static org.junit.Assert.assertEquals;
 import java.math.BigDecimal;
 import java.util.Currency;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.junit.After;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.test.context.ContextConfiguration;
 
 import de.bstreit.java.oscr.business.AbstractSpringTestWithContext;
 import de.bstreit.java.oscr.business.base.finance.money.Money;
@@ -21,18 +25,23 @@ import de.bstreit.java.oscr.business.bill.BillService;
 import de.bstreit.java.oscr.business.bill.IBillCalculatorFactory;
 import de.bstreit.java.oscr.business.offers.ProductOffer;
 import de.bstreit.java.oscr.business.offers.VariationOffer;
+import de.bstreit.java.oscr.business.offers.dao.IProductOfferRepository;
+import de.bstreit.java.oscr.business.offers.dao.IVariationOfferRepository;
 import de.bstreit.java.oscr.business.products.Product;
 import de.bstreit.java.oscr.business.products.Variation;
 import de.bstreit.java.oscr.business.taxation.TaxInfo;
+import de.bstreit.java.oscr.business.taxation.dao.ITaxInfoRepository;
 import de.bstreit.java.oscr.testutils.business.bill.JUnitBillCalculatorFactory;
 
+@ContextConfiguration(classes = { BillFormatterTest.class })
 @Configuration
 public class BillFormatterTest extends AbstractSpringTestWithContext {
 
-	private static final TaxInfo NON_FOOD_TAX_INFO = new TaxInfo("non-food",
-			null, null);
-	private static final TaxInfo TO_GO_TAX_INFO = new TaxInfo("to go", null,
-			null);
+	private static final Logger logger = LoggerFactory
+			.getLogger(BillFormatterTest.class);
+
+	private TaxInfo NON_FOOD_TAX_INFO = new TaxInfo("non-food", null, null);
+	private TaxInfo TO_GO_TAX_INFO = new TaxInfo("to go", null, null);
 
 	@Value("#{ systemProperties['line.separator'] }")
 	private String NEWLINE;
@@ -41,6 +50,13 @@ public class BillFormatterTest extends AbstractSpringTestWithContext {
 
 	@Inject
 	private BillService billService;
+
+	@Inject
+	private IProductOfferRepository productOfferRepo;
+	@Inject
+	private IVariationOfferRepository variationOfferRepo;
+	@Inject
+	private ITaxInfoRepository taxInfoRepository;
 
 	@Inject
 	private BillFormatter billFormatter;
@@ -74,7 +90,15 @@ public class BillFormatterTest extends AbstractSpringTestWithContext {
 
 	@Bean(name = "defaultGlobalTaxInfoForNewBills")
 	public TaxInfo defaultTaxInfoForNewBills() {
+		logger.info("### returning default tax info for new bills");
 		return TO_GO_TAX_INFO;
+	}
+
+	@PostConstruct
+	private void init() {
+		NON_FOOD_TAX_INFO = taxInfoRepository.save(NON_FOOD_TAX_INFO);
+		TO_GO_TAX_INFO = taxInfoRepository.save(TO_GO_TAX_INFO);
+
 	}
 
 	@After
@@ -316,7 +340,7 @@ public class BillFormatterTest extends AbstractSpringTestWithContext {
 		final ProductOffer productOffer = new ProductOffer(product,
 				priceAsMoney, null, null, null);
 
-		return productOffer;
+		return productOfferRepo.save(productOffer);
 	}
 
 	private VariationOffer createVariationOffer(String name, String price) {
@@ -326,6 +350,6 @@ public class BillFormatterTest extends AbstractSpringTestWithContext {
 		final VariationOffer variationOffer = new VariationOffer(variation,
 				pricesAsMoney, null, null, null);
 
-		return variationOffer;
+		return variationOfferRepo.saveAndFlush(variationOffer);
 	}
 }
