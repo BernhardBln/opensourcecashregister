@@ -336,3 +336,20 @@ CREATE VIEW avg_totals_stats AS
 		avg_totals_last_month L 
 	WHERE 
 		T.weekday = L.weekday;
+
+CREATE VIEW compare_month_performance_with_prev AS
+	SELECT 
+		SUM(total), 
+		CURRENT_TIMESTAMP 
+		FROM 
+		BILLS_SUMMED_UP_BY_DAY_THIS_MONTH 
+	UNION
+	SELECT 
+	SUM(total), 
+		DATEADD('month', -1, CURRENT_TIMESTAMP)  
+	FROM 
+		BILLS_SUMMED_UP_BY_DAY_last_MONTH 
+	WHERE 
+		date < DATEADD('month', -1, CURRENT_TIMESTAMP);
+		 
+		
