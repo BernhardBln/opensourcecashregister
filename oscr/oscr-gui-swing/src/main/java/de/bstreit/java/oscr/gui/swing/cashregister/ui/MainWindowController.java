@@ -279,4 +279,8 @@ public class MainWindowController implements BillChangeListener {
 	public void newBill() {
 		billService.newBill();
 	}
+
+	public int getNumberOfOpenBills() {
+		return billService.getOpenBills().size();
+	}
 }
