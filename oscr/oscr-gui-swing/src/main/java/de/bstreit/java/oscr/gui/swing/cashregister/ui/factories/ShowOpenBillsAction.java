@@ -29,7 +29,7 @@ public class ShowOpenBillsAction extends AbstractAction implements
 	@PostConstruct
 	public void init() {
 		eventBroadcaster.addBillChangeListener(this);
-		billUpdated(Optional.<Bill> absent());
+		billUpdated(Optional.absent());
 	}
 
 	@Override

@@ -3,8 +3,6 @@ package de.bstreit.java.oscr.gui.swing.cashregister.ui.factories;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.Collection;
 
 import javax.inject.Inject;
@@ -187,13 +185,7 @@ public class ButtonPanelFactory {
 
 	private void addUndoButton(final JPanel controlButtonsPanel) {
 		final JButton undoButton = new JButton("Undo");
-		undoButton.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				appController.undoLastAction();
-			}
-		});
+		undoButton.addActionListener(e-> appController.undoLastAction());
 		undoButton.setMinimumSize(new Dimension(0, 40));
 		controlButtonsPanel.add(undoButton);
 	}
@@ -206,26 +198,14 @@ public class ButtonPanelFactory {
 
 	private void addNewBillButton(final JPanel controlButtonsPanel) {
 		final JButton payButton = new JButton("New Bill");
-		payButton.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				appController.newBill();
-			}
-		});
+		payButton.addActionListener(e -> appController.newBill());
 		payButton.setMinimumSize(new Dimension(0, 40));
 		controlButtonsPanel.add(payButton);
 	}
 
 	private void addPayButton(final JPanel controlButtonsPanel) {
 		final JButton payButton = new JButton("Pay");
-		payButton.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				appController.closeBill();
-			}
-		});
+		payButton.addActionListener(e -> appController.closeBill());
 		payButton.setMinimumSize(new Dimension(0, 40));
 		controlButtonsPanel.add(payButton);
 	}
@@ -244,13 +224,8 @@ public class ButtonPanelFactory {
 
 	private void addKassenstandButton(final JPanel controlButtonsPanel) {
 		final JButton btnKassenstand = new JButton("Balance");
-		btnKassenstand.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				appController.printTodaysTotal();
-			}
-		});
+		btnKassenstand.addActionListener(arg0 -> appController
+				.printTodaysTotal());
 		btnKassenstand.setMinimumSize(new Dimension(0, 40));
 		controlButtonsPanel.add(btnKassenstand);
 	}

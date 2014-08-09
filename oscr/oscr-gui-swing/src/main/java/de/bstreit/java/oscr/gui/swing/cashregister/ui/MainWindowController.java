@@ -25,7 +25,6 @@ import de.bstreit.java.oscr.business.base.finance.tax.VATClass;
 import de.bstreit.java.oscr.business.bill.Bill;
 import de.bstreit.java.oscr.business.bill.BillItem;
 import de.bstreit.java.oscr.business.bill.BillService;
-import de.bstreit.java.oscr.business.bill.IBillProcessor;
 import de.bstreit.java.oscr.business.bill.IMultipleBillsCalculator;
 import de.bstreit.java.oscr.business.eventbroadcasting.BillChangeListener;
 import de.bstreit.java.oscr.business.eventbroadcasting.EventBroadcaster;
@@ -119,14 +118,8 @@ public class MainWindowController implements BillChangeListener {
 		}
 		sb.append("\n\nAll bills for today:\n" + "====================\n\n");
 
-		billService.processTodaysBills(new IBillProcessor() {
-
-			@Override
-			public void processBill(Bill bill) {
-				sb.append(billFormatter.formatBill(bill)).append("\n\n\n");
-			}
-
-		});
+		billService.processTodaysBills(bill -> sb.append(
+				billFormatter.formatBill(bill)).append("\n\n\n"));
 
 		sb.append("\n\n").append(StringUtils.repeat("-", 80)).append("\n\n");
 		addBills(billService.getTotalForYesterday(), "yesterday", sb);
