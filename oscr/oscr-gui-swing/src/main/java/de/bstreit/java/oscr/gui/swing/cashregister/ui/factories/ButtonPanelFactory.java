@@ -48,6 +48,9 @@ public class ButtonPanelFactory {
 	@Inject
 	private ButtonFactory buttonFactory;
 
+	@Inject
+	private ShowOpenBillsAction showOpenBillsAction;
+
 	@Value("${weeklyProductCategory}")
 	private String weeklyCategoryAsString;
 
@@ -196,14 +199,7 @@ public class ButtonPanelFactory {
 	}
 
 	private void addShowOpenBillsButton(final JPanel controlButtonsPanel) {
-		final JButton payButton = new JButton("Show open Bills");
-		payButton.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				appController.showOpenBills();
-			}
-		});
+		final JButton payButton = new JButton(showOpenBillsAction);
 		payButton.setMinimumSize(new Dimension(0, 40));
 		controlButtonsPanel.add(payButton);
 	}
