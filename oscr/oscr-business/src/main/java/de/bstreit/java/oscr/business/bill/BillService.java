@@ -28,7 +28,9 @@ package de.bstreit.java.oscr.business.bill;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import java.util.Calendar;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -47,6 +49,7 @@ import de.bstreit.java.oscr.business.offers.VariationOffer;
 import de.bstreit.java.oscr.business.staff.IUserService;
 import de.bstreit.java.oscr.business.staff.User;
 import de.bstreit.java.oscr.business.taxation.TaxInfo;
+import de.bstreit.java.oscr.business.util.DateFactory;
 
 /**
  * For the bill management. Creates new bills, keeps one bill as "active" (i.e.
@@ -327,6 +330,28 @@ public class BillService {
 	public void processTodaysBills(IBillProcessor billProcessor) {
 		final Collection<Bill> allBillsForToday = billRepository
 				.getBillsForTodayWithoutStaff();
+
+		for (final Bill bill : allBillsForToday) {
+			billProcessor.processBill(bill);
+		}
+
+	}
+
+	@Transactional
+	public void processBillsAt(IBillProcessor billProcessor, Date day) {
+
+		Date from = DateFactory.getDateWithTimeMidnight(day.getYear() + 1900,
+				day.getMonth() + 1, day.getDate());
+
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(day);
+		calendar.roll(Calendar.DAY_OF_MONTH, true);
+		Date nextDay = calendar.getTime();
+		Date to = DateFactory.getDateWithTimeMidnight(nextDay.getYear()+ 1900,
+				nextDay.getMonth() + 1, nextDay.getDate());
+
+		final Collection<Bill> allBillsForToday = billRepository
+				.getBillsForDayWithoutStaff(from, to);
 
 		for (final Bill bill : allBillsForToday) {
 			billProcessor.processBill(bill);
