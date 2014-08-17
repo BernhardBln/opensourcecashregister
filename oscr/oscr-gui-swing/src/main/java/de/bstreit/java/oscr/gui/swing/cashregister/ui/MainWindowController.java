@@ -85,6 +85,10 @@ public class MainWindowController implements BillChangeListener {
 
 	}
 
+	public void guiLaunched() {
+		eventBroadcaster.notifyApplicationLaunched(this);
+	}
+
 	public void addToBill(ProductOffer offer) {
 		billService.addProductOffer(offer);
 	}
@@ -154,18 +158,18 @@ public class MainWindowController implements BillChangeListener {
 		}
 
 		sb.append("Total (gross): ").append(totalForToday.getTotalGross())
-				.append(";\t\t").append("Total (net): ").append(totalNet)
-				.append("\n\n");
+		.append(";\t\t").append("Total (net): ").append(totalNet)
+		.append("\n\n");
 
 		sb.append("VAT classes:\n\n");
 		for (final VATClass vatClass : totalForToday.getAllVatClasses()) {
 			sb.append(vatClass + " \tgross: ")
-					.append(totalForToday.getTotalGrossFor(vatClass))
-					.append("; vat: ")
-					.append(totalForToday.getTotalVATFor(vatClass))
-					.append("; net: ")
-					.append(totalForToday.getTotalNetFor(vatClass))
-					.append("\n");
+			.append(totalForToday.getTotalGrossFor(vatClass))
+			.append("; vat: ")
+			.append(totalForToday.getTotalVATFor(vatClass))
+			.append("; net: ")
+			.append(totalForToday.getTotalNetFor(vatClass))
+			.append("\n");
 		}
 		sb.append("\n\n");
 	}
@@ -249,7 +253,7 @@ public class MainWindowController implements BillChangeListener {
 
 		sb.append("<html><body>");
 		sb.append("<b>Bill opened ").append(df.format(bill.getBillOpened()))
-				.append("</b><BR><br>");
+		.append("</b><BR><br>");
 
 		for (final BillItem bi : bill) {
 			sb.append(bi.getName()).append("<BR>");
@@ -274,6 +278,10 @@ public class MainWindowController implements BillChangeListener {
 	}
 
 	public int getNumberOfOpenBills() {
+		if (billService == null) {
+			return -1;
+		}
 		return billService.getOpenBills().size();
 	}
+
 }

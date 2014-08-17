@@ -16,7 +16,7 @@ import de.bstreit.java.oscr.gui.swing.cashregister.ui.MainWindowController;
 
 @Named
 public class ShowOpenBillsAction extends AbstractAction implements
-		BillChangeListener {
+BillChangeListener {
 
 	private static final String DESCRIPTION = "Show open Bills";
 
@@ -29,7 +29,6 @@ public class ShowOpenBillsAction extends AbstractAction implements
 	@PostConstruct
 	public void init() {
 		eventBroadcaster.addBillChangeListener(this);
-		billUpdated(Optional.absent());
 	}
 
 	@Override
@@ -42,10 +41,15 @@ public class ShowOpenBillsAction extends AbstractAction implements
 		putValue(NAME, createCaption());
 	}
 
+	@Override
+	public void applicationLaunched() {
+		putValue(NAME, createCaption());
+	}
+
 	private String createCaption() {
 		final int numberOfOpenBills = appController.getNumberOfOpenBills();
 
-		if (numberOfOpenBills == 0) {
+		if (numberOfOpenBills <= 0) {
 			// additional blanks - cheap hack to get buttons sized correctly
 			return "<html><body>&nbsp;&nbsp;&nbsp;&nbsp;" + DESCRIPTION
 					+ "&nbsp;&nbsp;&nbsp;&nbsp;</body></html>";

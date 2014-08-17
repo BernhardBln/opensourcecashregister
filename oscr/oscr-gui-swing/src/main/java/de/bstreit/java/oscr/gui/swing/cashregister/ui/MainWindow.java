@@ -106,6 +106,9 @@ public class MainWindow implements IBillDisplay {
 		}
 
 		jFrame.setVisible(true);
+
+		// init
+		appController.guiLaunched();
 	}
 
 	@Override

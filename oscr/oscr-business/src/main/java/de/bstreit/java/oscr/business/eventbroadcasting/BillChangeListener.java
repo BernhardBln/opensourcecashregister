@@ -6,6 +6,10 @@ import de.bstreit.java.oscr.business.bill.Bill;
 
 public interface BillChangeListener {
 
-	public void billUpdated(Optional<Bill> newBill);
+	void billUpdated(Optional<Bill> newBill);
+
+	default void applicationLaunched() {
+		// nothing to do
+	};
 
 }

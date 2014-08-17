@@ -20,21 +20,13 @@ public class SwingStarter {
 		exportService.runInBackground();
 
 		showMainWindowInEventLoop(context.getBean(MainWindowController.class));
-
 	}
 
 	public static void showMainWindowInEventLoop(
 			final MainWindowController mainWindowController) {
 
 		// Launch the application on the Swing thread
-		EventQueue.invokeLater(new Runnable() {
-
-			@Override
-			public void run() {
-				mainWindowController.showMainwindow();
-			}
-
-		});
+		EventQueue.invokeLater(() -> mainWindowController.showMainwindow());
 	}
 
 	private static ConfigurableApplicationContext getContext() {
