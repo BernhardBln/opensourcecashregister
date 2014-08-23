@@ -5,44 +5,46 @@ import static org.junit.Assert.assertEquals;
 import java.math.BigDecimal;
 import java.util.Currency;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 
 import org.junit.After;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import de.bstreit.java.oscr.business.AbstractSpringTestWithContext;
 import de.bstreit.java.oscr.business.base.finance.money.Money;
 import de.bstreit.java.oscr.business.bill.Bill;
 import de.bstreit.java.oscr.business.bill.BillItem;
 import de.bstreit.java.oscr.business.bill.BillService;
+import de.bstreit.java.oscr.business.bill.IBillCalculatorFactory;
 import de.bstreit.java.oscr.business.offers.ProductOffer;
 import de.bstreit.java.oscr.business.offers.VariationOffer;
+import de.bstreit.java.oscr.business.offers.dao.IProductOfferRepository;
+import de.bstreit.java.oscr.business.offers.dao.IVariationOfferRepository;
 import de.bstreit.java.oscr.business.products.Product;
 import de.bstreit.java.oscr.business.products.Variation;
 import de.bstreit.java.oscr.business.taxation.TaxInfo;
-import de.bstreit.java.oscr.testutils.MakeBillServiceUsableInJUnitTest;
+import de.bstreit.java.oscr.business.taxation.dao.ITaxInfoRepository;
 import de.bstreit.java.oscr.testutils.business.bill.JUnitBillCalculatorFactory;
 
 @Ignore
-@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { BillFormatterTest.class })
-@Import(MakeBillServiceUsableInJUnitTest.class)
-@ComponentScan(basePackageClasses = TaxInfo.class)
 @Configuration
-public class BillFormatterTest {
+public class BillFormatterTest extends AbstractSpringTestWithContext {
 
-  private static final TaxInfo NON_FOOD_TAX_INFO = new TaxInfo("non-food",
-      null, null);
-  private static final TaxInfo TO_GO_TAX_INFO = new TaxInfo("to go", null,
-      null);
+  private static final Logger logger = LoggerFactory
+      .getLogger(BillFormatterTest.class);
+
+  private TaxInfo NON_FOOD_TAX_INFO = new TaxInfo("non-food", null, null);
+  private TaxInfo TO_GO_TAX_INFO = new TaxInfo("to go", null, null);
 
   @Value("#{ systemProperties['line.separator'] }")
   private String NEWLINE;
@@ -51,6 +53,13 @@ public class BillFormatterTest {
 
   @Inject
   private BillService billService;
+
+  @Inject
+  private IProductOfferRepository productOfferRepo;
+  @Inject
+  private IVariationOfferRepository variationOfferRepo;
+  @Inject
+  private ITaxInfoRepository taxInfoRepository;
 
   @Inject
   private BillFormatter billFormatter;
@@ -74,7 +83,7 @@ public class BillFormatterTest {
   }
 
   @Bean
-  public JUnitBillCalculatorFactory getBillCalculatorFactory() {
+  public IBillCalculatorFactory getBillCalculatorFactory() {
     return new JUnitBillCalculatorFactory();
   }
 
@@ -83,12 +92,27 @@ public class BillFormatterTest {
     return TO_GO_TAX_INFO;
   }
 
+  @Bean(name = "defaultGlobalTaxInfoForNewBills")
+  public TaxInfo defaultTaxInfoForNewBills() {
+    logger.info("### returning default tax info for new bills");
+    return TO_GO_TAX_INFO;
+  }
+
+  @PostConstruct
+  private void init() {
+    NON_FOOD_TAX_INFO = taxInfoRepository.save(NON_FOOD_TAX_INFO);
+    TO_GO_TAX_INFO = taxInfoRepository.save(TO_GO_TAX_INFO);
+
+  }
+
+
   @After
   public void reset() {
     billCalculatorFactory.reset();
   }
 
   @Test
+  @Transactional
   public void sampleBill_inhouse_onlyOneVATClass() {
     // INIT
     final ProductOffer espressoOffer = createOffer("Espresso", "1.07");
@@ -150,6 +174,7 @@ public class BillFormatterTest {
   }
 
   @Test
+  @Transactional
   public void sampleBill_inhouse_onlyOneVATClass_withVariation() {
 
     // INIT
@@ -256,6 +281,7 @@ public class BillFormatterTest {
   }
 
   @Test
+  @Transactional
   public void sampleBill_togo_twoVATClasses() {
 
     // INIT
@@ -309,12 +335,16 @@ public class BillFormatterTest {
     billCalculatorFactory.setTotalGross("12.93");
   }
 
+  private ProductOffer createOffer(String name, String price) {
+    return createOffer(name, price, null);
+  }
+
   private ProductOffer createOffer(String name, String price,
-      TaxInfo... taxInfos) {
+      TaxInfo taxInfo) {
     final Product product = new Product(name, null, null);
 
-    if (taxInfos != null && taxInfos.length > 0) {
-      product.setOverridingTaxInfo(taxInfos[0]);
+    if (taxInfo != null) {
+      product.setOverridingTaxInfo(taxInfoRepository.findOne(taxInfo.getId()));
     }
 
     final Money priceAsMoney = new Money(new BigDecimal(price),
@@ -322,7 +352,7 @@ public class BillFormatterTest {
     final ProductOffer productOffer = new ProductOffer(product,
         priceAsMoney, null, null, null);
 
-    return productOffer;
+    return productOfferRepo.save(productOffer);
   }
 
   private VariationOffer createVariationOffer(String name, String price) {
@@ -332,6 +362,6 @@ public class BillFormatterTest {
     final VariationOffer variationOffer = new VariationOffer(variation,
         pricesAsMoney, null, null, null);
 
-    return variationOffer;
+    return variationOfferRepo.saveAndFlush(variationOffer);
   }
 }
