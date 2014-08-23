@@ -39,8 +39,6 @@ import javax.inject.Named;
 
 import org.springframework.transaction.annotation.Transactional;
 
-import com.google.common.collect.Lists;
-
 import de.bstreit.java.oscr.business.bill.Bill;
 import de.bstreit.java.oscr.business.bill.BillTestFactory;
 import de.bstreit.java.oscr.business.bill.dao.IBillRepository;
@@ -65,7 +63,8 @@ public class StorageService {
 	@Inject
 	private ITaxInfoRepository taxInfoRepository;
 
-	private final BillTestFactory billTestFactory = new BillTestFactory();
+	@Inject
+	private BillTestFactory billTestFactory;
 
 	@Transactional
 	public void saveSomeProductsAndOffers() {
@@ -98,16 +97,18 @@ public class StorageService {
 
 		final TaxInfo taxInfo = new TaxInfo("19%", null, null);
 		final Bill billYesterdayOneHourEarlier = billTestFactory.create(
-				taxInfo, yesterdayOneHourEarlier.getTime());
+				taxInfo, yesterdayOneHourEarlier.getTime(),
+				yesterdayOneHourEarlier.getTime());
 
 		final Bill billYesterdayOneHourLater = billTestFactory.create(taxInfo,
+				yesterdayOneHourLater.getTime(),
 				yesterdayOneHourLater.getTime());
 
 		final Bill billTodayOneHourEarlier = billTestFactory.create(taxInfo,
-				todayOneHourEarlier.getTime());
+				todayOneHourEarlier.getTime(), todayOneHourEarlier.getTime());
 
 		final Bill billTodayOneHourLater = billTestFactory.create(taxInfo,
-				todayOneHourLater.getTime());
+				todayOneHourLater.getTime(), todayOneHourLater.getTime());
 
 		taxInfoRepository.save(taxInfo);
 
@@ -117,16 +118,45 @@ public class StorageService {
 		billRepository.save(billTodayOneHourLater);
 	}
 
+	@Transactional
+	public void saveSomeOpenBills() {
+		// hard to prevent - we can use fix times here, but the database uses
+		// system time.
+		// maybe modify query so it gets todays date from outside
+		assertTrue("Test does only run during datetime :)",
+				new Date().getHours() > 1 && new Date().getHours() < 21);
+
+		final Calendar todayOneHourEarlier = Calendar.getInstance();
+		todayOneHourEarlier.roll(Calendar.HOUR_OF_DAY, false);
+
+		final TaxInfo taxInfo = new TaxInfo("19%", null, null);
+
+		final Bill billTodayOneHourEarlier = billTestFactory.create(taxInfo,
+				todayOneHourEarlier.getTime(), null);
+
+		taxInfoRepository.save(taxInfo);
+
+		billRepository.save(billTodayOneHourEarlier);
+	}
+
 	public List<Product> getProducts() {
-		return Lists.newArrayList(prodRepository.findAll());
+		return prodRepository.findAll();
 	}
 
 	public List<ProductOffer> getOffers() {
-		return Lists.newArrayList(offerRepository.findAll());
+		return offerRepository.findAll();
 	}
 
 	public Collection<Bill> getBillsOfToday() {
 		return billRepository.getBillsForTodayWithoutStaff();
+	}
+
+	public Collection<Bill> getOpenBillsOfToday() {
+		return billRepository.billClosedIsNull();
+	}
+
+	public void clearDatabase() {
+		billRepository.deleteAll();
 	}
 
 }

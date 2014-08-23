@@ -62,4 +62,17 @@ public class DefaultEventBroadcasterImpl implements EventBroadcaster {
 		}
 	}
 
+	@Override
+	public void notifyApplicationLaunched(Object sender) {
+		for (final BillChangeListener billChangeListener : billChangeListeners) {
+
+			if (billChangeListener == sender) {
+				continue;
+			}
+
+			billChangeListener.applicationLaunched();
+
+		}
+	}
+
 }

@@ -16,98 +16,102 @@ import de.bstreit.java.oscr.business.bill.BillItem;
 import de.bstreit.java.oscr.business.bill.IBillCalculator;
 import de.bstreit.java.oscr.business.bill.IBillCalculatorFactory;
 
-
 public class JUnitBillCalculatorFactory implements IBillCalculatorFactory {
 
-  private Map<Character, VATClass> abbreviationsToVATClass = Maps.newHashMap();
+	private Map<Character, VATClass> abbreviationsToVATClass = Maps
+			.newHashMap();
 
-  private Map<VATClass, Money> vatClassToTotalNet = Maps.newHashMap();
-  private Map<VATClass, Money> vatClassToTotalGross = Maps.newHashMap();
+	private Map<VATClass, Money> vatClassToTotalNet = Maps.newHashMap();
+	private Map<VATClass, Money> vatClassToTotalGross = Maps.newHashMap();
 
-  private Map<BillItem, Character> billItemsToAbbreviations = Maps.newHashMap();
-  private Map<BillItem, Money> billItemsToNetPrices = Maps.newHashMap();
+	private Map<BillItem, Character> billItemsToAbbreviations = Maps
+			.newHashMap();
+	private Map<BillItem, Money> billItemsToNetPrices = Maps.newHashMap();
 
-  private Money totalGross;
+	private Money totalGross;
 
+	public void reset() {
+		abbreviationsToVATClass = Maps.newHashMap();
 
-  public void reset() {
-    abbreviationsToVATClass = Maps.newHashMap();
+		vatClassToTotalNet = Maps.newHashMap();
+		vatClassToTotalGross = Maps.newHashMap();
 
-    vatClassToTotalNet = Maps.newHashMap();
-    vatClassToTotalGross = Maps.newHashMap();
+		billItemsToAbbreviations = Maps.newHashMap();
+		billItemsToNetPrices = Maps.newHashMap();
 
-    billItemsToAbbreviations = Maps.newHashMap();
-    billItemsToNetPrices = Maps.newHashMap();
+		totalGross = null;
+	}
 
-    totalGross = null;
-  }
+	@Override
+	public IBillCalculator create(Bill bill) {
+		final IBillCalculator billCalculator = mock(IBillCalculator.class);
 
+		when(billCalculator.allFoundVATClassesAbbreviated()).thenReturn(
+				Sets.newTreeSet(abbreviationsToVATClass.keySet()));
 
-  @Override
-  public IBillCalculator create(Bill bill) {
-    final IBillCalculator billCalculator = mock(IBillCalculator.class);
+		for (final BillItem billItem : billItemsToNetPrices.keySet()) {
+			when(billCalculator.getNetFor(billItem)).thenReturn(
+					billItemsToNetPrices.get(billItem));
+		}
 
-    when(billCalculator.allFoundVATClassesAbbreviated()).thenReturn(
-        Sets.newTreeSet(abbreviationsToVATClass.keySet()));
+		when(billCalculator.getTotalGross()).thenReturn(totalGross);
 
-    for (BillItem billItem : billItemsToNetPrices.keySet()) {
-      when(billCalculator.getNetFor(billItem)).thenReturn(billItemsToNetPrices.get(billItem));
-    }
+		for (final VATClass vatClass : vatClassToTotalGross.keySet()) {
+			when(billCalculator.getTotalGrossFor(vatClass)).thenReturn(
+					vatClassToTotalGross.get(vatClass));
+		}
 
-    when(billCalculator.getTotalGross()).thenReturn(totalGross);
+		for (final VATClass vatClass : vatClassToTotalNet.keySet()) {
+			when(billCalculator.getTotalNetFor(vatClass)).thenReturn(
+					vatClassToTotalNet.get(vatClass));
+		}
 
-    for (VATClass vatClass : vatClassToTotalGross.keySet()) {
-      when(billCalculator.getTotalGrossFor(vatClass)).thenReturn(vatClassToTotalGross.get(vatClass));
-    }
+		for (final VATClass vatClass : vatClassToTotalNet.keySet()) {
+			when(billCalculator.getTotalVATFor(vatClass)).thenReturn(
+					vatClassToTotalGross.get(vatClass).subtract(
+							vatClassToTotalNet.get(vatClass)));
+		}
 
-    for (VATClass vatClass : vatClassToTotalNet.keySet()) {
-      when(billCalculator.getTotalNetFor(vatClass)).thenReturn(vatClassToTotalNet.get(vatClass));
-    }
+		for (final BillItem billItem : billItemsToAbbreviations.keySet()) {
+			when(billCalculator.getVATClassAbbreviationFor(billItem))
+					.thenReturn(
+							billItemsToAbbreviations.get(billItem).toString());
+		}
 
-    for (VATClass vatClass : vatClassToTotalNet.keySet()) {
-      when(billCalculator.getTotalVATFor(vatClass)).thenReturn(
-          vatClassToTotalGross.get(vatClass).subtract(vatClassToTotalNet.get(vatClass)));
-    }
+		for (final Character character : abbreviationsToVATClass.keySet()) {
 
-    for (BillItem billItem : billItemsToAbbreviations.keySet()) {
-      when(billCalculator.getVATClassAbbreviationFor(billItem)).thenReturn(
-          billItemsToAbbreviations.get(billItem).toString());
-    }
+			when(billCalculator.getVATClassForAbbreviation(character))//
+					.thenReturn(abbreviationsToVATClass.get(character));
 
-    for (Character character : abbreviationsToVATClass.keySet()) {
+		}
 
-      when(billCalculator.getVATClassForAbbreviation(character))//
-          .thenReturn(abbreviationsToVATClass.get(character));
+		return billCalculator;
+	}
 
-    }
+	public void addVATClassAndTotalNetAndTotalGross(char abbreviation,
+			String string, int i, String totalNet, String totalGross) {
 
+		final VATClass vatClass = new VATClass(string, new BigDecimal(i), null,
+				null);
 
-    return billCalculator;
-  }
+		abbreviationsToVATClass.put(abbreviation, vatClass);
 
-  public void addVATClassAndTotalNetAndTotalGross(char abbreviation, String string, int i, String totalNet,
-      String totalGross) {
+		vatClassToTotalNet.put(vatClass, makeMoney(totalNet));
+		vatClassToTotalGross.put(vatClass, makeMoney(totalGross));
+	}
 
-    final VATClass vatClass = new VATClass(string, new BigDecimal(i), null, null);
+	public void setVATClassAndNetPriceFor(BillItem billItem, char c,
+			String netPrice) {
+		billItemsToAbbreviations.put(billItem, c);
+		billItemsToNetPrices.put(billItem, makeMoney(netPrice));
+	}
 
-    abbreviationsToVATClass.put(abbreviation, vatClass);
+	public void setTotalGross(String totalGross) {
+		this.totalGross = makeMoney(totalGross);
+	}
 
-    vatClassToTotalNet.put(vatClass, makeMoney(totalNet));
-    vatClassToTotalGross.put(vatClass, makeMoney(totalGross));
-  }
-
-  public void setVATClassAndNetPriceFor(BillItem billItem, char c, String netPrice) {
-    billItemsToAbbreviations.put(billItem, c);
-    billItemsToNetPrices.put(billItem, makeMoney(netPrice));
-  }
-
-
-  public void setTotalGross(String totalGross) {
-    this.totalGross = makeMoney(totalGross);
-  }
-
-  private Money makeMoney(String netPrice) {
-    return new Money(netPrice, "EUR");
-  }
+	private Money makeMoney(String netPrice) {
+		return new Money(netPrice, "EUR");
+	}
 
 }

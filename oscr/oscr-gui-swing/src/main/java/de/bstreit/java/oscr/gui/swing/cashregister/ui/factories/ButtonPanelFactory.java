@@ -3,8 +3,6 @@ package de.bstreit.java.oscr.gui.swing.cashregister.ui.factories;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.Collection;
 
 import javax.inject.Inject;
@@ -30,207 +28,206 @@ import de.bstreit.java.oscr.gui.swing.cashregister.ui.MainWindowController;
 @Named
 public class ButtonPanelFactory {
 
-  @Inject
-  private MainWindowController appController;
+	@Inject
+	private MainWindowController appController;
 
-  @Inject
-  private IProductOfferRepository productOfferRep;
+	@Inject
+	private IProductOfferRepository productOfferRep;
 
-  @Inject
-  private IExtraOfferRepository extraOfferRepository;
+	@Inject
+	private IExtraOfferRepository extraOfferRepository;
 
-  @Inject
-  private IVariationOfferRepository variationOfferRepository;
+	@Inject
+	private IVariationOfferRepository variationOfferRepository;
 
-  @Inject
-  private IProductCategoryRepository productCategoryRepository;
+	@Inject
+	private IProductCategoryRepository productCategoryRepository;
 
-  @Inject
-  private ButtonFactory buttonFactory;
+	@Inject
+	private ButtonFactory buttonFactory;
 
-  @Value("${weeklyProductCategory}")
-  private String weeklyCategoryAsString;
+	@Inject
+	private ShowOpenBillsAction showOpenBillsAction;
 
-  private ProductCategory weeklyCategory;
+	@Value("${weeklyProductCategory}")
+	private String weeklyCategoryAsString;
 
-  private JPanel buttonPanel;
-  private JPanel weeklyAndDrinksPanel;
-  private JPanel drinksPanel;
-  private JPanel weeklyPanel;
+	private ProductCategory weeklyCategory;
 
-  @Inject
-  private EditWeeklyButonsAction editWeeklyButonsAction;
+	private JPanel buttonPanel;
+	private JPanel weeklyAndDrinksPanel;
+	private JPanel drinksPanel;
+	private JPanel weeklyPanel;
 
+	@Inject
+	private EditWeeklyButonsAction editWeeklyButonsAction;
 
-  public JPanel createButtonPanel() {
+	public JPanel createButtonPanel() {
 
-    buttonPanel = new JPanel();
+		buttonPanel = new JPanel();
 
-    try {
-      if (StringUtils.isNotBlank(weeklyCategoryAsString)) {
-        weeklyCategory = productCategoryRepository
-            .findByName(weeklyCategoryAsString);
-      }
+		try {
+			if (StringUtils.isNotBlank(weeklyCategoryAsString)) {
+				weeklyCategory = productCategoryRepository
+						.findByName(weeklyCategoryAsString);
+			}
 
-      initJPanel();
+			initJPanel();
 
-      buildAndAddWeeklyPanelToMainPanel();
-      buildAndAddDrinksPanelToMainPanel();
-      buildAndAddControlButtonsPanelToMainPanel();
+			buildAndAddWeeklyPanelToMainPanel();
+			buildAndAddDrinksPanelToMainPanel();
 
-      return buttonPanel;
+			return buttonPanel;
 
-    } finally {
-      buttonPanel = null;
-      drinksPanel = null;
-      // Keep weekly panel so we can refresh it
-      // weeklyPanel = null;
-    }
-  }
+		} finally {
+			buttonPanel = null;
+			drinksPanel = null;
+			// Keep weekly panel so we can refresh it
+			// weeklyPanel = null;
+		}
+	}
 
-  private void initJPanel() {
-    buttonPanel.removeAll();
-    buttonPanel.setLayout(new BorderLayout(0, 0));
-    buttonPanel.setPreferredSize(new Dimension(10, 340));
+	private void initJPanel() {
+		buttonPanel.removeAll();
+		buttonPanel.setLayout(new BorderLayout(0, 0));
+		buttonPanel.setPreferredSize(new Dimension(10, 340));
 
-    weeklyAndDrinksPanel = new JPanel();
-    weeklyAndDrinksPanel.setLayout(new BoxLayout(weeklyAndDrinksPanel,
-        BoxLayout.X_AXIS));
+		weeklyAndDrinksPanel = new JPanel();
+		weeklyAndDrinksPanel.setLayout(new BoxLayout(weeklyAndDrinksPanel,
+				BoxLayout.X_AXIS));
 
-    buttonPanel.add(weeklyAndDrinksPanel, BorderLayout.CENTER);
-  }
+		buttonPanel.add(weeklyAndDrinksPanel, BorderLayout.CENTER);
+	}
 
-  private void buildAndAddWeeklyPanelToMainPanel() {
+	private void buildAndAddWeeklyPanelToMainPanel() {
 
-    if (weeklyCategory == null) {
-      return;
-    }
+		if (weeklyCategory == null) {
+			return;
+		}
 
-    final Collection<ProductOffer> allActiveOffers = productOfferRep
-        .findActiveOffersByProductCategory(weeklyCategory);
+		final Collection<ProductOffer> allActiveOffers = productOfferRep
+				.findActiveOffersByProductCategory(weeklyCategory);
 
-    if (allActiveOffers.isEmpty()) {
-      return;
-    }
+		if (allActiveOffers.isEmpty()) {
+			return;
+		}
 
-    weeklyPanel = new JPanel();
-    weeklyAndDrinksPanel.add(weeklyPanel);
+		weeklyPanel = new JPanel();
+		weeklyAndDrinksPanel.add(weeklyPanel);
 
-    final int rows = 4;
-    final int cols = 2;
-    weeklyPanel.setLayout(new GridLayout(rows, cols, 4, 3));
+		final int rows = 4;
+		final int cols = 2;
+		weeklyPanel.setLayout(new GridLayout(rows, cols, 4, 3));
 
-    final JPopupMenu editWeeklyOffersPopupMenu = new JPopupMenu();
-    editWeeklyOffersPopupMenu.add(editWeeklyButonsAction);
-    weeklyPanel.setComponentPopupMenu(editWeeklyOffersPopupMenu);
+		final JPopupMenu editWeeklyOffersPopupMenu = new JPopupMenu();
+		editWeeklyOffersPopupMenu.add(editWeeklyButonsAction);
+		weeklyPanel.setComponentPopupMenu(editWeeklyOffersPopupMenu);
 
-    for (final ProductOffer offer : allActiveOffers) {
-      weeklyPanel.add(buttonFactory.createButtonFor(offer));
-    }
+		for (final ProductOffer offer : allActiveOffers) {
+			weeklyPanel.add(buttonFactory.createButtonFor(offer));
+		}
 
-  }
+	}
 
-  private void buildAndAddDrinksPanelToMainPanel() {
+	private void buildAndAddDrinksPanelToMainPanel() {
 
-    drinksPanel = new JPanel();
-    weeklyAndDrinksPanel.add(drinksPanel);
+		drinksPanel = new JPanel();
+		weeklyAndDrinksPanel.add(drinksPanel);
 
-    final int rows = 4;
-    final int cols = 5;
-    drinksPanel.setLayout(new GridLayout(rows, cols, 3, 3));
+		final int rows = 4;
+		final int cols = 5;
+		drinksPanel.setLayout(new GridLayout(rows, cols, 3, 3));
 
-    final Collection<ProductOffer> allActiveOffers;
-    if (weeklyCategory != null) {
-      allActiveOffers = productOfferRep
-          .findActiveOffersByIsNotProductCategory(weeklyCategory);
-    } else {
-      allActiveOffers = productOfferRep.findAllActiveOffers();
-    }
+		final Collection<ProductOffer> allActiveOffers;
+		if (weeklyCategory != null) {
+			allActiveOffers = productOfferRep
+					.findActiveOffersByIsNotProductCategory(weeklyCategory);
+		} else {
+			allActiveOffers = productOfferRep.findAllActiveOffers();
+		}
 
-    for (final ProductOffer offer : allActiveOffers) {
-      drinksPanel.add(buttonFactory.createButtonFor(offer));
-    }
+		for (final ProductOffer offer : allActiveOffers) {
+			drinksPanel.add(buttonFactory.createButtonFor(offer));
+		}
 
-    final Collection<VariationOffer> allVariationOffers = variationOfferRepository
-        .findAllActiveOffers();
+		final Collection<VariationOffer> allVariationOffers = variationOfferRepository
+				.findAllActiveOffers();
 
-    for (final VariationOffer variationOffer : allVariationOffers) {
-      drinksPanel.add(buttonFactory.createButtonFor(variationOffer));
-    }
+		for (final VariationOffer variationOffer : allVariationOffers) {
+			drinksPanel.add(buttonFactory.createButtonFor(variationOffer));
+		}
 
-    final Collection<ExtraOffer> allExtraOffers = extraOfferRepository
-        .findAllActiveOffers();
+		final Collection<ExtraOffer> allExtraOffers = extraOfferRepository
+				.findAllActiveOffers();
 
-    for (final ExtraOffer extraOffer : allExtraOffers) {
-      drinksPanel.add(buttonFactory.createButtonFor(extraOffer));
-    }
+		for (final ExtraOffer extraOffer : allExtraOffers) {
+			drinksPanel.add(buttonFactory.createButtonFor(extraOffer));
+		}
 
-  }
+	}
 
-  private void buildAndAddControlButtonsPanelToMainPanel() {
-    final JPanel controlButtonsPanel = new JPanel();
+	public JPanel createControlButtonsPanel() {
+		final JPanel controlButtonsPanel = new JPanel();
 
-    buttonPanel.add(controlButtonsPanel, BorderLayout.EAST);
-    controlButtonsPanel.setLayout(new GridLayout(6, 1, 0, 0));
+		controlButtonsPanel.setLayout(new GridLayout(6, 1, 0, 0));
 
-    addUndoButton(controlButtonsPanel);
-    addPayButton(controlButtonsPanel);
-    addToGoButton(controlButtonsPanel);
-    addFreePromotionButton(controlButtonsPanel);
-    addStaffConsumptionButton(controlButtonsPanel);
-    addKassenstandButton(controlButtonsPanel);
-  }
+		addUndoButton(controlButtonsPanel);
+		addShowOpenBillsButton(controlButtonsPanel);
+		addNewBillButton(controlButtonsPanel);
+		addPayButton(controlButtonsPanel);
+		addToGoButton(controlButtonsPanel);
+		addFreePromotionButton(controlButtonsPanel);
+		addStaffConsumptionButton(controlButtonsPanel);
+		addKassenstandButton(controlButtonsPanel);
 
+		return controlButtonsPanel;
+	}
 
-  private void addUndoButton(final JPanel controlButtonsPanel) {
-    final JButton undoButton = new JButton("Undo");
-    undoButton.addActionListener(new ActionListener() {
+	private void addUndoButton(final JPanel controlButtonsPanel) {
+		final JButton undoButton = new JButton("Undo");
+		undoButton.addActionListener(e-> appController.undoLastAction());
+		undoButton.setMinimumSize(new Dimension(0, 40));
+		controlButtonsPanel.add(undoButton);
+	}
 
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        appController.undoLastAction();
-      }
-    });
-    undoButton.setMinimumSize(new Dimension(0, 40));
-    controlButtonsPanel.add(undoButton);
-  }
+	private void addShowOpenBillsButton(final JPanel controlButtonsPanel) {
+		final JButton payButton = new JButton(showOpenBillsAction);
+		payButton.setMinimumSize(new Dimension(0, 40));
+		controlButtonsPanel.add(payButton);
+	}
 
-  private void addPayButton(final JPanel controlButtonsPanel) {
-    final JButton payButton = new JButton("Pay");
-    payButton.addActionListener(new ActionListener() {
+	private void addNewBillButton(final JPanel controlButtonsPanel) {
+		final JButton payButton = new JButton("New Bill");
+		payButton.addActionListener(e -> appController.newBill());
+		payButton.setMinimumSize(new Dimension(0, 40));
+		controlButtonsPanel.add(payButton);
+	}
 
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        appController.closeBill();
-      }
-    });
-    payButton.setMinimumSize(new Dimension(0, 40));
-    controlButtonsPanel.add(payButton);
-  }
+	private void addPayButton(final JPanel controlButtonsPanel) {
+		final JButton payButton = new JButton("Pay");
+		payButton.addActionListener(e -> appController.closeBill());
+		payButton.setMinimumSize(new Dimension(0, 40));
+		controlButtonsPanel.add(payButton);
+	}
 
-  private void addToGoButton(final JPanel controlButtonsPanel) {
-    controlButtonsPanel.add(buttonFactory.createToGoButton());
-  }
+	private void addToGoButton(final JPanel controlButtonsPanel) {
+		controlButtonsPanel.add(buttonFactory.createToGoButton());
+	}
 
-  private void addFreePromotionButton(JPanel controlButtonsPanel) {
-    controlButtonsPanel.add(buttonFactory.createFreePromotionButton());
-  }
+	private void addFreePromotionButton(JPanel controlButtonsPanel) {
+		controlButtonsPanel.add(buttonFactory.createFreePromotionButton());
+	}
 
-  private void addStaffConsumptionButton(JPanel controlButtonsPanel) {
-    controlButtonsPanel.add(buttonFactory.createStaffConsumptionButton());
-  }
+	private void addStaffConsumptionButton(JPanel controlButtonsPanel) {
+		controlButtonsPanel.add(buttonFactory.createStaffConsumptionButton());
+	}
 
-  private void addKassenstandButton(final JPanel controlButtonsPanel) {
-    final JButton btnKassenstand = new JButton("Balance");
-    btnKassenstand.addActionListener(new ActionListener() {
-
-      @Override
-      public void actionPerformed(ActionEvent arg0) {
-        appController.printTodaysTotal();
-      }
-    });
-    btnKassenstand.setMinimumSize(new Dimension(0, 40));
-    controlButtonsPanel.add(btnKassenstand);
-  }
+	private void addKassenstandButton(final JPanel controlButtonsPanel) {
+		final JButton btnKassenstand = new JButton("Balance");
+		btnKassenstand.addActionListener(arg0 -> appController
+				.printTodaysTotal());
+		btnKassenstand.setMinimumSize(new Dimension(0, 40));
+		controlButtonsPanel.add(btnKassenstand);
+	}
 
 }

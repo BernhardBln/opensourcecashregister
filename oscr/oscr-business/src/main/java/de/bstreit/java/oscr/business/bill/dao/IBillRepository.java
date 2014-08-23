@@ -28,6 +28,7 @@ package de.bstreit.java.oscr.business.bill.dao;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -56,6 +57,8 @@ public interface IBillRepository extends JpaRepository<Bill, String> {
 	@Query("from Bill where billOpened >= current_date - 1 and internalConsumer is NULL AND billOpened < current_date AND freePromotionOffer = TRUE")
 	public Collection<Bill> getPromotionBillsForYesterdayWithoutStaff();
 
+	public List<Bill> billClosedIsNull();
+
 	/**
 	 * 
 	 * @param from
@@ -64,5 +67,8 @@ public interface IBillRepository extends JpaRepository<Bill, String> {
 	 */
 	@Query("from Bill where billOpened >= ?1 AND billOpened < ?2 AND internalConsumer is NOT NULL")
 	public Collection<Bill> getBillsForStaff(Date from, Date to);
+
+	@Query("from Bill where billOpened >= ?1 and billOpened < ?2 and internalConsumer is NULL order by billOpened desc")
+	public Collection<Bill> getBillsForDayWithoutStaff(Date from, Date to);
 
 }
