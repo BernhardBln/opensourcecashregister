@@ -278,9 +278,6 @@ public class MainWindowController implements BillChangeListener {
 	}
 
 	public int getNumberOfOpenBills() {
-		if (billService == null) {
-			return -1;
-		}
 		return billService.getOpenBills().size();
 	}
 
