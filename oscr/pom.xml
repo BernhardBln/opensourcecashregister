@@ -94,6 +94,12 @@
 				<version>${guava.version}</version>
 			</dependency>
 
+<dependency>
+	<groupId>org.liquibase</groupId>
+	<artifactId>liquibase-core</artifactId>
+	<version>3.2.2</version>
+</dependency>
+
 			<!-- Testing -->
 
 

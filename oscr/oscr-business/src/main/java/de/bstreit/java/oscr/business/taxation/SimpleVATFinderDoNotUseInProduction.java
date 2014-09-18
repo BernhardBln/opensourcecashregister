@@ -4,6 +4,9 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.base.Optional;
 
 import de.bstreit.java.oscr.business.base.finance.tax.VATClass;
@@ -27,6 +30,9 @@ import de.bstreit.java.oscr.business.taxation.dao.ITaxInfoRepository;
 @Named
 public class SimpleVATFinderDoNotUseInProduction implements IVATFinder {
 
+	private static final Logger logger = LoggerFactory
+			.getLogger(SimpleVATFinderDoNotUseInProduction.class);
+
 	@Inject
 	private IVATClassRepository vatClassRepository;
 	@Inject
@@ -38,30 +44,38 @@ public class SimpleVATFinderDoNotUseInProduction implements IVATFinder {
 	private TaxInfo reducedVATClassTaxInfo;
 	private TaxInfo foodSellVATClassTaxInfo;
 
-
 	@PostConstruct
 	private void init() {
-		normalVATClass = vatClassRepository.findByDesignationAndValidToIsNull("Normaler Steuersatz");
-		reducedVATClass = vatClassRepository.findByDesignationAndValidToIsNull("Ermäßigter Steuersatz");
-		reducedVATClassTaxInfo = taxInfoRepository.findByDenotationAndValidToIsNull("to go");
-		foodSellVATClassTaxInfo = taxInfoRepository.findByDenotationAndValidToIsNull("food sale");
+		refreshVats();
+		logger.info("### PC SVatFinder");
+
 	}
 
+	public void refreshVats() {
+		normalVATClass = vatClassRepository
+				.findByDesignationAndValidToIsNull("Normaler Steuersatz");
+		reducedVATClass = vatClassRepository
+				.findByDesignationAndValidToIsNull("Ermäßigter Steuersatz");
+		reducedVATClassTaxInfo = taxInfoRepository
+				.findByDenotationAndValidToIsNull("to go");
+		foodSellVATClassTaxInfo = taxInfoRepository
+				.findByDenotationAndValidToIsNull("food sale");
+	}
 
 	@Override
 	public VATClass getVATClassFor(BillItem billItem, Bill bill) {
+		logger.info("### VatFinding");
 
-		final TaxInfo applyingTaxInfo = Optional
-		    .fromNullable(getTaxInfoFrom(billItem))
-		    .or(bill.getGlobalTaxInfo());
+		final TaxInfo applyingTaxInfo = Optional.fromNullable(
+				getTaxInfoFrom(billItem)).or(bill.getGlobalTaxInfo());
 
-		if (applyingTaxInfo.equals(reducedVATClassTaxInfo) || applyingTaxInfo.equals(foodSellVATClassTaxInfo)) {
+		if (applyingTaxInfo.equals(reducedVATClassTaxInfo)
+				|| applyingTaxInfo.equals(foodSellVATClassTaxInfo)) {
 			return reducedVATClass;
 		}
 
 		return normalVATClass;
 	}
-
 
 	private TaxInfo getTaxInfoFrom(BillItem billItem) {
 		return billItem.getOffer().getOfferedItem().getOverridingTaxInfo();
