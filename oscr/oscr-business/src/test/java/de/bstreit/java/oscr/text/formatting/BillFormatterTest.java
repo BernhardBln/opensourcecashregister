@@ -10,6 +10,7 @@ import javax.inject.Inject;
 import javax.transaction.Transactional;
 
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +38,7 @@ import de.bstreit.java.oscr.business.taxation.TaxInfo;
 import de.bstreit.java.oscr.business.taxation.dao.ITaxInfoRepository;
 import de.bstreit.java.oscr.testutils.business.bill.JUnitBillCalculatorFactory;
 
+@Ignore
 @ContextConfiguration(classes = { BillFormatterTest.class })
 @Configuration
 public class BillFormatterTest extends AbstractSpringTestWithContext {
