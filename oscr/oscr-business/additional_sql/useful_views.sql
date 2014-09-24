@@ -351,5 +351,29 @@ CREATE VIEW compare_month_performance_with_prev AS
 		BILLS_SUMMED_UP_BY_DAY_last_MONTH 
 	WHERE 
 		date < DATEADD('month', -1, CURRENT_TIMESTAMP);
+	
+create or replace view google_stat as 
+	SELECT
+
+	FORMATDATETIME(billopened, 'E'), 
+	replace(  total, '.', ',')
+		
+	FROM
+		(
+			SELECT
+				SUBSTR(billopened, 0, 10) billopened, 
+				SUM(total) total, 
+				pricecurrency
+			FROM
+				BILLS_SUMMED_UP
+			WHERE				
+billopened >= FORMATDATETIME(CURRENT_TIMESTAMP, 'YYYY-MM-01')
+
+			GROUP BY 
+				pricecurrency, billopened
+order by billopened
+		);
+ 
+	
 		 
 		
