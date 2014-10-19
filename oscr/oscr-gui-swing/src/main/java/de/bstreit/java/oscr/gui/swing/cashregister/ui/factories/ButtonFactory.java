@@ -3,6 +3,7 @@ package de.bstreit.java.oscr.gui.swing.cashregister.ui.factories;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 
 import javax.inject.Inject;
@@ -93,6 +94,7 @@ public class ButtonFactory {
 		button.setPreferredSize(new Dimension(120, 40));
 		button.setMaximumSize(new Dimension(120, 40));
 		button.setInheritsPopupMenu(true);
+		button.setMargin(new Insets(0, 0, 0, 0));
 	}
 
 	private void setColourIfNotEmpty(final JButton button,
@@ -254,5 +256,4 @@ public class ButtonFactory {
 
 		return btnToGo;
 	}
-
 }
