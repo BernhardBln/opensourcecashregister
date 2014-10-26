@@ -1,5 +1,6 @@
 package de.bstreit.java.oscr.testutils;
 
+import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.Currency;
@@ -11,6 +12,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 
 import de.bstreit.java.oscr.business.base.date.ICurrentDateProvider;
+import de.bstreit.java.oscr.business.base.finance.tax.VATClass;
 import de.bstreit.java.oscr.business.bill.BillService;
 import de.bstreit.java.oscr.business.taxation.TaxInfo;
 import de.bstreit.java.oscr.testutils.business.bill.FixDateProvider;
@@ -18,12 +20,12 @@ import de.bstreit.java.oscr.testutils.business.bill.FixDateProvider;
 /**
  * This configuration provides a bill service instance and its mocked
  * dependencies in order to make it usable in junit tests.
- * 
+ *
  * <p>
  * You might want to provider your own {@link ICurrentDateProvider} bean; in
  * that case, create a bean method and mark it with @{@link Primary}. The same
  * might be true for the locale and the default currency.
- * 
+ *
  * @author Bernhard Streit
  */
 @Configuration
@@ -61,7 +63,8 @@ public class MakeBillServiceUsableInJUnitTest {
 
 	@Bean
 	public TaxInfo defaultTaxInfoForNewBills() {
-		return new TaxInfo("In-house", null, null);
+		return new TaxInfo("In-house", new VATClass("Normaler Steuersatz",
+				BigDecimal.valueOf(0.19), null, null), null, null);
 	}
 
 	@Bean

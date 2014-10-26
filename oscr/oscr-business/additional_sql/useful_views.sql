@@ -375,5 +375,41 @@ order by billopened
 		);
  
 	
-		 
-		
+create or replace view BillItemsWithTax as
+	SELECT B.id as BillId, billopened, billclosed, freeprOMOTIONOFFER offer_id, o.type, o.validFrom as offerValidFrom, o.valIDTO  as offerValidTo, pricevalue, pricECURRENCY , cosTSNETVALUE , cosTSNETCURRENCY , s.valiDFROM  as salesItemValidFrom, s.valIDTO  as salesItemValidTo, name, denotation as taxInfoDenotation, desigNATION  as vatClassDesignation, taxrate, globALTAXINFO_ID as appliedTaxInfo, round(pricevalue / ((100+taxrate) / 100),2) as priceNet, round(pricevalue * (1 - 1/(1+ taxrate / 100)), 2) as vat 
+	FROM BILL B, BiLL_BILLITEM BB, BILLITEM  BI , offers o, salesitems s, taxinfo t, vatclass v
+	where
+	B.id=BB.bill_id and bb.billitems_id = bi.id and offer_id = o.id and offereditem_id = s.id and t.vatclass_id=v.id
+	 and globaltaxinfo_id = t.id and OVERRIDINGTAXINFO_ID is null
+
+	union
+
+	SELECT    B.id as BillId, billopened, billclosed, freeprOMOTIONOFFER offer_id, o.type, o.validFrom as offerValidFrom, o.valIDTO  as offerValidTo, pricevalue, pricECURRENCY , cosTSNETVALUE , cosTSNETCURRENCY , s.valiDFROM  as salesItemValidFrom, s.valIDTO  as salesItemValidTo, name, denotation as taxInfoDenotation, desigNATION  as vatClassDesignation, taxrate,  overridingtaxinfo_id as appliedTaxInfo, round(pricevalue / ((100+taxrate) / 100),2) as priceNet, round( pricevalue * (1 - 1/(1+ taxrate / 100)), 2) as vat 
+	FROM BILL B, BiLL_BILLITEM BB, BILLITEM  BI , offers o, salesitems s, taxinfo t, vatclass v
+	where
+	B.id=BB.bill_id and bb.billitems_id = bi.id and offer_id = o.id and offereditem_id = s.id and t.vatclass_id=v.id
+	 and OVERRIDINGTAXINFO_ID = t.id and OVERRIDINGTAXINFO_ID is not null;
+	 
+
+create or replace view BillItemsWithTax_noInternal_noPromo as
+	SELECT B.id as BillId, billopened, billclosed, freeprOMOTIONOFFER offer_id, o.type, o.validFrom as offerValidFrom, o.valIDTO  as offerValidTo, pricevalue, pricECURRENCY , cosTSNETVALUE , cosTSNETCURRENCY , s.valiDFROM  as salesItemValidFrom, s.valIDTO  as salesItemValidTo, name, denotation as taxInfoDenotation, desigNATION  as vatClassDesignation, taxrate, globALTAXINFO_ID as appliedTaxInfo, round(pricevalue / ((100+taxrate) / 100),2) as priceNet, round(pricevalue * (1 - 1/(1+ taxrate / 100)), 2) as vat 
+	FROM BILL B, BiLL_BILLITEM BB, BILLITEM  BI , offers o, salesitems s, taxinfo t, vatclass v
+	where
+	B.id=BB.bill_id and bb.billitems_id = bi.id and offer_id = o.id and offereditem_id = s.id and t.vatclass_id=v.id
+	 and globaltaxinfo_id = t.id and OVERRIDINGTAXINFO_ID is null and interNALCONSUMER_ID is null and freePROMOTIONOFFER =false
+
+	union
+
+	SELECT    B.id as BillId, billopened, billclosed, freeprOMOTIONOFFER offer_id, o.type, o.validFrom as offerValidFrom, o.valIDTO  as offerValidTo, pricevalue, pricECURRENCY , cosTSNETVALUE , cosTSNETCURRENCY , s.valiDFROM  as salesItemValidFrom, s.valIDTO  as salesItemValidTo, name, denotation as taxInfoDenotation, desigNATION  as vatClassDesignation, taxrate,  overridingtaxinfo_id as appliedTaxInfo, round(pricevalue / ((100+taxrate) / 100),2) as priceNet, round( pricevalue * (1 - 1/(1+ taxrate / 100)), 2) as vat 
+	FROM BILL B, BiLL_BILLITEM BB, BILLITEM  BI , offers o, salesitems s, taxinfo t, vatclass v
+	where
+	B.id=BB.bill_id and bb.billitems_id = bi.id and offer_id = o.id and offereditem_id = s.id and t.vatclass_id=v.id
+	 and OVERRIDINGTAXINFO_ID = t.id and OVERRIDINGTAXINFO_ID is not null and interNALCONSUMER_ID is null and freePROMOTIONOFFER =false;
+	 
+
+create or replace view withTaxPerDay as
+SELECT 
+		CAST(billopened AS DATE) as billOpened, sum(pricevalue) as gross, sum(pricenet) as net
+FROM  BILLITEMSWITHTAX_NOINTERNAL_NOPROMO 
+group by billOpened 
+order by billopened desc

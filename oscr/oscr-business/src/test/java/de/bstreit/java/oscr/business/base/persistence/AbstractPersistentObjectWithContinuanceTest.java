@@ -1,10 +1,12 @@
 package de.bstreit.java.oscr.business.base.persistence;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 import org.junit.Assert;
 import org.junit.Test;
 
+import de.bstreit.java.oscr.business.base.finance.tax.VATClass;
 import de.bstreit.java.oscr.business.offers.ProductOffer;
 import de.bstreit.java.oscr.business.products.AbstractSalesItem;
 import de.bstreit.java.oscr.business.products.ContainerSize;
@@ -18,11 +20,11 @@ import de.bstreit.java.oscr.business.taxation.TaxInfo;
  * Here we test for some instances that the contract of equals/hashcode is
  * implemented correctly.
  * </p>
- * 
+ *
  * <p>
  * The hierarchy is:
  * </p>
- * 
+ *
  * <pre>
  *  {@link AbstractPersistentObject} (has field "id" which is mutable)
  *     |
@@ -30,12 +32,12 @@ import de.bstreit.java.oscr.business.taxation.TaxInfo;
  *     |
  *  Concrete subclass
  * </pre>
- * 
+ *
  * <p>
  * {@link AbstractPersistentObjectWithContinuance} implements
  * {@link #equals(Object)} and {@link #hashCode()} in the following way:
  * </p>
- * 
+ *
  * <ul>
  * <li>For equality, check that the other object is not null and of the same
  * type (for example, an {@link Extra} and a {@link Variation} will not be
@@ -52,7 +54,7 @@ import de.bstreit.java.oscr.business.taxation.TaxInfo;
  * hashcode calculations. In case they do not want to include any fields they
  * can simply return <code>true</code> and <code>0</code>.</li>
  * </ul>
- * 
+ *
  * In this test we check that in {@link AbstractPersistentObjectWithContinuance}
  * , the
  * {@link AbstractPersistentObjectWithContinuance#additionalEqualsForSubclasses(Object)}
@@ -60,7 +62,7 @@ import de.bstreit.java.oscr.business.taxation.TaxInfo;
  * {@link AbstractPersistentObjectWithContinuance#additionalHashcodeForSubclasses()}
  * methods are used correctly for {@link #equals(Object)} and
  * {@link #hashCode()}.
- * 
+ *
  * @author streit
  */
 
@@ -80,8 +82,10 @@ public class AbstractPersistentObjectWithContinuanceTest {
 	private final ContainerSize containerSize2 = new ContainerSize("s2", date3,
 			date4);
 
-	private final TaxInfo taxInfo1 = new TaxInfo("t1", date1, date2);
-	private final TaxInfo taxInfo2 = new TaxInfo("t2", date3, date4);
+	private final TaxInfo taxInfo1 = new TaxInfo("t1", new VATClass("v1",
+			BigDecimal.valueOf(0.1), date1, date2), date1, date2);
+	private final TaxInfo taxInfo2 = new TaxInfo("t2", new VATClass("v2",
+			BigDecimal.valueOf(0.2), date1, date2), date3, date4);
 
 	private final Product product1 = new Product("p1", date1, date2);
 	private final Product product2 = new Product("p2", date3, date4);
@@ -202,7 +206,7 @@ public class AbstractPersistentObjectWithContinuanceTest {
 	/**
 	 * Assert that the two objects have different hash codes. In case that fails
 	 * add a warning that this might not be a bug.
-	 * 
+	 *
 	 * @param o1
 	 * @param o2
 	 */
@@ -213,7 +217,7 @@ public class AbstractPersistentObjectWithContinuanceTest {
 						+ "but in the unlikely case they are equal "
 						+ "that is not necessarily a bug! In that "
 						+ "case try other values in the fields before debugging.",
-				o1.hashCode(), o2.hashCode());
+						o1.hashCode(), o2.hashCode());
 	}
 
 	/**

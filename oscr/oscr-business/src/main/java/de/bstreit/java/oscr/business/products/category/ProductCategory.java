@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.hibernate.annotations.NaturalId;
 
 import de.bstreit.java.oscr.business.base.persistence.AbstractPersistentObjectWithContinuance;
 
@@ -21,21 +22,22 @@ import de.bstreit.java.oscr.business.base.persistence.AbstractPersistentObjectWi
  * products assigned to them (and I guess we don't want to loose the info).
  * <b>Better:</b> Hide archived category in UI (unless assigned to sth that is
  * displayed)
- * 
+ *
  */
 @Entity
 public class ProductCategory extends
-		AbstractPersistentObjectWithContinuance<ProductCategory> {
+AbstractPersistentObjectWithContinuance<ProductCategory> {
 
 	/**
 	 * The name of the category.
-	 * 
+	 *
 	 * By setting unique to true, we do not allow two categories with the same
 	 * name to exist in different periods of time. The purpose of that is simply
 	 * to use the continuance feature only to hide categories, but not to have
 	 * them exist parallel in time.
 	 */
 	@Column(unique = true)
+	@NaturalId
 	private String name;
 
 	/** Colour for this category (used in UI) */

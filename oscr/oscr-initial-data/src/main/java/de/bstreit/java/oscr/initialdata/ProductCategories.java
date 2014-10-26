@@ -29,4 +29,9 @@ public class ProductCategories extends AbstractDataContainer<ProductCategory> {
 		productCategory.setColour(colourCode);
 		return productCategory;
 	}
+
+	@Override
+	public String getName() {
+		return "Product Categories";
+	}
 }

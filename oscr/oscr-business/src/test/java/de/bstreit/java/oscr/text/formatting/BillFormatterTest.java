@@ -46,8 +46,8 @@ public class BillFormatterTest extends AbstractSpringTestWithContext {
 	private static final Logger logger = LoggerFactory
 			.getLogger(BillFormatterTest.class);
 
-	private TaxInfo NON_FOOD_TAX_INFO = new TaxInfo("non-food", null, null);
-	private TaxInfo TO_GO_TAX_INFO = new TaxInfo("to go", null, null);
+	private TaxInfo NON_FOOD_TAX_INFO;
+	private TaxInfo TO_GO_TAX_INFO;
 
 	@Value("#{ systemProperties['line.separator'] }")
 	private String NEWLINE;
@@ -108,14 +108,26 @@ public class BillFormatterTest extends AbstractSpringTestWithContext {
 
 	@PostConstruct
 	private void init() {
-		NON_FOOD_TAX_INFO = taxInfoRepository.save(NON_FOOD_TAX_INFO);
-		TO_GO_TAX_INFO = taxInfoRepository.save(TO_GO_TAX_INFO);
 		vatClassRepository.save(new VATClass("Normaler Steuersatz",
 				new BigDecimal("0.19"), null, null));
 		vatClassRepository.save(new VATClass("Ermäßigter Steuersatz",
 				new BigDecimal("0.07"), null, null));
 
 		vatFinder.refreshVats();
+
+		NON_FOOD_TAX_INFO = new TaxInfo(
+				"non-food",
+				vatClassRepository
+				.findByDesignationAndValidToIsNull("Normaler Steuersatz"),
+				null, null);
+		NON_FOOD_TAX_INFO = taxInfoRepository.save(NON_FOOD_TAX_INFO);
+
+		TO_GO_TAX_INFO = new TaxInfo(
+				"to go",
+				vatClassRepository
+				.findByDesignationAndValidToIsNull("Ermäßigter Steuersatz"),
+				null, null);
+		TO_GO_TAX_INFO = taxInfoRepository.save(TO_GO_TAX_INFO);
 
 		System.out.println("##### val"
 				+ sampleBill_inhouse_onlyOneVATClass_withVariation);

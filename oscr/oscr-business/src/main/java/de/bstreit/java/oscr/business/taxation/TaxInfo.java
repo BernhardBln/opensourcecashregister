@@ -1,39 +1,42 @@
 /*
  * Open Source Cash Register
- * 
+ *
  * Copyright (C) 2013, 2014 Bernhard Streit
- * 
+ *
  * This file is part of the Open Source Cash Register program.
- * 
- * Open Source Cash Register is free software: you can redistribute it 
- * and/or modify it under the terms of the GNU General Public License 
- * as published by the Free Software Foundation, either version 3 of 
+ *
+ * Open Source Cash Register is free software: you can redistribute it
+ * and/or modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation, either version 3 of
  * the License, or (at your option) any later version.
- * 
- * Open Source Cash Register is distributed in the hope that it will 
- * be useful, but WITHOUT ANY WARRANTY; without even the implied 
- * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+ *
+ * Open Source Cash Register is distributed in the hope that it will
+ * be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- *  
+ *
  * --------------------------------------------------------------------------
- *  
+ *
  * See oscr/licenses/gpl-3.txt for a copy of the GNU GPL.
  * See oscr/README.txt for more information about the software and the author(s).
- * 
+ *
  */
 package de.bstreit.java.oscr.business.taxation;
 
 import java.util.Date;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.hibernate.annotations.NaturalId;
 
+import de.bstreit.java.oscr.business.base.finance.tax.VATClass;
 import de.bstreit.java.oscr.business.base.persistence.AbstractPersistentObjectWithContinuance;
 import de.bstreit.java.oscr.business.products.AbstractSalesItem;
 
@@ -42,13 +45,13 @@ import de.bstreit.java.oscr.business.products.AbstractSalesItem;
  * A tax info is an annotation for an {@link AbstractSalesItem} which helps to
  * determine the correct VAT class for the item.
  * </p>
- * 
+ *
  * <p>
  * For example, currently, in Germany, selling food to-go might be a reason to
  * only tax the products with reduced VAT. Hence we would create a "sold to go"
  * tax info instance which gets mapped later to reduced VAT.
  * </p>
- * 
+ *
  * <p>
  * <b>Warning:</b> all information about taxes, tax classes and taxation that
  * you find in this project are just <b>examples</b>, they could simply be
@@ -60,7 +63,7 @@ import de.bstreit.java.oscr.business.products.AbstractSalesItem;
  * office or loose money because you pay more VAT to the tax office than you
  * actually need!
  * </p>
- * 
+ *
  * @author streit
  */
 @Entity
@@ -69,13 +72,22 @@ public class TaxInfo extends AbstractPersistentObjectWithContinuance<TaxInfo> {
 	@NaturalId
 	private String denotation;
 
+	@ManyToOne(cascade = { CascadeType.REFRESH }, optional = false)
+	private VATClass vatClass;
+
 	@SuppressWarnings("unused")
 	private TaxInfo() {
 	}
 
-	public TaxInfo(String denotation, Date validFrom, Date validTo) {
+	public TaxInfo(String denotation, VATClass vatClass, Date validFrom,
+			Date validTo) {
 		super(validFrom, validTo);
 		this.denotation = denotation;
+		this.vatClass = vatClass;
+	}
+
+	public TaxInfo(String denotation, VATClass vatClass) {
+		this(denotation, vatClass, null, null);
 	}
 
 	/**
@@ -83,6 +95,10 @@ public class TaxInfo extends AbstractPersistentObjectWithContinuance<TaxInfo> {
 	 */
 	public String getDenotation() {
 		return denotation;
+	}
+
+	public VATClass getVatClass() {
+		return vatClass;
 	}
 
 	@Override
