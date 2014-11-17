@@ -412,4 +412,47 @@ SELECT
 		CAST(billopened AS DATE) as billOpened, sum(pricevalue) as gross, sum(pricenet) as net
 FROM  BILLITEMSWITHTAX_NOINTERNAL_NOPROMO 
 group by billOpened 
-order by billopened desc
+order by billopened desc;
+
+
+create or replace view DrinksByHoursWithoutInternalconsumersTwoMonthsAgo
+  SELECT 
+replace(
+                REPLACE(
+                        REPLACE(
+                                REPLACE(
+                                        REPLACE(
+                                                REPLACE(
+                                                        REPLACE(
+                                                                REPLACE(
+                                                                        FORMATDATETIME(billopened, 'E'), 'Mo', '1 Mo-Fr'), 
+                                                                'Di', '1 Mo-Fr'), 
+                                                        'Mi', '1 Mo-Fr'), 
+                                                'Do', '1 Mo-Fr'), 
+                                        'Fr', '1 Mo-Fr'), 
+                                'Sa', '2 Sa'), 
+                        'So', '3 So'),
+                   '1 Mo-1 Mo-Fr', '1 Mo-Fr') AS weekday,
+                        SUBSTRING(billopened, 12, 2) AS hour,
+
+count(*)
+        FROM 
+                OFFERS O, 
+                BILL B, 
+                BILLITEM BI,
+                BILL_BILLITEM BBI,
+                SALESITEMS S 
+        WHERE 
+                B.ID = BBI.BILL_ID AND
+                BBI.BILLITEMS_ID = BI.ID AND
+                BI.OFFER_ID = O.ID AND
+                OFFEREDITEM_ID = S.ID
+
+and
+                        billopened >= formatdatetime(dateadd('Month', -2, current_timestamp), 'YYYY-MM-01')
+                        AND billopened < formatdatetime(dateadd('Month', -1, current_timestamp), 'YYYY-MM-01')
+
+and internalconsumer_id is null
+--and extract(hour from billopened) > 15
+group by weekday, hour
+order by weekday, hour;
