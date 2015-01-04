@@ -11,10 +11,10 @@ public class AdminStarter {
 
 		final ConfigurableApplicationContext context = getContext();
 
-		final NoswingAdminController swingAdminController = context
+		final NoswingAdminController noswingAdminController = context
 				.getBean(NoswingAdminController.class);
 		try {
-			swingAdminController.launchApplication();
+			noswingAdminController.launchApplication();
 		} catch (final RuntimeException e) {
 			if (!"Aborted".equals(e.getMessage())) {
 				throw e;
