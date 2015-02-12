@@ -8,13 +8,13 @@ import java.util.Scanner;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.transaction.Transactional;
 
 import org.apache.commons.lang3.StringUtils;
 
-import de.bstreit.java.oscr.business.bill.Bill;
 import de.bstreit.java.oscr.business.bill.BillService;
-import de.bstreit.java.oscr.business.bill.IBillProcessor;
 import de.bstreit.java.oscr.text.formatting.BillFormatter;
+import de.bstreit.java.oscr.text.formatting.BillTotalForADayFormatter;
 
 @Named
 public class BillPrinter implements IAdminBean {
@@ -25,9 +25,16 @@ public class BillPrinter implements IAdminBean {
 	@Inject
 	private BillFormatter billFormatter;
 
+	@Inject
+	private BillTotalForADayFormatter billTotalForADayFormatter;
+
+	private final DateFormat dateFormat = DateFormat
+			.getDateInstance(DateFormat.SHORT);
+
 	private Scanner scanner;
 
 	@Override
+	@Transactional
 	public void performTask() {
 		System.out.println("Which day? (blank for yesterday): ");
 		final String dateAsStr = scanner.nextLine().trim();
@@ -39,7 +46,7 @@ public class BillPrinter implements IAdminBean {
 		} else {
 
 			try {
-				day = DateFormat.getInstance().parse(dateAsStr);
+				day = dateFormat.parse(dateAsStr);
 			} catch (ParseException e) {
 				e.printStackTrace();
 				return;
@@ -47,15 +54,11 @@ public class BillPrinter implements IAdminBean {
 
 		}
 
-		billService.processBillsAt(new IBillProcessor() {
+		System.out.println(billTotalForADayFormatter.getBillTotalAsString(
+				dateFormat.format(day),
+				billService.getBillsForDayWithoutStaff(day),
+				billService.getPromotionBillsForDayWithoutStaff(day)));
 
-			@Override
-			public void processBill(Bill bill) {
-				System.out.println(billFormatter.formatBill(bill));
-				System.out.println("\n\n");
-			}
-
-		}, day);
 	}
 
 	private Date getYesterday() {

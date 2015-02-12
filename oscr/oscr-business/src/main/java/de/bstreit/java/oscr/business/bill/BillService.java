@@ -1,28 +1,28 @@
 /*
  * Open Source Cash Register
- * 
+ *
  * Copyright (C) 2013-2014 Bernhard Streit
- * 
+ *
  * This file is part of the Open Source Cash Register program.
- * 
- * Open Source Cash Register is free software: you can redistribute it 
- * and/or modify it under the terms of the GNU General Public License 
- * as published by the Free Software Foundation, either version 3 of 
+ *
+ * Open Source Cash Register is free software: you can redistribute it
+ * and/or modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation, either version 3 of
  * the License, or (at your option) any later version.
- * 
- * Open Source Cash Register is distributed in the hope that it will 
- * be useful, but WITHOUT ANY WARRANTY; without even the implied 
- * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+ *
+ * Open Source Cash Register is distributed in the hope that it will
+ * be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- *  
+ *
  * --
- *  
+ *
  * See /licenses/gpl-3.txt for a copy of the GNU GPL.
  * See /README.txt for more information about the software and the author(s).
- * 
+ *
  */
 package de.bstreit.java.oscr.business.bill;
 
@@ -37,6 +37,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.transaction.Transactional;
 
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Hibernate;
 
 import de.bstreit.java.oscr.business.base.date.ICurrentDateProvider;
@@ -50,12 +51,13 @@ import de.bstreit.java.oscr.business.staff.IUserService;
 import de.bstreit.java.oscr.business.staff.User;
 import de.bstreit.java.oscr.business.taxation.TaxInfo;
 import de.bstreit.java.oscr.business.util.DateFactory;
+import de.bstreit.java.oscr.text.formatting.BillTotalForADayFormatter;
 
 /**
  * For the bill management. Creates new bills, keeps one bill as "active" (i.e.
  * the one currently displayed and manipulated by a view), can return all open
  * bills (e.g. for people sitting at tables) and adds elements to the bill.
- * 
+ *
  * @author Bernhard Streit
  */
 @Named
@@ -87,6 +89,9 @@ public class BillService {
 
 	private BillItem lastAddedItem;
 
+	@Inject
+	private BillTotalForADayFormatter billTotalFormatter;
+
 	private void fireBillChangedEvent() {
 		eventBroadcaster.notifyBillUpdated(this, currentBill);
 	}
@@ -94,7 +99,7 @@ public class BillService {
 	/**
 	 * Add a product offer to a bill. Creates a new bill if there is no open
 	 * bill available.
-	 * 
+	 *
 	 * @param productOffer
 	 * @return the bill item which was created and added to the bill with the
 	 *         given offer
@@ -221,7 +226,7 @@ public class BillService {
 
 	/**
 	 * Add an extra offer to the last added product offer on the bill.
-	 * 
+	 *
 	 * @param extraOffer
 	 * @throws NoOpenBillException
 	 *             when there is no open bill or the bill is empty
@@ -242,7 +247,7 @@ public class BillService {
 	/**
 	 * Set a product variation offer to the last added product offer on the
 	 * bill.
-	 * 
+	 *
 	 * @param variationOffer
 	 * @throws NoOpenBillException
 	 *             when there is no open bill or the bill is empty
@@ -340,6 +345,15 @@ public class BillService {
 	@Transactional
 	public void processBillsAt(IBillProcessor billProcessor, Date day) {
 
+		final Collection<Bill> allBillsForToday = getBillsForDayWithoutStaff(day);
+
+		for (final Bill bill : allBillsForToday) {
+			billProcessor.processBill(bill);
+		}
+
+	}
+
+	public Collection<Bill> getBillsForDayWithoutStaff(Date day) {
 		Date from = DateFactory.getDateWithTimeMidnight(day.getYear() + 1900,
 				day.getMonth() + 1, day.getDate());
 
@@ -347,16 +361,28 @@ public class BillService {
 		calendar.setTime(day);
 		calendar.roll(Calendar.DAY_OF_MONTH, true);
 		Date nextDay = calendar.getTime();
-		Date to = DateFactory.getDateWithTimeMidnight(nextDay.getYear()+ 1900,
+		Date to = DateFactory.getDateWithTimeMidnight(nextDay.getYear() + 1900,
 				nextDay.getMonth() + 1, nextDay.getDate());
 
 		final Collection<Bill> allBillsForToday = billRepository
 				.getBillsForDayWithoutStaff(from, to);
+		return allBillsForToday;
+	}
 
-		for (final Bill bill : allBillsForToday) {
-			billProcessor.processBill(bill);
-		}
+	public Collection<Bill> getPromotionBillsForDayWithoutStaff(Date day) {
+		Date from = DateFactory.getDateWithTimeMidnight(day.getYear() + 1900,
+				day.getMonth() + 1, day.getDate());
 
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(day);
+		calendar.roll(Calendar.DAY_OF_MONTH, true);
+		Date nextDay = calendar.getTime();
+		Date to = DateFactory.getDateWithTimeMidnight(nextDay.getYear() + 1900,
+				nextDay.getMonth() + 1, nextDay.getDate());
+
+		final Collection<Bill> allBillsForToday = billRepository
+				.getPromotionBillsForDayWithoutStaff(from, to);
+		return allBillsForToday;
 	}
 
 	public void notifyShutdown() {
@@ -396,5 +422,25 @@ public class BillService {
 	public void loadBill(Bill bill) {
 		currentBill = bill;
 		fireBillChangedEvent();
+	}
+
+	@Transactional
+	public String getTotalAsString() {
+		return billTotalFormatter.getBillTotalAsString("today",
+				billRepository.getBillsForTodayWithoutStaff(),
+				billRepository.getPromotionBillsForTodayWithoutStaff())
+
+				+ "\n\n"
+				+ StringUtils.repeat("=", 80)
+				+ "\n"
+				+ StringUtils.repeat("=", 80)
+				+ "\n"
+				+ StringUtils.repeat("=", 80)
+				+ "\n\n"
+
+				+ billTotalFormatter.getBillTotalAsString("yesterday",
+						billRepository.getBillsForYesterdayWithoutStaff(),
+						billRepository
+								.getPromotionBillsForYesterdayWithoutStaff());
 	}
 }

@@ -15,17 +15,13 @@ import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.google.common.base.Optional;
 
-import de.bstreit.java.oscr.business.base.finance.money.Money;
-import de.bstreit.java.oscr.business.base.finance.tax.VATClass;
 import de.bstreit.java.oscr.business.bill.Bill;
 import de.bstreit.java.oscr.business.bill.BillItem;
 import de.bstreit.java.oscr.business.bill.BillService;
-import de.bstreit.java.oscr.business.bill.IMultipleBillsCalculator;
 import de.bstreit.java.oscr.business.eventbroadcasting.BillChangeListener;
 import de.bstreit.java.oscr.business.eventbroadcasting.EventBroadcaster;
 import de.bstreit.java.oscr.business.offers.ExtraOffer;
@@ -110,68 +106,9 @@ public class MainWindowController implements BillChangeListener {
 	}
 
 	public void printTodaysTotal() {
-		final StringBuilder sb = new StringBuilder();
-
-		addBills(billService.getTotalForToday(), "today", sb);
-
-		final IMultipleBillsCalculator freePomotionTotalForToday = billService
-				.getFreePomotionTotalForToday();
-		if (freePomotionTotalForToday.isFilled()) {
-			addBills(freePomotionTotalForToday, "promotion expenses for today",
-					sb);
-		}
-		sb.append("\n\nAll bills for today:\n" + "====================\n\n");
-
-		billService.processTodaysBills(bill -> sb.append(
-				billFormatter.formatBill(bill)).append("\n\n\n"));
-
-		sb.append("\n\n").append(StringUtils.repeat("-", 80)).append("\n\n");
-		addBills(billService.getTotalForYesterday(), "yesterday", sb);
-
-		final IMultipleBillsCalculator freePomotionTotalForYesterday = billService
-				.getFreePomotionTotalForYesterday();
-		if (freePomotionTotalForYesterday.isFilled()) {
-			addBills(freePomotionTotalForYesterday,
-					"promotion expenses for yesterday", sb);
-		}
-
-		billDisplay.printBill(sb.toString());
+		billDisplay.printBill(billService.getTotalAsString());
 
 		billDisplay.scrollToBeginning();
-	}
-
-	/**
-	 * @param totalForToday
-	 * @param sb
-	 */
-	private void addBills(final IMultipleBillsCalculator totalForToday,
-			String date, final StringBuilder sb) {
-		sb.append("Bill for " + date + "\n==============\n\n");
-
-		Money totalNet = null;
-		for (final VATClass vatClass : totalForToday.getAllVatClasses()) {
-			if (totalNet == null) {
-				totalNet = totalForToday.getTotalNetFor(vatClass);
-			} else {
-				totalNet = totalNet.add(totalForToday.getTotalNetFor(vatClass));
-			}
-		}
-
-		sb.append("Total (gross): ").append(totalForToday.getTotalGross())
-		.append(";\t\t").append("Total (net): ").append(totalNet)
-		.append("\n\n");
-
-		sb.append("VAT classes:\n\n");
-		for (final VATClass vatClass : totalForToday.getAllVatClasses()) {
-			sb.append(vatClass + " \tgross: ")
-			.append(totalForToday.getTotalGrossFor(vatClass))
-			.append("; vat: ")
-			.append(totalForToday.getTotalVATFor(vatClass))
-			.append("; net: ")
-			.append(totalForToday.getTotalNetFor(vatClass))
-			.append("\n");
-		}
-		sb.append("\n\n");
 	}
 
 	public void setBillToGo(boolean togo) {
@@ -253,7 +190,7 @@ public class MainWindowController implements BillChangeListener {
 
 		sb.append("<html><body>");
 		sb.append("<b>Bill opened ").append(df.format(bill.getBillOpened()))
-		.append("</b><BR><br>");
+				.append("</b><BR><br>");
 
 		for (final BillItem bi : bill) {
 			sb.append(bi.getName()).append("<BR>");
