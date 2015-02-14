@@ -27,10 +27,10 @@ import de.bstreit.java.oscr.business.taxation.IVATFinder;
 
 @Named
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-class BillCalculator implements IBillCalculator {
+class BillCalculatorPayment implements IBillCalculator {
 
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory
-			.getLogger(BillCalculator.class);
+			.getLogger(BillCalculatorPayment.class);
 	@Inject
 	private Currency defaultCurrency;
 
@@ -44,7 +44,7 @@ class BillCalculator implements IBillCalculator {
 
 	private Money ZERO;
 
-	BillCalculator() {
+	BillCalculatorPayment() {
 
 	}
 
@@ -56,17 +56,19 @@ class BillCalculator implements IBillCalculator {
 	/**
 	 * Analyse this bill. Use the get methods to query information about this
 	 * bill.
-	 * 
+	 *
 	 * TODO: After usage, call freeResults() to clear the cache. (??)
-	 * 
+	 *
 	 * @param bill
 	 */
-	void analyse(Bill bill) {
+	@Override
+	public void analyse(Bill bill) {
 		this.bill = bill;
 
 		char currentChar = 'A';
 
 		for (final BillItem item : bill) {
+
 			final VATClass vatClass = vatFinder.getVATClassFor(item, bill);
 
 			if (!vatClassAbbreviations.values().contains(vatClass)) {
@@ -94,6 +96,11 @@ class BillCalculator implements IBillCalculator {
 
 	@Override
 	public Money getTotalGross() {
+
+		if (bill.isFreePromotionOffer()) {
+			return ZERO;
+		}
+
 		Money total = ZERO;
 
 		for (final BillItem item : bill) {
@@ -106,6 +113,11 @@ class BillCalculator implements IBillCalculator {
 
 	@Override
 	public Money getTotalNetFor(VATClass vatClass) {
+
+		if (bill.isFreePromotionOffer()) {
+			return ZERO;
+		}
+
 		Money total = ZERO;
 
 		for (final BillItem item : bill) {
@@ -124,6 +136,11 @@ class BillCalculator implements IBillCalculator {
 
 	@Override
 	public Money getTotalGrossFor(VATClass vatClass) {
+
+		if (bill.isFreePromotionOffer()) {
+			return ZERO;
+		}
+
 		Money total = ZERO;
 
 		for (final BillItem item : bill) {
@@ -138,6 +155,10 @@ class BillCalculator implements IBillCalculator {
 	@Override
 	public Money getTotalVATFor(VATClass vatClass) {
 
+		if (bill.isFreePromotionOffer()) {
+			return ZERO;
+		}
+
 		final Money totalGross = getTotalGrossFor(vatClass);
 		final Money totalNet = getTotalNetFor(vatClass);
 
@@ -146,6 +167,11 @@ class BillCalculator implements IBillCalculator {
 
 	@Override
 	public Money getNetFor(BillItem billItem) {
+
+		if (bill.isFreePromotionOffer()) {
+			return ZERO;
+		}
+
 		if (!bill.getBillItems().contains(billItem)) {
 			throw new RuntimeException("billItem not contained in bill!");
 		}
@@ -153,13 +179,8 @@ class BillCalculator implements IBillCalculator {
 		final VATClass applyingVATClass = vatFinder.getVATClassFor(billItem,
 				bill);
 
-		return billItem.getOffer().getPriceGross().getNet(applyingVATClass);
+		return billItem.getPriceGross().getNet(applyingVATClass);
 	}
-
-	//
-	// public VATClass getVATClassFor(String abbreviation) {
-	// return vatClassAbbreviations.get(abbreviation);
-	// }
 
 	@Override
 	public String getVATClassAbbreviationFor(BillItem billItem) {

@@ -30,6 +30,7 @@ import de.bstreit.java.oscr.business.eventbroadcasting.BillChangeListener;
 import de.bstreit.java.oscr.business.eventbroadcasting.EventBroadcaster;
 import de.bstreit.java.oscr.business.offers.ExtraOffer;
 import de.bstreit.java.oscr.business.offers.ProductOffer;
+import de.bstreit.java.oscr.business.offers.PromoOffer;
 import de.bstreit.java.oscr.business.offers.VariationOffer;
 import de.bstreit.java.oscr.business.staff.IUserService;
 import de.bstreit.java.oscr.business.staff.User;
@@ -97,6 +98,10 @@ public class MainWindowController implements BillChangeListener {
 		billService.setVariationOffer(variationOffer);
 	}
 
+	public void setPromoOffer(PromoOffer offer) {
+		billService.setPromoOffer(offer);
+	}
+
 	public void addExtraOffer(ExtraOffer offer) {
 		billService.addExtraOffer(offer);
 	}
@@ -158,18 +163,18 @@ public class MainWindowController implements BillChangeListener {
 		}
 
 		sb.append("Total (gross): ").append(totalForToday.getTotalGross())
-		.append(";\t\t").append("Total (net): ").append(totalNet)
-		.append("\n\n");
+				.append(";\t\t").append("Total (net): ").append(totalNet)
+				.append("\n\n");
 
 		sb.append("VAT classes:\n\n");
 		for (final VATClass vatClass : totalForToday.getAllVatClasses()) {
 			sb.append(vatClass + " \tgross: ")
-			.append(totalForToday.getTotalGrossFor(vatClass))
-			.append("; vat: ")
-			.append(totalForToday.getTotalVATFor(vatClass))
-			.append("; net: ")
-			.append(totalForToday.getTotalNetFor(vatClass))
-			.append("\n");
+					.append(totalForToday.getTotalGrossFor(vatClass))
+					.append("; vat: ")
+					.append(totalForToday.getTotalVATFor(vatClass))
+					.append("; net: ")
+					.append(totalForToday.getTotalNetFor(vatClass))
+					.append("\n");
 		}
 		sb.append("\n\n");
 	}
@@ -253,7 +258,7 @@ public class MainWindowController implements BillChangeListener {
 
 		sb.append("<html><body>");
 		sb.append("<b>Bill opened ").append(df.format(bill.getBillOpened()))
-		.append("</b><BR><br>");
+				.append("</b><BR><br>");
 
 		for (final BillItem bi : bill) {
 			sb.append(bi.getName()).append("<BR>");
@@ -279,6 +284,10 @@ public class MainWindowController implements BillChangeListener {
 
 	public int getNumberOfOpenBills() {
 		return billService.getOpenBills().size();
+	}
+
+	public boolean hasOpenBills() {
+		return !billService.getOpenBills().isEmpty();
 	}
 
 }

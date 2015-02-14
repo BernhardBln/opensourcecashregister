@@ -9,6 +9,7 @@ import java.awt.event.ActionEvent;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
@@ -16,6 +17,7 @@ import javax.swing.JToggleButton;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 
 import de.bstreit.java.oscr.business.bill.Bill;
@@ -24,6 +26,7 @@ import de.bstreit.java.oscr.business.eventbroadcasting.OfferChangeListener;
 import de.bstreit.java.oscr.business.offers.AbstractOffer;
 import de.bstreit.java.oscr.business.offers.ExtraOffer;
 import de.bstreit.java.oscr.business.offers.ProductOffer;
+import de.bstreit.java.oscr.business.offers.PromoOffer;
 import de.bstreit.java.oscr.business.offers.VariationOffer;
 import de.bstreit.java.oscr.business.products.Product;
 import de.bstreit.java.oscr.business.staff.User;
@@ -50,6 +53,8 @@ public class ButtonFactory {
 			return createVariationOfferButton((VariationOffer) offer);
 		} else if (offer instanceof ExtraOffer) {
 			return createExtraOfferButton((ExtraOffer) offer);
+		} else if (offer instanceof PromoOffer) {
+			return createPromoOfferButton((PromoOffer) offer);
 		}
 
 		throw new OfferClassNotImplementedException();
@@ -122,6 +127,27 @@ public class ButtonFactory {
 
 		button.addActionListener(e -> appController.setVariationOffer(offer));
 
+		eventBroadcaster.addBillChangeListener(newBill -> button
+				.setEnabled(newBill.isPresent() && !newBill.get().isEmpty()));
+		button.setEnabled(false);
+
+		return button;
+	}
+
+	private JButton createPromoOfferButton(PromoOffer offer) {
+		final JButton button = new JButton(offer.getLabel());
+		setDefaults(button);
+
+		button.addActionListener(e -> appController.setPromoOffer(offer));
+
+		eventBroadcaster.addBillChangeListener(newBill -> button
+				.setEnabled(newBill.isPresent() && !newBill.get().isEmpty()
+						&& !newBill.get().isConsumedByStaff()
+						&& !newBill.get().isFreePromotionOffer()
+						// only allow one promo per Bill:
+						&& hasNoPromoOffer(newBill)));
+		button.setEnabled(false);
+
 		return button;
 	}
 
@@ -132,6 +158,10 @@ public class ButtonFactory {
 
 		button.addActionListener(e -> appController.addExtraOffer(offer));
 
+		eventBroadcaster.addBillChangeListener(newBill -> button
+				.setEnabled(newBill.isPresent() && !newBill.get().isEmpty()));
+		button.setEnabled(false);
+
 		return button;
 	}
 
@@ -139,10 +169,11 @@ public class ButtonFactory {
 		final JToggleButton freePromotionButton = new JToggleButton(
 				"Free / Promo");
 
-		addFfreePromotionActionListener(freePromotionButton);
+		addFreePromotionActionListener(freePromotionButton);
 
 		setToggleButtonUponBillChangeAndDisableUponMissingBill(
-				freePromotionButton, bill -> bill.isFreePromotionOffer());
+				freePromotionButton, getFreePromotionIsEnabledLambda(),
+				bill -> bill.isFreePromotionOffer());
 
 		freePromotionButton.setMinimumSize(new Dimension(0, 40));
 		freePromotionButton.setEnabled(false);
@@ -150,13 +181,31 @@ public class ButtonFactory {
 		return freePromotionButton;
 	}
 
+	private Predicate<Optional<Bill>> getFreePromotionIsEnabledLambda() {
+		return billOpt -> billOpt.isPresent()
+				&& !billOpt.get().isConsumedByStaff()
+				&& hasNoPromoOffer(billOpt);
+	}
+
+	private boolean hasNoPromoOffer(Optional<Bill> billOpt) {
+		return billOpt
+				.get()
+				.getBillItems()
+				.stream()
+				.map(item -> item.getExtraAndVariationOffers())
+				.noneMatch(
+						offers -> offers.stream().anyMatch(
+								o -> o instanceof PromoOffer));
+	}
+
 	private void setToggleButtonUponBillChangeAndDisableUponMissingBill(
 			final JToggleButton toggleButton,
+			final Predicate<Optional<Bill>> enabledPredicate,
 			final Predicate<Bill> selectedPredicate) {
 
 		eventBroadcaster.addBillChangeListener(newBill -> {
 
-			toggleButton.setEnabled(newBill.isPresent());
+			toggleButton.setEnabled(enabledPredicate.apply(newBill));
 
 			final boolean selected;
 
@@ -173,7 +222,7 @@ public class ButtonFactory {
 		});
 	}
 
-	private void addFfreePromotionActionListener(
+	private void addFreePromotionActionListener(
 			final JToggleButton freePromotionButton) {
 		freePromotionButton.addActionListener(e -> {
 			if (freePromotionButton.isSelected()) {
@@ -191,12 +240,20 @@ public class ButtonFactory {
 		addPopupMenuForOtherStaffMembers(staffConsumptionButton);
 
 		setToggleButtonUponBillChangeAndDisableUponMissingBill(
-				staffConsumptionButton, bill -> bill.isConsumedByStaff());
+				staffConsumptionButton, getStaffConsumptionIsEnabledLambda(),
+				bill -> bill.isConsumedByStaff());
 
 		staffConsumptionButton.setMinimumSize(new Dimension(0, 40));
 		staffConsumptionButton.setEnabled(false);
 
 		return staffConsumptionButton;
+	}
+
+	private Predicate<Optional<Bill>> getStaffConsumptionIsEnabledLambda() {
+
+		return billOpt -> billOpt.isPresent()
+				&& !billOpt.get().isFreePromotionOffer()
+				&& hasNoPromoOffer(billOpt);
 	}
 
 	private void addStaffConsumptionActionListener(
@@ -223,8 +280,10 @@ public class ButtonFactory {
 
 		final PopupListener popupListener = new PopupListener(popupMenu);
 
-		eventBroadcaster.addBillChangeListener(newBill -> popupListener
-				.setActive(newBill.isPresent()));
+		eventBroadcaster
+				.addBillChangeListener(newBill -> popupListener
+						.setActive(getStaffConsumptionIsEnabledLambda().apply(
+								newBill)));
 
 		staffConsumptionButton.addMouseListener(popupListener);
 	}
@@ -249,12 +308,48 @@ public class ButtonFactory {
 				.isSelected()));
 
 		setToggleButtonUponBillChangeAndDisableUponMissingBill(btnToGo,
+				billOpt -> billOpt.isPresent(),
 				bill -> appController.isBillToGo());
 
 		btnToGo.setMinimumSize(new Dimension(0, 40));
 		btnToGo.setEnabled(false);
 
 		return btnToGo;
+	}
+
+	public Component createPayButton() {
+		final JButton payButton = new JButton("Pay");
+		payButton.addActionListener(e -> appController.closeBill());
+		payButton.setMinimumSize(new Dimension(0, 40));
+
+		eventBroadcaster.addBillChangeListener(newBill -> payButton
+				.setEnabled(newBill.isPresent() && !newBill.get().isEmpty()));
+		payButton.setEnabled(false);
+
+		return payButton;
+	}
+
+	public Component createNewBillButton() {
+		final JButton newBillButton = new JButton("New Bill");
+		newBillButton.addActionListener(e -> appController.newBill());
+		newBillButton.setMinimumSize(new Dimension(0, 40));
+
+		eventBroadcaster.addBillChangeListener(newBill -> newBillButton
+				.setEnabled(newBill.isPresent() && !newBill.get().isEmpty()));
+		newBillButton.setEnabled(false);
+
+		return newBillButton;
+	}
+
+	public Component createShowOpenBillsButton(Action showOpenBillsAction) {
+		final JButton showOpenBillsButton = new JButton(showOpenBillsAction);
+		showOpenBillsButton.setMinimumSize(new Dimension(0, 40));
+
+		eventBroadcaster.addBillChangeListener(newBill -> showOpenBillsButton
+				.setEnabled(appController.hasOpenBills()));
+		showOpenBillsButton.setEnabled(appController.hasOpenBills());
+
+		return showOpenBillsButton;
 	}
 
 }

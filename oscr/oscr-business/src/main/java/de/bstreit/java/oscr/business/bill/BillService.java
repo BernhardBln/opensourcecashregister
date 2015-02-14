@@ -1,28 +1,28 @@
 /*
  * Open Source Cash Register
- * 
+ *
  * Copyright (C) 2013-2014 Bernhard Streit
- * 
+ *
  * This file is part of the Open Source Cash Register program.
- * 
- * Open Source Cash Register is free software: you can redistribute it 
- * and/or modify it under the terms of the GNU General Public License 
- * as published by the Free Software Foundation, either version 3 of 
+ *
+ * Open Source Cash Register is free software: you can redistribute it
+ * and/or modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation, either version 3 of
  * the License, or (at your option) any later version.
- * 
- * Open Source Cash Register is distributed in the hope that it will 
- * be useful, but WITHOUT ANY WARRANTY; without even the implied 
- * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+ *
+ * Open Source Cash Register is distributed in the hope that it will
+ * be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- *  
+ *
  * --
- *  
+ *
  * See /licenses/gpl-3.txt for a copy of the GNU GPL.
  * See /README.txt for more information about the software and the author(s).
- * 
+ *
  */
 package de.bstreit.java.oscr.business.bill;
 
@@ -40,11 +40,13 @@ import javax.transaction.Transactional;
 import org.hibernate.Hibernate;
 
 import de.bstreit.java.oscr.business.base.date.ICurrentDateProvider;
+import de.bstreit.java.oscr.business.bill.calculator.WhatToCount;
 import de.bstreit.java.oscr.business.bill.dao.IBillRepository;
 import de.bstreit.java.oscr.business.eventbroadcasting.EventBroadcaster;
 import de.bstreit.java.oscr.business.export.IExportService;
 import de.bstreit.java.oscr.business.offers.ExtraOffer;
 import de.bstreit.java.oscr.business.offers.ProductOffer;
+import de.bstreit.java.oscr.business.offers.PromoOffer;
 import de.bstreit.java.oscr.business.offers.VariationOffer;
 import de.bstreit.java.oscr.business.staff.IUserService;
 import de.bstreit.java.oscr.business.staff.User;
@@ -55,7 +57,7 @@ import de.bstreit.java.oscr.business.util.DateFactory;
  * For the bill management. Creates new bills, keeps one bill as "active" (i.e.
  * the one currently displayed and manipulated by a view), can return all open
  * bills (e.g. for people sitting at tables) and adds elements to the bill.
- * 
+ *
  * @author Bernhard Streit
  */
 @Named
@@ -94,7 +96,7 @@ public class BillService {
 	/**
 	 * Add a product offer to a bill. Creates a new bill if there is no open
 	 * bill available.
-	 * 
+	 *
 	 * @param productOffer
 	 * @return the bill item which was created and added to the bill with the
 	 *         given offer
@@ -178,6 +180,9 @@ public class BillService {
 		if (currentBill.isEmpty()) {
 			billRepository.delete(currentBill);
 			currentBill = null;
+			lastAddedItem = null;
+		} else {
+			lastAddedItem = currentBill.getLastBillItemOrNull();
 		}
 
 		fireBillChangedEvent();
@@ -187,28 +192,32 @@ public class BillService {
 	public IMultipleBillsCalculator getTotalForToday() {
 		final Collection<Bill> todaysBills = billRepository
 				.getBillsForTodayWithoutStaff();
-		return multipleBillsCalculatorFactory.create(todaysBills);
+		return multipleBillsCalculatorFactory.create(todaysBills,
+				WhatToCount.TOTAL);
 	}
 
 	@Transactional
 	public IMultipleBillsCalculator getTotalForYesterday() {
 		final Collection<Bill> yesterdaysBills = billRepository
 				.getBillsForYesterdayWithoutStaff();
-		return multipleBillsCalculatorFactory.create(yesterdaysBills);
+		return multipleBillsCalculatorFactory.create(yesterdaysBills,
+				WhatToCount.TOTAL);
 	}
 
 	@Transactional
 	public IMultipleBillsCalculator getFreePomotionTotalForToday() {
 		final Collection<Bill> todaysBills = billRepository
-				.getPromotionBillsForTodayWithoutStaff();
-		return multipleBillsCalculatorFactory.create(todaysBills);
+				.getBillsForTodayWithoutStaff();
+		return multipleBillsCalculatorFactory.create(todaysBills,
+				WhatToCount.PROMO_TOTAL);
 	}
 
 	@Transactional
 	public IMultipleBillsCalculator getFreePomotionTotalForYesterday() {
 		final Collection<Bill> yesterdaysBills = billRepository
-				.getPromotionBillsForYesterdayWithoutStaff();
-		return multipleBillsCalculatorFactory.create(yesterdaysBills);
+				.getBillsForYesterdayWithoutStaff();
+		return multipleBillsCalculatorFactory.create(yesterdaysBills,
+				WhatToCount.PROMO_TOTAL);
 	}
 
 	private void initBillIfEmpty() {
@@ -221,7 +230,7 @@ public class BillService {
 
 	/**
 	 * Add an extra offer to the last added product offer on the bill.
-	 * 
+	 *
 	 * @param extraOffer
 	 * @throws NoOpenBillException
 	 *             when there is no open bill or the bill is empty
@@ -242,7 +251,7 @@ public class BillService {
 	/**
 	 * Set a product variation offer to the last added product offer on the
 	 * bill.
-	 * 
+	 *
 	 * @param variationOffer
 	 * @throws NoOpenBillException
 	 *             when there is no open bill or the bill is empty
@@ -257,6 +266,29 @@ public class BillService {
 		checkNotNull(variationOffer);
 
 		lastAddedItem.toggleVariationOffer(variationOffer);
+
+		saveBill();
+		fireBillChangedEvent();
+	}
+
+	public void setPromoOffer(PromoOffer promoOffer) {
+		final String errorMessage = "Cannot set promo  offer '" + promoOffer
+				+ "' - no bill available!";
+
+		assertCurrentBillNotNull(errorMessage);
+		assertCurrentBillNotEmpty(errorMessage);
+
+		checkNotNull(promoOffer);
+
+		boolean hasAlreadyPromoOffer = lastAddedItem
+				.getExtraAndVariationOffers().stream()
+				.anyMatch(o -> o instanceof PromoOffer);
+
+		if (hasAlreadyPromoOffer) {
+			throw new AlreadyHasPromoOfferException();
+		}
+
+		lastAddedItem.addPromoOffer(promoOffer);
 
 		saveBill();
 		fireBillChangedEvent();
@@ -296,9 +328,7 @@ public class BillService {
 		currentBill = billRepository.save(currentBill);
 
 		// only keep reference if saveBill was successful
-		lastAddedItem = currentBill.getBillItems().get(
-				currentBill.getBillItems().size() - 1);
-
+		lastAddedItem = currentBill.getLastBillItemOrNull();
 	}
 
 	public void setGlobalTaxInfo(TaxInfo taxInfo) {
@@ -347,7 +377,7 @@ public class BillService {
 		calendar.setTime(day);
 		calendar.roll(Calendar.DAY_OF_MONTH, true);
 		Date nextDay = calendar.getTime();
-		Date to = DateFactory.getDateWithTimeMidnight(nextDay.getYear()+ 1900,
+		Date to = DateFactory.getDateWithTimeMidnight(nextDay.getYear() + 1900,
 				nextDay.getMonth() + 1, nextDay.getDate());
 
 		final Collection<Bill> allBillsForToday = billRepository
@@ -390,11 +420,14 @@ public class BillService {
 
 	public void newBill() {
 		currentBill = null;
+		lastAddedItem = null;
 		fireBillChangedEvent();
 	}
 
 	public void loadBill(Bill bill) {
 		currentBill = bill;
+		lastAddedItem = (bill == null ? null : bill.getLastBillItemOrNull());
 		fireBillChangedEvent();
 	}
+
 }

@@ -15,6 +15,7 @@ import de.bstreit.java.oscr.business.bill.Bill;
 import de.bstreit.java.oscr.business.bill.BillItem;
 import de.bstreit.java.oscr.business.bill.IBillCalculator;
 import de.bstreit.java.oscr.business.bill.IBillCalculatorFactory;
+import de.bstreit.java.oscr.business.bill.calculator.WhatToCount;
 
 public class JUnitBillCalculatorFactory implements IBillCalculatorFactory {
 
@@ -43,7 +44,7 @@ public class JUnitBillCalculatorFactory implements IBillCalculatorFactory {
 	}
 
 	@Override
-	public IBillCalculator create(Bill bill) {
+	public IBillCalculator create(Bill bill, WhatToCount whatToCount) {
 		final IBillCalculator billCalculator = mock(IBillCalculator.class);
 
 		when(billCalculator.allFoundVATClassesAbbreviated()).thenReturn(
@@ -74,14 +75,14 @@ public class JUnitBillCalculatorFactory implements IBillCalculatorFactory {
 
 		for (final BillItem billItem : billItemsToAbbreviations.keySet()) {
 			when(billCalculator.getVATClassAbbreviationFor(billItem))
-					.thenReturn(
-							billItemsToAbbreviations.get(billItem).toString());
+			.thenReturn(
+					billItemsToAbbreviations.get(billItem).toString());
 		}
 
 		for (final Character character : abbreviationsToVATClass.keySet()) {
 
 			when(billCalculator.getVATClassForAbbreviation(character))//
-					.thenReturn(abbreviationsToVATClass.get(character));
+			.thenReturn(abbreviationsToVATClass.get(character));
 
 		}
 
