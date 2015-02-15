@@ -29,7 +29,10 @@ package de.bstreit.java.oscr.business.taxation;
 import java.util.Date;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.ManyToOne;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -75,19 +78,24 @@ public class TaxInfo extends AbstractPersistentObjectWithContinuance<TaxInfo> {
 	@ManyToOne(cascade = { CascadeType.REFRESH }, optional = false)
 	private VATClass vatClass;
 
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false, length = 30)
+	private TaxUsage taxUsage;
+
 	@SuppressWarnings("unused")
 	private TaxInfo() {
 	}
 
-	public TaxInfo(String denotation, VATClass vatClass, Date validFrom,
-			Date validTo) {
+	public TaxInfo(String denotation, VATClass vatClass, TaxUsage taxUsage,
+			Date validFrom, Date validTo) {
 		super(validFrom, validTo);
 		this.denotation = denotation;
 		this.vatClass = vatClass;
+		this.taxUsage = taxUsage;
 	}
 
-	public TaxInfo(String denotation, VATClass vatClass) {
-		this(denotation, vatClass, null, null);
+	public TaxInfo(String denotation, VATClass vatClass, TaxUsage taxUsage) {
+		this(denotation, vatClass, taxUsage, null, null);
 	}
 
 	/**
@@ -99,6 +107,10 @@ public class TaxInfo extends AbstractPersistentObjectWithContinuance<TaxInfo> {
 
 	public VATClass getVatClass() {
 		return vatClass;
+	}
+
+	public TaxUsage getTaxUsage() {
+		return taxUsage;
 	}
 
 	@Override

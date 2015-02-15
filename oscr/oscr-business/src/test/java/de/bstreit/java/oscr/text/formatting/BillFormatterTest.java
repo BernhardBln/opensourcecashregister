@@ -35,6 +35,7 @@ import de.bstreit.java.oscr.business.products.Product;
 import de.bstreit.java.oscr.business.products.Variation;
 import de.bstreit.java.oscr.business.taxation.SimpleVATFinderDoNotUseInProduction;
 import de.bstreit.java.oscr.business.taxation.TaxInfo;
+import de.bstreit.java.oscr.business.taxation.TaxUsage;
 import de.bstreit.java.oscr.business.taxation.dao.ITaxInfoRepository;
 import de.bstreit.java.oscr.testutils.business.bill.JUnitBillCalculatorFactory;
 
@@ -95,11 +96,6 @@ public class BillFormatterTest extends AbstractSpringTestWithContext {
 		return new JUnitBillCalculatorFactory();
 	}
 
-	@Bean(name = "togoTaxInfo")
-	public TaxInfo togoTaxInfo() {
-		return TO_GO_TAX_INFO;
-	}
-
 	@Bean(name = "defaultGlobalTaxInfoForNewBills")
 	public TaxInfo defaultTaxInfoForNewBills() {
 		logger.info("### returning default tax info for new bills");
@@ -118,15 +114,15 @@ public class BillFormatterTest extends AbstractSpringTestWithContext {
 		NON_FOOD_TAX_INFO = new TaxInfo(
 				"non-food",
 				vatClassRepository
-				.findByDesignationAndValidToIsNull("Normaler Steuersatz"),
-				null, null);
+						.findByDesignationAndValidToIsNull("Normaler Steuersatz"),
+				TaxUsage.GLOBAL_STANDARD_VAT, null, null);
 		NON_FOOD_TAX_INFO = taxInfoRepository.save(NON_FOOD_TAX_INFO);
 
 		TO_GO_TAX_INFO = new TaxInfo(
-				"to go",
+				"To go",
 				vatClassRepository
-				.findByDesignationAndValidToIsNull("Ermäßigter Steuersatz"),
-				null, null);
+						.findByDesignationAndValidToIsNull("Ermäßigter Steuersatz"),
+				TaxUsage.GLOBAL_REDUCED_VAT, null, null);
 		TO_GO_TAX_INFO = taxInfoRepository.save(TO_GO_TAX_INFO);
 
 		System.out.println("##### val"
@@ -312,8 +308,6 @@ public class BillFormatterTest extends AbstractSpringTestWithContext {
 	public void sampleBill_togo_twoVATClasses() {
 
 		// INIT
-		billService.setGlobalTaxInfo(TO_GO_TAX_INFO);
-
 		initBillCalculatorForToGo(billItem1Espresso, billItem2Cappuccino,
 				billItem3Hario, billItem4Cappuccino);
 

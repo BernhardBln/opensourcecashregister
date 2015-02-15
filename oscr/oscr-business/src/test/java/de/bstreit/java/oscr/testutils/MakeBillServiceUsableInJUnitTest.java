@@ -15,6 +15,7 @@ import de.bstreit.java.oscr.business.base.date.ICurrentDateProvider;
 import de.bstreit.java.oscr.business.base.finance.tax.VATClass;
 import de.bstreit.java.oscr.business.bill.BillService;
 import de.bstreit.java.oscr.business.taxation.TaxInfo;
+import de.bstreit.java.oscr.business.taxation.TaxUsage;
 import de.bstreit.java.oscr.testutils.business.bill.FixDateProvider;
 
 /**
@@ -64,7 +65,8 @@ public class MakeBillServiceUsableInJUnitTest {
 	@Bean
 	public TaxInfo defaultTaxInfoForNewBills() {
 		return new TaxInfo("In-house", new VATClass("Normaler Steuersatz",
-				BigDecimal.valueOf(0.19), null, null), null, null);
+				BigDecimal.valueOf(0.19), null, null),
+				TaxUsage.GLOBAL_REDUCED_VAT, null, null);
 	}
 
 	@Bean

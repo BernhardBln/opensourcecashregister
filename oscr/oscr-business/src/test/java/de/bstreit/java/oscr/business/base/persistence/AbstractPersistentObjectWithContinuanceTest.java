@@ -14,6 +14,7 @@ import de.bstreit.java.oscr.business.products.Extra;
 import de.bstreit.java.oscr.business.products.Product;
 import de.bstreit.java.oscr.business.products.Variation;
 import de.bstreit.java.oscr.business.taxation.TaxInfo;
+import de.bstreit.java.oscr.business.taxation.TaxUsage;
 
 /**
  * <p>
@@ -83,9 +84,11 @@ public class AbstractPersistentObjectWithContinuanceTest {
 			date4);
 
 	private final TaxInfo taxInfo1 = new TaxInfo("t1", new VATClass("v1",
-			BigDecimal.valueOf(0.1), date1, date2), date1, date2);
+			BigDecimal.valueOf(0.1), date1, date2),
+			TaxUsage.GLOBAL_REDUCED_VAT, date1, date2);
 	private final TaxInfo taxInfo2 = new TaxInfo("t2", new VATClass("v2",
-			BigDecimal.valueOf(0.2), date1, date2), date3, date4);
+			BigDecimal.valueOf(0.2), date1, date2),
+			TaxUsage.GLOBAL_STANDARD_VAT, date3, date4);
 
 	private final Product product1 = new Product("p1", date1, date2);
 	private final Product product2 = new Product("p2", date3, date4);
@@ -217,7 +220,7 @@ public class AbstractPersistentObjectWithContinuanceTest {
 						+ "but in the unlikely case they are equal "
 						+ "that is not necessarily a bug! In that "
 						+ "case try other values in the fields before debugging.",
-						o1.hashCode(), o2.hashCode());
+				o1.hashCode(), o2.hashCode());
 	}
 
 	/**

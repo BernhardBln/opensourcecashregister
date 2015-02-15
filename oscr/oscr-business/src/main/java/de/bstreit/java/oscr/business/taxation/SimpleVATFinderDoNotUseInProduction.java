@@ -23,8 +23,8 @@ import de.bstreit.java.oscr.business.taxation.dao.ITaxInfoRepository;
  * <p>
  * Only in case we have "to go" as tax info, use reduced VAT.
  * </p>
- * 
- * 
+ *
+ *
  * @author Bernhard Streit
  */
 @Named
@@ -56,8 +56,15 @@ public class SimpleVATFinderDoNotUseInProduction implements IVATFinder {
 				.findByDesignationAndValidToIsNull("Normaler Steuersatz");
 		reducedVATClass = vatClassRepository
 				.findByDesignationAndValidToIsNull("Ermäßigter Steuersatz");
+
 		reducedVATClassTaxInfo = taxInfoRepository
 				.findByDenotationAndValidToIsNull("to go");
+		if (reducedVATClassTaxInfo == null) {
+			// denotations got changed
+			reducedVATClassTaxInfo = taxInfoRepository
+					.findByDenotationAndValidToIsNull("To go");
+		}
+
 		foodSellVATClassTaxInfo = taxInfoRepository
 				.findByDenotationAndValidToIsNull("food sale");
 	}

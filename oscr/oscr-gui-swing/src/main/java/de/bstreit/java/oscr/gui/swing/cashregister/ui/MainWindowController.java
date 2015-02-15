@@ -15,8 +15,6 @@ import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 
-import org.springframework.beans.factory.annotation.Value;
-
 import com.google.common.base.Optional;
 
 import de.bstreit.java.oscr.business.bill.Bill;
@@ -30,17 +28,12 @@ import de.bstreit.java.oscr.business.offers.PromoOffer;
 import de.bstreit.java.oscr.business.offers.VariationOffer;
 import de.bstreit.java.oscr.business.staff.IUserService;
 import de.bstreit.java.oscr.business.staff.User;
-import de.bstreit.java.oscr.business.taxation.TaxInfo;
-import de.bstreit.java.oscr.business.taxation.dao.ITaxInfoRepository;
 import de.bstreit.java.oscr.text.formatting.BillFormatter;
 
 @Named
 public class MainWindowController implements BillChangeListener {
 
 	private final DateFormat df = SimpleDateFormat.getInstance();
-
-	@Value("#{ systemProperties['line.separator'] }")
-	private String NEWLINE;
 
 	@Inject
 	private IBillDisplay billDisplay;
@@ -52,27 +45,16 @@ public class MainWindowController implements BillChangeListener {
 	private BillService billService;
 
 	@Inject
-	private ITaxInfoRepository taxInfoRepository;
-
-	@Inject
 	private IUserService userService;
 
 	@Inject
 	private EventBroadcaster eventBroadcaster;
-
-	private TaxInfo toGoTaxInfo;
-
-	private TaxInfo inHouseTaxInfo;
 
 	private JFrame openBillsFrame;
 
 	@PostConstruct
 	private void initController() {
 		eventBroadcaster.addBillChangeListener(this);
-		toGoTaxInfo = taxInfoRepository
-				.findByDenotationAndValidToIsNull("to go");
-		inHouseTaxInfo = taxInfoRepository
-				.findByDenotationAndValidToIsNull("inhouse");
 
 		openBillsFrame = new JFrame("Open Bills");
 		openBillsFrame.getContentPane().setLayout(
@@ -115,52 +97,13 @@ public class MainWindowController implements BillChangeListener {
 
 		billDisplay.scrollToBeginning();
 	}
-//
-//	/**
-//	 * @param totalForToday
-//	 * @param sb
-//	 */
-//	private void addBills(final IMultipleBillsCalculator totalForToday,
-//			String date, final StringBuilder sb) {
-//		sb.append("Bill for " + date + "\n==============\n\n");
-//
-//		Money totalNet = null;
-//		for (final VATClass vatClass : totalForToday.getAllVatClasses()) {
-//			if (totalNet == null) {
-//				totalNet = totalForToday.getTotalNetFor(vatClass);
-//			} else {
-//				totalNet = totalNet.add(totalForToday.getTotalNetFor(vatClass));
-//			}
-//		}
-//
-//		sb.append("Total (gross): ").append(totalForToday.getTotalGross())
-//				.append(";\t\t").append("Total (net): ").append(totalNet)
-//				.append("\n\n");
-//
-//		sb.append("VAT classes:\n\n");
-//		for (final VATClass vatClass : totalForToday.getAllVatClasses()) {
-//			sb.append(vatClass + " \tgross: ")
-//					.append(totalForToday.getTotalGrossFor(vatClass))
-//					.append("; vat: ")
-//					.append(totalForToday.getTotalVATFor(vatClass))
-//					.append("; net: ")
-//					.append(totalForToday.getTotalNetFor(vatClass))
-//					.append("\n");
-//		}
-//		sb.append("\n\n");
-//	}
-//
-//
-	public void setBillToGo(boolean togo) {
-		if (togo) {
-			billService.setGlobalTaxInfo(toGoTaxInfo);
-		} else {
-			billService.setGlobalTaxInfo(inHouseTaxInfo);
-		}
+
+	public void toggleStandardAndReducedVAT() {
+		billService.toggleStandardAndReducedVAT();
 	}
 
-	public boolean isBillToGo() {
-		return toGoTaxInfo.equals(billService.getGlobalTaxInfo());
+	public boolean isReducedVAT() {
+		return billService.isReducedVAT();
 	}
 
 	public void undoLastAction() {

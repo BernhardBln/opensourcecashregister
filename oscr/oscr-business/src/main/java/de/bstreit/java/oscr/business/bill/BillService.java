@@ -52,6 +52,7 @@ import de.bstreit.java.oscr.business.offers.VariationOffer;
 import de.bstreit.java.oscr.business.staff.IUserService;
 import de.bstreit.java.oscr.business.staff.User;
 import de.bstreit.java.oscr.business.taxation.TaxInfo;
+import de.bstreit.java.oscr.business.taxation.TaxUsage;
 import de.bstreit.java.oscr.business.util.DateFactory;
 import de.bstreit.java.oscr.text.formatting.BillTotalForADayFormatter;
 
@@ -74,6 +75,15 @@ public class BillService {
 	@Inject
 	@Named("defaultGlobalTaxInfoForNewBills")
 	private TaxInfo defaultTaxInfoForNewBills;
+
+	/**
+	 * Basically, when toggling between standard and reduced VAT, we toggle
+	 * between {@link #defaultTaxInfoForNewBills} and
+	 * {@link #otherGlobalTaxInfo}.
+	 */
+	@Inject
+	@Named("otherGlobalTaxInfo")
+	private TaxInfo otherGlobalTaxInfo;
 
 	@Inject
 	private ICurrentDateProvider currentDateProvider;
@@ -336,23 +346,6 @@ public class BillService {
 		lastAddedItem = currentBill.getLastBillItemOrNull();
 	}
 
-	public void setGlobalTaxInfo(TaxInfo taxInfo) {
-		// At the moment, we only support one tax info, might change in the
-		// future
-		assertCurrentBillNotNull("Cannot set tax info - no bill available");
-		checkNotNull(taxInfo);
-
-		if (taxInfo.equals(currentBill.getGlobalTaxInfo())) {
-			return;
-		}
-
-		currentBill.setGlobalTaxInfo(taxInfo);
-
-		saveBill();
-
-		fireBillChangedEvent();
-	}
-
 	public TaxInfo getGlobalTaxInfo() {
 		if (currentBill == null) {
 			return null;
@@ -455,6 +448,24 @@ public class BillService {
 
 				+ billTotalFormatter.getBillTotalAsString("yesterday",
 						billRepository.getBillsForYesterdayWithoutStaff());
+	}
+
+	public void toggleStandardAndReducedVAT() {
+		assertCurrentBillNotNull("Cannot toggle tax info - no bill available");
+
+		if (currentBill.getGlobalTaxInfo().equals(defaultTaxInfoForNewBills)) {
+			currentBill.setGlobalTaxInfo(otherGlobalTaxInfo);
+		} else {
+			currentBill.setGlobalTaxInfo(defaultTaxInfoForNewBills);
+		}
+
+		saveBill();
+		fireBillChangedEvent();
+	}
+
+	public boolean isReducedVAT() {
+		assertCurrentBillNotNull("Cannot query tax info - no bill available");
+		return currentBill.getGlobalTaxInfo().getTaxUsage() == TaxUsage.GLOBAL_REDUCED_VAT;
 	}
 
 }

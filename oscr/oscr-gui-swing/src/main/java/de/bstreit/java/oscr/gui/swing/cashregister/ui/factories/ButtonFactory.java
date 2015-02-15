@@ -281,9 +281,9 @@ public class ButtonFactory {
 		final PopupListener popupListener = new PopupListener(popupMenu);
 
 		eventBroadcaster
-				.addBillChangeListener(newBill -> popupListener
-						.setActive(getStaffConsumptionIsEnabledLambda().apply(
-								newBill)));
+		.addBillChangeListener(newBill -> popupListener
+				.setActive(getStaffConsumptionIsEnabledLambda().apply(
+						newBill)));
 
 		staffConsumptionButton.addMouseListener(popupListener);
 	}
@@ -304,18 +304,18 @@ public class ButtonFactory {
 
 	public Component createToGoButton() {
 		final JToggleButton btnToGo = new JToggleButton("To go");
-		btnToGo.addActionListener(e -> appController.setBillToGo(btnToGo
-				.isSelected()));
+		btnToGo.addActionListener(e -> appController
+				.toggleStandardAndReducedVAT());
 
 		setToggleButtonUponBillChangeAndDisableUponMissingBill(btnToGo,
 				billOpt -> billOpt.isPresent(),
-				bill -> appController.isBillToGo());
+				bill -> appController.isReducedVAT());
 
 		btnToGo.setMinimumSize(new Dimension(0, 40));
 		btnToGo.setEnabled(false);
 
 		return btnToGo;
-	} 
+	}
 
 	public Component createPayButton() {
 		final JButton payButton = new JButton("Pay");
@@ -351,5 +351,5 @@ public class ButtonFactory {
 
 		return showOpenBillsButton;
 	}
- 
+
 }

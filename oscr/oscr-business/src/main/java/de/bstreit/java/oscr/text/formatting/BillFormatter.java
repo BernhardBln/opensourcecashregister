@@ -21,7 +21,6 @@ import de.bstreit.java.oscr.business.bill.IBillCalculator;
 import de.bstreit.java.oscr.business.bill.IBillCalculatorFactory;
 import de.bstreit.java.oscr.business.bill.calculator.WhatToCount;
 import de.bstreit.java.oscr.business.staff.User;
-import de.bstreit.java.oscr.business.taxation.TaxInfo;
 
 /**
  * Format a bill for textual representation
@@ -43,10 +42,6 @@ public class BillFormatter {
 
 	@Inject
 	private Locale locale;
-
-	@Inject
-	@Named("togoTaxInfo")
-	private TaxInfo toGoTaxinfo;
 
 	private BillItemWrapper billItemWrapper;
 	private final MoneyFormatter moneyFormatter = new MoneyFormatter();
@@ -121,21 +116,14 @@ public class BillFormatter {
 	}
 
 	private String taxInformationIfApplies() {
-
-		final boolean isToGo = _bill.getGlobalTaxInfo().equals(toGoTaxinfo);
-
 		final boolean isStaff = _bill.isConsumedByStaff();
 		final User user = _bill.getStaffConsumer();
 
 		final String consumedBy = isStaff ? " consumed by "
 				+ user.getFullname() : "";
 
-		if (isToGo) {
-			return "  To go" + consumedBy + NEWLINE;
-		} else {
-			return "  In-house" + consumedBy + NEWLINE;
-		}
-
+		return "  " + _bill.getGlobalTaxInfo().getDenotation() + consumedBy
+				+ NEWLINE;
 	}
 
 	private int appendBillContent() {

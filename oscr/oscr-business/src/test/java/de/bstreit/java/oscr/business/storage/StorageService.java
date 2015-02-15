@@ -50,6 +50,7 @@ import de.bstreit.java.oscr.business.offers.dao.IProductOfferRepository;
 import de.bstreit.java.oscr.business.products.Product;
 import de.bstreit.java.oscr.business.products.dao.IProductRepository;
 import de.bstreit.java.oscr.business.taxation.TaxInfo;
+import de.bstreit.java.oscr.business.taxation.TaxUsage;
 import de.bstreit.java.oscr.business.taxation.dao.ITaxInfoRepository;
 
 @Named
@@ -106,7 +107,8 @@ public class StorageService {
 				BigDecimal.valueOf(0.19));
 		vatClassRepository.save(vatClass);
 
-		final TaxInfo taxInfo = new TaxInfo("19%", vatClass);
+		final TaxInfo taxInfo = new TaxInfo("19%", vatClass,
+				TaxUsage.GLOBAL_REDUCED_VAT);
 		final Bill billYesterdayOneHourEarlier = billTestFactory.create(
 				taxInfo, yesterdayOneHourEarlier.getTime(),
 				yesterdayOneHourEarlier.getTime());
@@ -144,7 +146,8 @@ public class StorageService {
 				BigDecimal.valueOf(0.19));
 		vatClassRepository.save(vatClass);
 
-		final TaxInfo taxInfo = new TaxInfo("19%", vatClass, null, null);
+		final TaxInfo taxInfo = new TaxInfo("19%", vatClass,
+				TaxUsage.GLOBAL_REDUCED_VAT, null, null);
 
 		final Bill billTodayOneHourEarlier = billTestFactory.create(taxInfo,
 				todayOneHourEarlier.getTime(), null);
