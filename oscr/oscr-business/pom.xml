@@ -67,10 +67,10 @@
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
 		</dependency>
-<dependency>
+<!-- <dependency>
 	<groupId>org.liquibase</groupId>
 	<artifactId>liquibase-core</artifactId>
-</dependency>
+</dependency> -->
 
 		<dependency>
 			<groupId>com.google.guava</groupId>
