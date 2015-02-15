@@ -64,6 +64,8 @@ public class StaffConsumption implements IAdminBean {
 			.newHashMap();
 
 	private transient List<Bill> managementConsumption = Lists.newArrayList();
+	private transient Map<User, List<Bill>> realStaffConsumption = Maps
+			.newHashMap();
 
 	@PostConstruct
 	public void init() {
@@ -82,7 +84,7 @@ public class StaffConsumption implements IAdminBean {
 
 			printHeader(calendar);
 
-			countBills(billsForStaff);
+			countStaffBills(billsForStaff);
 			printResults();
 
 			printManagementConsumption();
@@ -90,12 +92,20 @@ public class StaffConsumption implements IAdminBean {
 		} finally {
 			consumption.clear();
 			managementConsumption.clear();
+			realStaffConsumption.clear();
 		}
 	}
 
 	private void printManagementConsumption() {
+		List<Bill> billsToConsider = managementConsumption;
+		String consumer = "Management";
+
+		printConsumption(billsToConsider, consumer);
+	}
+
+	private void printConsumption(List<Bill> billsToConsider, String consumer) {
 		final IMultipleBillsCalculator multipleBillsCalculator = multipleBillsCalculatorFactory
-				.create(managementConsumption, WhatToCount.TOTAL);
+				.create(billsToConsider, WhatToCount.TOTAL);
 
 		Money totalNet = new Money("0", currency);
 
@@ -105,8 +115,8 @@ public class StaffConsumption implements IAdminBean {
 					.getTotalNetFor(vatClass));
 		}
 
-		System.out.println(MessageFormat.format(
-				"\nManagement consumption: GROS {0} - NET {1}",
+		System.out.println(MessageFormat.format("\n" + consumer
+				+ " consumption: GROS {0} - NET {1}",
 				multipleBillsCalculator.getTotalGross(), totalNet));
 
 		for (final VATClass vatClass : multipleBillsCalculator
@@ -141,11 +151,14 @@ public class StaffConsumption implements IAdminBean {
 					.getDinner()));
 
 			System.out.println("TOTAL: " + total);
+			System.out.println("\nReal consumption:");
+			printConsumption(realStaffConsumption.get(staffMember),
+					staffMember.getFullname());
 			System.out.println("");
 		}
 	}
 
-	private void countBills(final Collection<Bill> billsForStaff) {
+	private void countStaffBills(final Collection<Bill> billsForStaff) {
 		for (final Bill bill : billsForStaff) {
 			if (!bill.isConsumedByStaff()) {
 				continue;
@@ -156,11 +169,17 @@ public class StaffConsumption implements IAdminBean {
 			if (staffMember.getName().equals(managementUser)) {
 				managementConsumption.add(bill);
 			} else {
+
 				if (!consumption.containsKey(staffMember)) {
 					consumption.put(staffMember, new ConsumptionCounter(11, 4));
 				}
 
+				if (!realStaffConsumption.containsKey(staffMember)) {
+					realStaffConsumption.put(staffMember, Lists.newArrayList());
+				}
+
 				consumption.get(staffMember).countConsumption(bill);
+				realStaffConsumption.get(staffMember).add(bill);
 			}
 		}
 	}
