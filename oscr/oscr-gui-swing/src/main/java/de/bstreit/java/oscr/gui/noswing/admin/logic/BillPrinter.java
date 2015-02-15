@@ -13,7 +13,6 @@ import javax.transaction.Transactional;
 import org.apache.commons.lang3.StringUtils;
 
 import de.bstreit.java.oscr.business.bill.BillService;
-import de.bstreit.java.oscr.text.formatting.BillFormatter;
 import de.bstreit.java.oscr.text.formatting.BillTotalForADayFormatter;
 
 @Named
@@ -21,9 +20,6 @@ public class BillPrinter implements IAdminBean {
 
 	@Inject
 	private BillService billService;
-
-	@Inject
-	private BillFormatter billFormatter;
 
 	@Inject
 	private BillTotalForADayFormatter billTotalForADayFormatter;
@@ -56,8 +52,7 @@ public class BillPrinter implements IAdminBean {
 
 		System.out.println(billTotalForADayFormatter.getBillTotalAsString(
 				dateFormat.format(day),
-				billService.getBillsForDayWithoutStaff(day),
-				billService.getPromotionBillsForDayWithoutStaff(day)));
+				billService.getBillsForDayWithoutStaff(day)));
 
 	}
 

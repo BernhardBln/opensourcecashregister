@@ -26,6 +26,7 @@ import de.bstreit.java.oscr.business.eventbroadcasting.BillChangeListener;
 import de.bstreit.java.oscr.business.eventbroadcasting.EventBroadcaster;
 import de.bstreit.java.oscr.business.offers.ExtraOffer;
 import de.bstreit.java.oscr.business.offers.ProductOffer;
+import de.bstreit.java.oscr.business.offers.PromoOffer;
 import de.bstreit.java.oscr.business.offers.VariationOffer;
 import de.bstreit.java.oscr.business.staff.IUserService;
 import de.bstreit.java.oscr.business.staff.User;
@@ -93,6 +94,10 @@ public class MainWindowController implements BillChangeListener {
 		billService.setVariationOffer(variationOffer);
 	}
 
+	public void setPromoOffer(PromoOffer offer) {
+		billService.setPromoOffer(offer);
+	}
+
 	public void addExtraOffer(ExtraOffer offer) {
 		billService.addExtraOffer(offer);
 	}
@@ -110,7 +115,42 @@ public class MainWindowController implements BillChangeListener {
 
 		billDisplay.scrollToBeginning();
 	}
-
+//
+//	/**
+//	 * @param totalForToday
+//	 * @param sb
+//	 */
+//	private void addBills(final IMultipleBillsCalculator totalForToday,
+//			String date, final StringBuilder sb) {
+//		sb.append("Bill for " + date + "\n==============\n\n");
+//
+//		Money totalNet = null;
+//		for (final VATClass vatClass : totalForToday.getAllVatClasses()) {
+//			if (totalNet == null) {
+//				totalNet = totalForToday.getTotalNetFor(vatClass);
+//			} else {
+//				totalNet = totalNet.add(totalForToday.getTotalNetFor(vatClass));
+//			}
+//		}
+//
+//		sb.append("Total (gross): ").append(totalForToday.getTotalGross())
+//				.append(";\t\t").append("Total (net): ").append(totalNet)
+//				.append("\n\n");
+//
+//		sb.append("VAT classes:\n\n");
+//		for (final VATClass vatClass : totalForToday.getAllVatClasses()) {
+//			sb.append(vatClass + " \tgross: ")
+//					.append(totalForToday.getTotalGrossFor(vatClass))
+//					.append("; vat: ")
+//					.append(totalForToday.getTotalVATFor(vatClass))
+//					.append("; net: ")
+//					.append(totalForToday.getTotalNetFor(vatClass))
+//					.append("\n");
+//		}
+//		sb.append("\n\n");
+//	}
+//
+//
 	public void setBillToGo(boolean togo) {
 		if (togo) {
 			billService.setGlobalTaxInfo(toGoTaxInfo);
@@ -216,6 +256,10 @@ public class MainWindowController implements BillChangeListener {
 
 	public int getNumberOfOpenBills() {
 		return billService.getOpenBills().size();
+	}
+
+	public boolean hasOpenBills() {
+		return !billService.getOpenBills().isEmpty();
 	}
 
 }

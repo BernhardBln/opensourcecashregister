@@ -51,12 +51,6 @@ public interface IBillRepository extends JpaRepository<Bill, String> {
 	@Query("from Bill where billOpened >= current_date - 1 and internalConsumer is NULL AND billOpened < current_date ORDER BY billOpened DESC")
 	public Collection<Bill> getBillsForYesterdayWithoutStaff();
 
-	@Query("from Bill where billOpened >= current_date and internalConsumer is NULL AND freePromotionOffer = TRUE order by billOpened desc")
-	public Collection<Bill> getPromotionBillsForTodayWithoutStaff();
-
-	@Query("from Bill where billOpened >= current_date - 1 and internalConsumer is NULL AND billOpened < current_date AND freePromotionOffer = TRUE")
-	public Collection<Bill> getPromotionBillsForYesterdayWithoutStaff();
-
 	public List<Bill> billClosedIsNull();
 
 	/**
@@ -70,9 +64,5 @@ public interface IBillRepository extends JpaRepository<Bill, String> {
 
 	@Query("from Bill where billOpened >= ?1 and billOpened < ?2 and internalConsumer is NULL order by billOpened desc")
 	public Collection<Bill> getBillsForDayWithoutStaff(Date from, Date to);
-
-	@Query("FROM Bill WHERE billOpened >= ?1 AND billOpened < ?2 AND internalConsumer IS NULL AND freePromotionOffer = TRUE")
-	public Collection<Bill> getPromotionBillsForDayWithoutStaff(Date from,
-			Date to);
 
 }

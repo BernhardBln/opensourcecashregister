@@ -12,6 +12,7 @@ import de.bstreit.java.oscr.business.base.finance.tax.VATClass;
 import de.bstreit.java.oscr.business.bill.Bill;
 import de.bstreit.java.oscr.business.bill.IMultipleBillsCalculator;
 import de.bstreit.java.oscr.business.bill.IMultipleBillsCalculatorFactory;
+import de.bstreit.java.oscr.business.bill.calculator.WhatToCount;
 
 @Named
 public class BillTotalForADayFormatter {
@@ -22,14 +23,15 @@ public class BillTotalForADayFormatter {
 	@Inject
 	private BillFormatter billFormatter;
 
-	public String getBillTotalAsString(String dateLabel,
-			Collection<Bill> bills, Collection<Bill> promotionBills) {
+	public String getBillTotalAsString(String dateLabel, Collection<Bill> bills) {
 		final StringBuilder sb = new StringBuilder();
 
-		addBills(multipleBillsCalculatorFactory.create(bills), dateLabel, sb);
+		addBills(
+				multipleBillsCalculatorFactory.create(bills, WhatToCount.TOTAL),
+				dateLabel, sb);
 
 		IMultipleBillsCalculator freePomotionTotal = multipleBillsCalculatorFactory
-				.create(promotionBills);
+				.create(bills, WhatToCount.PROMO_TOTAL);
 
 		if (freePomotionTotal.isFilled()) {
 			addBills(freePomotionTotal, "promotion expenses for " + dateLabel,

@@ -25,6 +25,7 @@ import de.bstreit.java.oscr.business.base.finance.tax.VATClass;
 import de.bstreit.java.oscr.business.bill.Bill;
 import de.bstreit.java.oscr.business.bill.IMultipleBillsCalculator;
 import de.bstreit.java.oscr.business.bill.IMultipleBillsCalculatorFactory;
+import de.bstreit.java.oscr.business.bill.calculator.WhatToCount;
 import de.bstreit.java.oscr.business.bill.dao.IBillRepository;
 import de.bstreit.java.oscr.business.staff.User;
 import de.bstreit.java.oscr.business.util.DateFactory;
@@ -94,7 +95,7 @@ public class StaffConsumption implements IAdminBean {
 
 	private void printManagementConsumption() {
 		final IMultipleBillsCalculator multipleBillsCalculator = multipleBillsCalculatorFactory
-				.create(managementConsumption);
+				.create(managementConsumption, WhatToCount.TOTAL);
 
 		Money totalNet = new Money("0", currency);
 

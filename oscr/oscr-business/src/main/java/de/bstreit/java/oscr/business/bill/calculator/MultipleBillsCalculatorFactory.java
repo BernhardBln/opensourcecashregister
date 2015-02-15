@@ -12,19 +12,22 @@ import de.bstreit.java.oscr.business.bill.IMultipleBillsCalculator;
 import de.bstreit.java.oscr.business.bill.IMultipleBillsCalculatorFactory;
 
 @Named
-public class MultipleBillsCalculatorFactory implements IMultipleBillsCalculatorFactory {
+public class MultipleBillsCalculatorFactory implements
+IMultipleBillsCalculatorFactory {
 
-	  @Inject
-	  private ConfigurableApplicationContext context;
+	@Inject
+	private ConfigurableApplicationContext context;
 
+	@Override
+	public IMultipleBillsCalculator create(Collection<Bill> bills,
+			WhatToCount whatToCount) {
 
-	  @Override
-	  public IMultipleBillsCalculator create(Collection<Bill> bills) {
+		final MultipleBillsCalculator billCalculator = context
+				.getBean(MultipleBillsCalculator.class);
 
-	    final MultipleBillsCalculator billCalculator = context.getBean(MultipleBillsCalculator.class);
+		billCalculator.setWhatToCount(whatToCount);
+		billCalculator.analyse(bills);
 
-	    billCalculator.analyse(bills);
-
-	    return billCalculator;
+		return billCalculator;
 	}
 }

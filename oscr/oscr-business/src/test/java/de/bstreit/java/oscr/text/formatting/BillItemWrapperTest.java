@@ -5,8 +5,6 @@ import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
 
-import de.bstreit.java.oscr.text.formatting.BillItemWrapper;
-
 
 public class BillItemWrapperTest {
 

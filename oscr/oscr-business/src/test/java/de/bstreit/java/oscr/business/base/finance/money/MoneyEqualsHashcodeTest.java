@@ -29,8 +29,6 @@ package de.bstreit.java.oscr.business.base.finance.money;
 import org.junit.Assert;
 import org.junit.Test;
 
-import de.bstreit.java.oscr.business.base.finance.money.Money;
-
 public class MoneyEqualsHashcodeTest {
 
 	@Test

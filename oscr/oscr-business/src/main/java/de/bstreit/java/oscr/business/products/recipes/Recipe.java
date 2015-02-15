@@ -1,7 +1,6 @@
 package de.bstreit.java.oscr.business.products.recipes;
 
 import java.util.Date;
-import java.util.Map;
 
 import javax.persistence.Entity;
 

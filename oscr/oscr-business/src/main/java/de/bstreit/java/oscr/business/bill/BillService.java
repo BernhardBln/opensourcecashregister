@@ -41,11 +41,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Hibernate;
 
 import de.bstreit.java.oscr.business.base.date.ICurrentDateProvider;
+import de.bstreit.java.oscr.business.bill.calculator.WhatToCount;
 import de.bstreit.java.oscr.business.bill.dao.IBillRepository;
 import de.bstreit.java.oscr.business.eventbroadcasting.EventBroadcaster;
 import de.bstreit.java.oscr.business.export.IExportService;
 import de.bstreit.java.oscr.business.offers.ExtraOffer;
 import de.bstreit.java.oscr.business.offers.ProductOffer;
+import de.bstreit.java.oscr.business.offers.PromoOffer;
 import de.bstreit.java.oscr.business.offers.VariationOffer;
 import de.bstreit.java.oscr.business.staff.IUserService;
 import de.bstreit.java.oscr.business.staff.User;
@@ -183,6 +185,9 @@ public class BillService {
 		if (currentBill.isEmpty()) {
 			billRepository.delete(currentBill);
 			currentBill = null;
+			lastAddedItem = null;
+		} else {
+			lastAddedItem = currentBill.getLastBillItemOrNull();
 		}
 
 		fireBillChangedEvent();
@@ -192,28 +197,32 @@ public class BillService {
 	public IMultipleBillsCalculator getTotalForToday() {
 		final Collection<Bill> todaysBills = billRepository
 				.getBillsForTodayWithoutStaff();
-		return multipleBillsCalculatorFactory.create(todaysBills);
+		return multipleBillsCalculatorFactory.create(todaysBills,
+				WhatToCount.TOTAL);
 	}
 
 	@Transactional
 	public IMultipleBillsCalculator getTotalForYesterday() {
 		final Collection<Bill> yesterdaysBills = billRepository
 				.getBillsForYesterdayWithoutStaff();
-		return multipleBillsCalculatorFactory.create(yesterdaysBills);
+		return multipleBillsCalculatorFactory.create(yesterdaysBills,
+				WhatToCount.TOTAL);
 	}
 
 	@Transactional
 	public IMultipleBillsCalculator getFreePomotionTotalForToday() {
 		final Collection<Bill> todaysBills = billRepository
-				.getPromotionBillsForTodayWithoutStaff();
-		return multipleBillsCalculatorFactory.create(todaysBills);
+				.getBillsForTodayWithoutStaff();
+		return multipleBillsCalculatorFactory.create(todaysBills,
+				WhatToCount.PROMO_TOTAL);
 	}
 
 	@Transactional
 	public IMultipleBillsCalculator getFreePomotionTotalForYesterday() {
 		final Collection<Bill> yesterdaysBills = billRepository
-				.getPromotionBillsForYesterdayWithoutStaff();
-		return multipleBillsCalculatorFactory.create(yesterdaysBills);
+				.getBillsForYesterdayWithoutStaff();
+		return multipleBillsCalculatorFactory.create(yesterdaysBills,
+				WhatToCount.PROMO_TOTAL);
 	}
 
 	private void initBillIfEmpty() {
@@ -267,6 +276,29 @@ public class BillService {
 		fireBillChangedEvent();
 	}
 
+	public void setPromoOffer(PromoOffer promoOffer) {
+		final String errorMessage = "Cannot set promo  offer '" + promoOffer
+				+ "' - no bill available!";
+
+		assertCurrentBillNotNull(errorMessage);
+		assertCurrentBillNotEmpty(errorMessage);
+
+		checkNotNull(promoOffer);
+
+		boolean hasAlreadyPromoOffer = lastAddedItem
+				.getExtraAndVariationOffers().stream()
+				.anyMatch(o -> o instanceof PromoOffer);
+
+		if (hasAlreadyPromoOffer) {
+			throw new AlreadyHasPromoOfferException();
+		}
+
+		lastAddedItem.addPromoOffer(promoOffer);
+
+		saveBill();
+		fireBillChangedEvent();
+	}
+
 	public Bill closeBill() {
 		assertCurrentBillNotNull("Cannot close bill - no bill available!");
 
@@ -301,9 +333,7 @@ public class BillService {
 		currentBill = billRepository.save(currentBill);
 
 		// only keep reference if saveBill was successful
-		lastAddedItem = currentBill.getBillItems().get(
-				currentBill.getBillItems().size() - 1);
-
+		lastAddedItem = currentBill.getLastBillItemOrNull();
 	}
 
 	public void setGlobalTaxInfo(TaxInfo taxInfo) {
@@ -369,22 +399,6 @@ public class BillService {
 		return allBillsForToday;
 	}
 
-	public Collection<Bill> getPromotionBillsForDayWithoutStaff(Date day) {
-		Date from = DateFactory.getDateWithTimeMidnight(day.getYear() + 1900,
-				day.getMonth() + 1, day.getDate());
-
-		Calendar calendar = Calendar.getInstance();
-		calendar.setTime(day);
-		calendar.roll(Calendar.DAY_OF_MONTH, true);
-		Date nextDay = calendar.getTime();
-		Date to = DateFactory.getDateWithTimeMidnight(nextDay.getYear() + 1900,
-				nextDay.getMonth() + 1, nextDay.getDate());
-
-		final Collection<Bill> allBillsForToday = billRepository
-				.getPromotionBillsForDayWithoutStaff(from, to);
-		return allBillsForToday;
-	}
-
 	public void notifyShutdown() {
 		exportService.stopService();
 	}
@@ -416,19 +430,20 @@ public class BillService {
 
 	public void newBill() {
 		currentBill = null;
+		lastAddedItem = null;
 		fireBillChangedEvent();
 	}
 
 	public void loadBill(Bill bill) {
 		currentBill = bill;
+		lastAddedItem = (bill == null ? null : bill.getLastBillItemOrNull());
 		fireBillChangedEvent();
 	}
 
 	@Transactional
 	public String getTotalAsString() {
 		return billTotalFormatter.getBillTotalAsString("today",
-				billRepository.getBillsForTodayWithoutStaff(),
-				billRepository.getPromotionBillsForTodayWithoutStaff())
+				billRepository.getBillsForTodayWithoutStaff())
 
 				+ "\n\n"
 				+ StringUtils.repeat("=", 80)
@@ -439,8 +454,7 @@ public class BillService {
 				+ "\n\n"
 
 				+ billTotalFormatter.getBillTotalAsString("yesterday",
-						billRepository.getBillsForYesterdayWithoutStaff(),
-						billRepository
-								.getPromotionBillsForYesterdayWithoutStaff());
+						billRepository.getBillsForYesterdayWithoutStaff());
 	}
+
 }
