@@ -92,8 +92,6 @@ class BillCalculatorPromoTotal implements IBillCalculator {
 	@PreDestroy
 	@Override
 	public void close() {
-		logger.debug("closing bill calculator");
-
 		this.bill = null;
 		vatClassAbbreviations.clear();
 		billItemsVatClassesAbbreviated.clear();

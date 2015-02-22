@@ -87,7 +87,6 @@ class BillCalculatorTotal implements IBillCalculator {
 	@PreDestroy
 	@Override
 	public void close() {
-		logger.debug("closing bill calculator");
 
 		this.bill = null;
 		vatClassAbbreviations.clear();
@@ -110,8 +109,8 @@ class BillCalculatorTotal implements IBillCalculator {
 				.stream()
 				.filter(item -> vatClass.equals(vatFinder.getVATClassFor(item,
 						bill)))
-				.map(item -> getGrossPrice(item).getNet(vatClass))
-				.reduce(ZERO, (p1, p2) -> p1.add(p2));
+						.map(item -> getGrossPrice(item).getNet(vatClass))
+						.reduce(ZERO, (p1, p2) -> p1.add(p2));
 
 	}
 
@@ -123,7 +122,7 @@ class BillCalculatorTotal implements IBillCalculator {
 				.stream()
 				.filter(item -> vatClass.equals(vatFinder.getVATClassFor(item,
 						bill))).map(item -> getGrossPrice(item))
-				.reduce(ZERO, (p1, p2) -> p1.add(p2));
+						.reduce(ZERO, (p1, p2) -> p1.add(p2));
 
 	}
 

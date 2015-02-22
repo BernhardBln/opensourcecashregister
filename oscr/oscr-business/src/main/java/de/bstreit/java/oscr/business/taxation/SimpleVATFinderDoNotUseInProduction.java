@@ -47,8 +47,6 @@ public class SimpleVATFinderDoNotUseInProduction implements IVATFinder {
 	@PostConstruct
 	private void init() {
 		refreshVats();
-		logger.info("### PC SVatFinder");
-
 	}
 
 	public void refreshVats() {
@@ -71,7 +69,6 @@ public class SimpleVATFinderDoNotUseInProduction implements IVATFinder {
 
 	@Override
 	public VATClass getVATClassFor(BillItem billItem, Bill bill) {
-		logger.info("### VatFinding");
 
 		final TaxInfo applyingTaxInfo = Optional.fromNullable(
 				getTaxInfoFrom(billItem)).or(bill.getGlobalTaxInfo());
