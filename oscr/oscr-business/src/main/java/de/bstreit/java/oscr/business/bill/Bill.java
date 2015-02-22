@@ -65,7 +65,8 @@ public class Bill implements Iterable<BillItem> {
 	@Column(nullable = true)
 	private String description;
 
-	@OneToMany(cascade = CascadeType.ALL)
+	@OneToMany(cascade = { CascadeType.DETACH, CascadeType.MERGE,
+			CascadeType.PERSIST, CascadeType.REFRESH })
 	private final List<BillItem> billItems = new ArrayList<BillItem>();
 
 	/** The date when the bill was opened. */
@@ -82,7 +83,8 @@ public class Bill implements Iterable<BillItem> {
 	 */
 	// TODO [10]: check which cascade types we really need here. Same at
 	// AbstractSalesItem.overridingTaxInfo
-	@ManyToOne(cascade = { CascadeType.REFRESH }, optional = false)
+	@ManyToOne(cascade = { CascadeType.DETACH, CascadeType.MERGE,
+			CascadeType.PERSIST, CascadeType.REFRESH }, optional = false)
 	private TaxInfo globalTaxInfo;
 
 	/**
