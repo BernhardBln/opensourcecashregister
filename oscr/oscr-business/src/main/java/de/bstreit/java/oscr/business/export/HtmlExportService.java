@@ -21,7 +21,6 @@ import de.bstreit.java.oscr.business.base.finance.money.Money;
 import de.bstreit.java.oscr.business.base.finance.tax.VATClass;
 import de.bstreit.java.oscr.business.bill.Bill;
 import de.bstreit.java.oscr.business.bill.BillService;
-import de.bstreit.java.oscr.business.bill.IBillProcessor;
 import de.bstreit.java.oscr.business.bill.IMultipleBillsCalculator;
 import de.bstreit.java.oscr.business.eventbroadcasting.BillChangeListener;
 import de.bstreit.java.oscr.business.eventbroadcasting.EventBroadcaster;
@@ -29,7 +28,7 @@ import de.bstreit.java.oscr.text.formatting.BillFormatter;
 
 @Named
 public class HtmlExportService implements IExportService, BillChangeListener,
-		Runnable {
+Runnable {
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(HtmlExportService.class);
@@ -54,6 +53,8 @@ public class HtmlExportService implements IExportService, BillChangeListener,
 	private Boolean dataForExportAvailable = false;
 
 	private Boolean stopService = false;
+
+	private Boolean stopped = false;
 
 	private Thread currentThread;
 
@@ -81,9 +82,13 @@ public class HtmlExportService implements IExportService, BillChangeListener,
 		boolean keepRunning = true;
 
 		while (keepRunning) {
-			sleep();
 			exportDataIfAny();
+			sleep();
 			keepRunning = !isStopRequest();
+		}
+
+		synchronized (stopped) {
+			stopped = true;
 		}
 
 	}
@@ -136,14 +141,8 @@ public class HtmlExportService implements IExportService, BillChangeListener,
 
 		sb.append("\n\nAll bills for today:\n" + "====================\n\n");
 
-		billService.processTodaysBills(new IBillProcessor() {
-
-			@Override
-			public void processBill(Bill bill) {
-				sb.append(billFormatter.formatBill(bill)).append("\n\n\n");
-			}
-
-		});
+		billService.processTodaysBills(bill -> sb.append(
+				billFormatter.formatBill(bill)).append("\n\n\n"));
 
 		sb.append("\n\n").append(StringUtils.repeat("-", 80)).append("\n\n");
 		addBills(billService.getTotalForYesterday(), "yesterday", sb);
@@ -187,18 +186,18 @@ public class HtmlExportService implements IExportService, BillChangeListener,
 		}
 
 		sb.append("Total (gross): ").append(totalForToday.getTotalGross())
-				.append(";\t\t").append("Total (net): ").append(totalNet)
-				.append("\n\n");
+		.append(";\t\t").append("Total (net): ").append(totalNet)
+		.append("\n\n");
 
 		sb.append("VAT classes:\n\n");
 		for (final VATClass vatClass : totalForToday.getAllVatClasses()) {
 			sb.append(vatClass + " \tgross: ")
-					.append(totalForToday.getTotalGrossFor(vatClass))
-					.append("; vat: ")
-					.append(totalForToday.getTotalVATFor(vatClass))
-					.append("; net: ")
-					.append(totalForToday.getTotalNetFor(vatClass))
-					.append("\n");
+			.append(totalForToday.getTotalGrossFor(vatClass))
+			.append("; vat: ")
+			.append(totalForToday.getTotalVATFor(vatClass))
+			.append("; net: ")
+			.append(totalForToday.getTotalNetFor(vatClass))
+			.append("\n");
 		}
 		sb.append("\n\n");
 	}
@@ -210,8 +209,8 @@ public class HtmlExportService implements IExportService, BillChangeListener,
 	}
 
 	/**
-   * 
-   */
+	 *
+	 */
 	private void sleep() {
 		try {
 			Thread.sleep(FIVE_MINUTES);
@@ -237,6 +236,13 @@ public class HtmlExportService implements IExportService, BillChangeListener,
 			dataForExportAvailable = true;
 		}
 
+	}
+
+	@Override
+	public Boolean isStopped() {
+		synchronized (stopped) {
+			return stopped;
+		}
 	}
 
 }

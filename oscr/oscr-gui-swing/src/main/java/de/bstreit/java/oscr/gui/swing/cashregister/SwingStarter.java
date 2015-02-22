@@ -13,25 +13,31 @@ public class SwingStarter {
 
 	public static void main(String[] args) {
 
-		final ConfigurableApplicationContext context = getContext();
+		final ConfigurableApplicationContext context = new AnnotationConfigApplicationContext(
+				SpringConfigurationDoesComponentScan.class);
+
+		createAndLaunchExportService(context);
+		createAndShowMainWindow(context);
+	}
+
+	private static void createAndLaunchExportService(
+			final ConfigurableApplicationContext context) {
 
 		final IExportService exportService = context
 				.getBean(IExportService.class);
 		exportService.runInBackground();
-
-		showMainWindowInEventLoop(context.getBean(MainWindowController.class));
 	}
 
-	public static void showMainWindowInEventLoop(
-			final MainWindowController mainWindowController) {
+	private static void createAndShowMainWindow(
+			final ConfigurableApplicationContext context) {
 
-		// Launch the application on the Swing thread
-		EventQueue.invokeLater(() -> mainWindowController.showMainwindow());
-	}
+		MainWindowController mainWindowController = context
+				.getBean(MainWindowController.class);
 
-	private static ConfigurableApplicationContext getContext() {
-		return new AnnotationConfigApplicationContext(
-				SpringConfigurationDoesComponentScan.class);
+		// Make sure context gets closed when the application is shut down
+		mainWindowController.setShutdownHookForLauncher(() -> context.close());
+
+		EventQueue.invokeLater(mainWindowController::showMainwindow);
 	}
 
 }

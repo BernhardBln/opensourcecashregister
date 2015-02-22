@@ -15,6 +15,9 @@ import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.base.Optional;
 
 import de.bstreit.java.oscr.business.bill.Bill;
@@ -33,6 +36,9 @@ import de.bstreit.java.oscr.text.formatting.BillFormatter;
 @Named
 public class MainWindowController implements BillChangeListener {
 
+	private static final Logger logger = LoggerFactory
+			.getLogger(MainWindowController.class);
+
 	private final DateFormat df = SimpleDateFormat.getInstance();
 
 	@Inject
@@ -49,6 +55,13 @@ public class MainWindowController implements BillChangeListener {
 
 	@Inject
 	private EventBroadcaster eventBroadcaster;
+
+	/**
+	 * This is a shutdown hook that can be registered by the starter app that
+	 * launches the application, e.g.
+	 * {@link de.bstreit.java.oscr.gui.swing.cashregister.SwingStarter}
+	 */
+	private Optional<Runnable> shutdownHookForLauncher = Optional.absent();
 
 	private JFrame openBillsFrame;
 
@@ -114,8 +127,12 @@ public class MainWindowController implements BillChangeListener {
 	 * Notify that the app is supposed to shut down
 	 */
 	public void notifyShutdown() {
+		logger.debug("notifying bill service of shutdown");
 		billService.notifyShutdown();
+		logger.debug("closing open bill frame");
 		openBillsFrame.dispose();
+		logger.debug("closing context");
+		shutdownHookForLauncher.get().run();
 	}
 
 	public void editWeeklyOffers() {
@@ -203,6 +220,16 @@ public class MainWindowController implements BillChangeListener {
 
 	public boolean hasOpenBills() {
 		return !billService.getOpenBills().isEmpty();
+	}
+
+	public void setShutdownHookForLauncher(Runnable shutdownHookForLauncher) {
+
+		if (this.shutdownHookForLauncher.isPresent()) {
+			throw new IllegalStateException(
+					"Shutdown hook can only be set once, and shut only be set by the main() function that launches the application.");
+		}
+
+		this.shutdownHookForLauncher = Optional.of(shutdownHookForLauncher);
 	}
 
 }

@@ -28,6 +28,8 @@ package de.bstreit.java.oscr.business.bill;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
@@ -39,6 +41,8 @@ import javax.transaction.Transactional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Hibernate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.bstreit.java.oscr.business.base.date.ICurrentDateProvider;
 import de.bstreit.java.oscr.business.bill.calculator.WhatToCount;
@@ -65,6 +69,9 @@ import de.bstreit.java.oscr.text.formatting.BillTotalForADayFormatter;
  */
 @Named
 public class BillService {
+
+	private static final Logger logger = LoggerFactory
+			.getLogger(BillService.class);
 
 	@Inject
 	private IBillRepository billRepository;
@@ -393,7 +400,26 @@ public class BillService {
 	}
 
 	public void notifyShutdown() {
+		logger.debug("stopping export service");
 		exportService.stopService();
+		waitForExportServiceShutdownWithTimeout();
+	}
+
+	private void waitForExportServiceShutdownWithTimeout() {
+		Duration timeToWait = Duration.ofSeconds(5);
+		Instant timeToWaitPassed = Instant.now().plus(timeToWait);
+
+		while (!exportService.isStopped()) {
+
+			if (Instant.now().isAfter(timeToWaitPassed)) {
+				break;
+			}
+
+			try {
+				Thread.sleep(300);
+			} catch (InterruptedException e) {
+			}
+		}
 	}
 
 	@Transactional
