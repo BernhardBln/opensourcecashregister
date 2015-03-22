@@ -19,12 +19,16 @@ import de.bstreit.java.oscr.business.bill.IBillCalculator;
 import de.bstreit.java.oscr.business.bill.IBillCalculatorFactory;
 import de.bstreit.java.oscr.business.bill.IMultipleBillsCalculator;
 
+/**
+ * Never re-use, always get a fresh one from the
+ * {@link MultipleBillsCalculatorFactory}.
+ *
+ */
 @Named
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 class MultipleBillsCalculator implements IMultipleBillsCalculator {
 
-  @Inject
-  private IBillCalculatorFactory billCalculatorFactory;
+	private final IBillCalculatorFactory billCalculatorFactory;
 
   private IBillCalculator currentBillCalculator;
 
@@ -35,7 +39,11 @@ class MultipleBillsCalculator implements IMultipleBillsCalculator {
 	private final Map<VATClass, Money> totalGrossByVatClass = Maps.newHashMap();
 	private final Map<VATClass, Money> totalVatByVatClass = Maps.newHashMap();
 
-	MultipleBillsCalculator() {
+	private WhatToCount whatToCount;
+
+	@Inject
+	public MultipleBillsCalculator(IBillCalculatorFactory billCalculatorFactory) {
+		this.billCalculatorFactory = billCalculatorFactory;
 	}
 
 	@Override
@@ -67,7 +75,8 @@ class MultipleBillsCalculator implements IMultipleBillsCalculator {
 		filled = !bills.isEmpty();
 
 		for (final Bill bill : bills) {
-			currentBillCalculator = billCalculatorFactory.create(bill);
+			currentBillCalculator = billCalculatorFactory.create(bill,
+					whatToCount);
 
   void analyse(Collection<Bill> bills) {
 
@@ -149,5 +158,9 @@ class MultipleBillsCalculator implements IMultipleBillsCalculator {
 	@Override
 	public boolean isFilled() {
 		return filled;
+	}
+
+	public void setWhatToCount(WhatToCount whatToCount) {
+		this.whatToCount = whatToCount;
 	}
 }

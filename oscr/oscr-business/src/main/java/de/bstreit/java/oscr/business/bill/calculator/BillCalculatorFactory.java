@@ -12,17 +12,36 @@ import de.bstreit.java.oscr.business.bill.IBillCalculatorFactory;
 @Named
 public class BillCalculatorFactory implements IBillCalculatorFactory {
 
-  @Inject
-  private ConfigurableApplicationContext context;
+	@Inject
+	private ConfigurableApplicationContext context;
 
+	@Override
+	public IBillCalculator create(Bill bill, WhatToCount whatToCount) {
 
-  @Override
-  public IBillCalculator create(Bill bill) {
+		final IBillCalculator billCalculator = createBillCalculator(whatToCount);
 
-    final BillCalculator billCalculator = context.getBean(BillCalculator.class);
+		billCalculator.analyse(bill);
 
-    billCalculator.analyse(bill);
+		return billCalculator;
+	}
 
-    return billCalculator;
-  }
+	private IBillCalculator createBillCalculator(WhatToCount whatToCount) {
+
+		switch (whatToCount) {
+
+		case PAYMENT:
+			return context.getBean(BillCalculatorPayment.class);
+
+		case PROMO_TOTAL:
+			return context.getBean(BillCalculatorPromoTotal.class);
+
+		case TOTAL:
+			return context.getBean(BillCalculatorTotal.class);
+
+		default:
+			throw new IllegalStateException(
+					"Missing calculator factory for type " + whatToCount);
+
+		}
+	}
 }

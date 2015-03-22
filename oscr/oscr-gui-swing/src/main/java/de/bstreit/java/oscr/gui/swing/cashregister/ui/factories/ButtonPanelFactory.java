@@ -20,6 +20,7 @@ import de.bstreit.java.oscr.business.offers.ProductOffer;
 import de.bstreit.java.oscr.business.offers.VariationOffer;
 import de.bstreit.java.oscr.business.offers.dao.IExtraOfferRepository;
 import de.bstreit.java.oscr.business.offers.dao.IProductOfferRepository;
+import de.bstreit.java.oscr.business.offers.dao.IPromoOfferRepository;
 import de.bstreit.java.oscr.business.offers.dao.IVariationOfferRepository;
 import de.bstreit.java.oscr.business.products.category.ProductCategory;
 import de.bstreit.java.oscr.business.products.category.dao.IProductCategoryRepository;
@@ -37,8 +38,11 @@ public class ButtonPanelFactory {
   @Inject
   private IExtraOfferRepository extraOfferRepository;
 
-  @Inject
-  private IVariationOfferRepository variationOfferRepository;
+	@Inject
+	private IPromoOfferRepository promoOfferRepository;
+
+	@Inject
+	private IVariationOfferRepository variationOfferRepository;
 
   @Inject
   private IProductCategoryRepository productCategoryRepository;
@@ -163,6 +167,11 @@ public class ButtonPanelFactory {
 			drinksPanel.add(buttonFactory.createButtonFor(extraOffer));
 		}
 
+		promoOfferRepository
+		.findAllActiveOffers()
+		.stream()
+		.forEach(o -> drinksPanel.add(buttonFactory.createButtonFor(o)));
+
 	}
 
 	public JPanel createControlButtonsPanel() {
@@ -184,29 +193,22 @@ public class ButtonPanelFactory {
 
 	private void addUndoButton(final JPanel controlButtonsPanel) {
 		final JButton undoButton = new JButton("Undo");
-		undoButton.addActionListener(e-> appController.undoLastAction());
+		undoButton.addActionListener(e -> appController.undoLastAction());
 		undoButton.setMinimumSize(new Dimension(0, 40));
 		controlButtonsPanel.add(undoButton);
 	}
 
 	private void addShowOpenBillsButton(final JPanel controlButtonsPanel) {
-		final JButton payButton = new JButton(showOpenBillsAction);
-		payButton.setMinimumSize(new Dimension(0, 40));
-		controlButtonsPanel.add(payButton);
+		controlButtonsPanel.add(buttonFactory
+				.createShowOpenBillsButton(showOpenBillsAction));
 	}
 
 	private void addNewBillButton(final JPanel controlButtonsPanel) {
-		final JButton payButton = new JButton("New Bill");
-		payButton.addActionListener(e -> appController.newBill());
-		payButton.setMinimumSize(new Dimension(0, 40));
-		controlButtonsPanel.add(payButton);
+		controlButtonsPanel.add(buttonFactory.createNewBillButton());
 	}
 
 	private void addPayButton(final JPanel controlButtonsPanel) {
-		final JButton payButton = new JButton("Pay");
-		payButton.addActionListener(e -> appController.closeBill());
-		payButton.setMinimumSize(new Dimension(0, 40));
-		controlButtonsPanel.add(payButton);
+		controlButtonsPanel.add(buttonFactory.createPayButton());
 	}
 
 	private void addToGoButton(final JPanel controlButtonsPanel) {
