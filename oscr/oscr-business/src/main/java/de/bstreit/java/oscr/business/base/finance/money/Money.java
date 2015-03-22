@@ -76,6 +76,16 @@ public class Money implements Serializable {
 		this.currency = currency;
 	}
 
+	public Money(String amount, Currency currency) {
+		Preconditions.checkNotNull(amount);
+		Preconditions.checkNotNull(currency);
+
+		this.amount = resetAmountScale(new BigDecimal(amount.trim().replace(
+				",", ".")));
+
+		this.currency = currency;
+	}
+
 	/**
 	 * We always reset the scale, as the scale influences equals and hashcode.
 	 * 
@@ -151,6 +161,12 @@ public class Money implements Serializable {
 
 		final BigDecimal newValue = amount.subtract(otherMoney.getAmount());
 
+		return new Money(newValue, currency);
+	}
+
+	public Money multiply(int multiplicator) {
+		final BigDecimal newValue = amount.multiply(new BigDecimal(
+				multiplicator));
 		return new Money(newValue, currency);
 	}
 

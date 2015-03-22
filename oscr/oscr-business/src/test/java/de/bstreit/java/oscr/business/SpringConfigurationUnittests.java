@@ -32,9 +32,11 @@ import javax.sql.DataSource;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.orm.jpa.vendor.Database;
 
+import de.bstreit.java.oscr.SpringConfigurationDoesComponentScan;
 import de.bstreit.java.oscr.business.taxation.TaxInfo;
 import de.bstreit.java.oscr.business.taxation.dao.ITaxInfoRepository;
 
@@ -45,22 +47,23 @@ import de.bstreit.java.oscr.business.taxation.dao.ITaxInfoRepository;
  * @author streit
  */
 @Configuration
+@Import(SpringConfigurationDoesComponentScan.class)
 public class SpringConfigurationUnittests {
 
-  @Bean
-  public DataSource dataSource() {
-    return new EmbeddedDatabaseBuilder().setType(H2).build();
-  }
+	@Bean
+	public DataSource dataSource() {
+		return new EmbeddedDatabaseBuilder().setType(H2).build();
+	}
 
-  @Bean
-  protected Database getDatabaseForVendorAdapter() {
-    return Database.H2;
-  }
+	@Bean
+	protected Database getDatabaseForVendorAdapter() {
+		return Database.H2;
+	}
 
-
-  @Bean
-  protected TaxInfo getDefaultGlobalTaxInfoForNewBills(ITaxInfoRepository taxInfoRepository) {
-    return taxInfoRepository.findByDenotationAndValidToIsNull("in-house");
-  }
+	@Bean
+	protected TaxInfo getDefaultGlobalTaxInfoForNewBills(
+			ITaxInfoRepository taxInfoRepository) {
+		return taxInfoRepository.findByDenotationAndValidToIsNull("in-house");
+	}
 
 }

@@ -2,6 +2,7 @@ package de.bstreit.java.oscr.gui.swing.cashregister.ui;
 
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Frame;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -13,6 +14,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextPane;
+import javax.swing.WindowConstants;
 
 import org.w3c.dom.views.AbstractView;
 
@@ -39,38 +41,53 @@ public class MainWindow implements IBillDisplay {
 		billView.setText(billAsText);
 	}
 
-	/**
-	 * @wbp.parser.entryPoint
-	 */
 	// @Override
 	protected JComponent buildPanel() {
-		final JSplitPane splitPane = new JSplitPane();
-		splitPane.setBounds(100, 100, 757, 555);
-		splitPane.setResizeWeight(1.0);
-		splitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+		final JSplitPane mainSplitPane = new JSplitPane();
+		mainSplitPane.setBounds(100, 100, 757, 555);
+		mainSplitPane.setResizeWeight(1.0);
+		mainSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
 
-		billView = new JTextPane();
-		billView.setFont(new Font("Courier New", Font.PLAIN, 12));
-		billView.setPreferredSize(new Dimension(6, 150));
-
-		scrollPane = new JScrollPane(billView);
-		splitPane.setLeftComponent(scrollPane);
+		setTopPanel(mainSplitPane);
 
 		buttonPanel = buttonPanelFactory.createButtonPanel();
 
 		buttonPanel.validate();
 
-		splitPane.setRightComponent(buttonPanel);
+		mainSplitPane.setRightComponent(buttonPanel);
 
-		return splitPane;
+		return mainSplitPane;
 	}
 
+	private void setTopPanel(final JSplitPane mainSplitPane) {
+		billView = new JTextPane();
+		billView.setFont(new Font("Courier New", Font.PLAIN, 12));
+		billView.setPreferredSize(new Dimension(6, 150));
+
+		scrollPane = new JScrollPane(billView);
+
+		final JSplitPane splitPane = new JSplitPane();
+		// splitPane.setBounds(100, 100, 757, 555);
+		splitPane.setResizeWeight(1.0);
+		splitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
+
+		splitPane.setLeftComponent(scrollPane);
+
+		splitPane.setRightComponent(buttonPanelFactory
+				.createControlButtonsPanel());
+
+		mainSplitPane.setLeftComponent(splitPane);
+	}
+
+	/**
+	 * @wbp.parser.entryPoint
+	 */
 	@Override
 	public void show() {
 		jFrame = new JFrame();
 		jFrame.setBounds(100, 100, 757, 555);
-		jFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		jFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+		jFrame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+		jFrame.setExtendedState(Frame.MAXIMIZED_BOTH);
 
 		jFrame.addWindowListener(new WindowAdapter() {
 
@@ -89,6 +106,9 @@ public class MainWindow implements IBillDisplay {
 		}
 
 		jFrame.setVisible(true);
+
+		// init
+		appController.guiLaunched();
 	}
 
 	@Override

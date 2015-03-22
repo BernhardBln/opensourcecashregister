@@ -8,3 +8,9 @@ exportDir=
 # is displayed in a separate part.
 # Leave empty to disable
 weeklyProductCategory=
+
+staffConsumption.breakfast.price=0
+staffConsumption.lunch.price=0
+staffConsumption.dinner.price=0
+
+staffConsumption.managementUser=

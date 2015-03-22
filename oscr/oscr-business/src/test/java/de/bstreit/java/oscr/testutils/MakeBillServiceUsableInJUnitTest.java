@@ -1,26 +1,17 @@
 package de.bstreit.java.oscr.testutils;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.Currency;
 import java.util.Date;
 import java.util.Locale;
 
-import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 
 import de.bstreit.java.oscr.business.base.date.ICurrentDateProvider;
-import de.bstreit.java.oscr.business.bill.Bill;
 import de.bstreit.java.oscr.business.bill.BillService;
-import de.bstreit.java.oscr.business.bill.dao.IBillRepository;
-import de.bstreit.java.oscr.business.staff.IUserService;
 import de.bstreit.java.oscr.business.taxation.TaxInfo;
 import de.bstreit.java.oscr.testutils.business.bill.FixDateProvider;
 
@@ -43,28 +34,30 @@ public class MakeBillServiceUsableInJUnitTest {
 		return new BillService();
 	}
 
-	@Bean
-	public IBillRepository mockedBillRepository() {
+	// @Bean
+	// @Primary
+	// public IBillRepository mockedBillRepository() {
+	//
+	// final IBillRepository mock = mock(IBillRepository.class);
+	//
+	// // simply return argument when invoking save
+	// when(mock.save(Mockito.any(Bill.class))).then(new Answer<Bill>() {
+	//
+	// @Override
+	// public Bill answer(InvocationOnMock invocation) throws Throwable {
+	// return (Bill) invocation.getArguments()[0];
+	// }
+	//
+	// });
+	//
+	// return mock;
+	// }
 
-		final IBillRepository mock = mock(IBillRepository.class);
-
-		// simply return argument when invoking save
-		when(mock.save(Mockito.any(Bill.class))).then(new Answer<Bill>() {
-
-			@Override
-			public Bill answer(InvocationOnMock invocation) throws Throwable {
-				return (Bill) invocation.getArguments()[0];
-			}
-
-		});
-
-		return mock;
-	}
-
-	@Bean
-	public IUserService mockedUserProvider() {
-		return mock(IUserService.class);
-	}
+	// @Bean
+	// @Primary
+	// public IUserService mockedUserProvider() {
+	// return mock(IUserService.class);
+	// }
 
 	@Bean
 	public TaxInfo defaultTaxInfoForNewBills() {
@@ -72,6 +65,7 @@ public class MakeBillServiceUsableInJUnitTest {
 	}
 
 	@Bean
+	@Primary
 	public ICurrentDateProvider repeatingCurrentDateProvider()
 			throws ParseException {
 		final DateFormat df = DateFormat.getDateTimeInstance(

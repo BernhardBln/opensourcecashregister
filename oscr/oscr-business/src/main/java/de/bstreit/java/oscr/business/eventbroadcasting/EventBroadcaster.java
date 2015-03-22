@@ -18,4 +18,6 @@ public interface EventBroadcaster {
 
 	public abstract void notifyBillUpdated(Object sender, Bill newBill);
 
+	public abstract void notifyApplicationLaunched(Object sender);
+
 }

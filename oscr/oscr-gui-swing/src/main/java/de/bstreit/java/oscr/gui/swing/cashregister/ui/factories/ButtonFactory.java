@@ -3,8 +3,8 @@ package de.bstreit.java.oscr.gui.swing.cashregister.ui.factories;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -16,11 +16,9 @@ import javax.swing.JToggleButton;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 
 import de.bstreit.java.oscr.business.bill.Bill;
-import de.bstreit.java.oscr.business.eventbroadcasting.BillChangeListener;
 import de.bstreit.java.oscr.business.eventbroadcasting.EventBroadcaster;
 import de.bstreit.java.oscr.business.eventbroadcasting.OfferChangeListener;
 import de.bstreit.java.oscr.business.offers.AbstractOffer;
@@ -62,13 +60,7 @@ public class ButtonFactory {
 		final JButton button = new JButton(productOffer.getLabel());
 		setDefaults(button);
 
-		button.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				appController.addToBill(productOffer);
-			}
-		});
+		button.addActionListener(e -> appController.addToBill(productOffer));
 
 		eventBroadcaster.addListener(new OfferChangeListener() {
 
@@ -102,6 +94,7 @@ public class ButtonFactory {
 		button.setPreferredSize(new Dimension(120, 40));
 		button.setMaximumSize(new Dimension(120, 40));
 		button.setInheritsPopupMenu(true);
+		button.setMargin(new Insets(0, 0, 0, 0));
 	}
 
 	private void setColourIfNotEmpty(final JButton button,
@@ -127,13 +120,7 @@ public class ButtonFactory {
 		final JButton button = new JButton(offer.getLabel());
 		setDefaults(button);
 
-		button.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				appController.setVariationOffer(offer);
-			}
-		});
+		button.addActionListener(e -> appController.setVariationOffer(offer));
 
 		return button;
 	}
@@ -143,15 +130,58 @@ public class ButtonFactory {
 		final JButton button = new JButton(offer.getLabel());
 		setDefaults(button);
 
-		button.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				appController.addExtraOffer(offer);
-			}
-		});
+		button.addActionListener(e -> appController.addExtraOffer(offer));
 
 		return button;
+	}
+
+	public Component createFreePromotionButton() {
+		final JToggleButton freePromotionButton = new JToggleButton(
+				"Free / Promo");
+
+		addFfreePromotionActionListener(freePromotionButton);
+
+		setToggleButtonUponBillChangeAndDisableUponMissingBill(
+				freePromotionButton, bill -> bill.isFreePromotionOffer());
+
+		freePromotionButton.setMinimumSize(new Dimension(0, 40));
+		freePromotionButton.setEnabled(false);
+
+		return freePromotionButton;
+	}
+
+	private void setToggleButtonUponBillChangeAndDisableUponMissingBill(
+			final JToggleButton toggleButton,
+			final Predicate<Bill> selectedPredicate) {
+
+		eventBroadcaster.addBillChangeListener(newBill -> {
+
+			toggleButton.setEnabled(newBill.isPresent());
+
+			final boolean selected;
+
+			if (newBill.isPresent()) {
+				selected = selectedPredicate.apply(newBill.get());
+			} else {
+				selected = false;
+			}
+
+			if (toggleButton.isSelected() != selected) {
+				toggleButton.setSelected(selected);
+			}
+
+		});
+	}
+
+	private void addFfreePromotionActionListener(
+			final JToggleButton freePromotionButton) {
+		freePromotionButton.addActionListener(e -> {
+			if (freePromotionButton.isSelected()) {
+				appController.setFreePromotion();
+			} else {
+				appController.clearFreePromotion();
+			}
+		});
 	}
 
 	public Component createFreePromotionButton() {
@@ -224,13 +254,7 @@ public class ButtonFactory {
 		addPopupMenuForOtherStaffMembers(staffConsumptionButton);
 
 		setToggleButtonUponBillChangeAndDisableUponMissingBill(
-				staffConsumptionButton, new Predicate<Bill>() {
-
-					@Override
-					public boolean apply(Bill bill) {
-						return bill.isConsumedByStaff();
-					}
-				});
+				staffConsumptionButton, bill -> bill.isConsumedByStaff());
 
 		staffConsumptionButton.setMinimumSize(new Dimension(0, 40));
 		staffConsumptionButton.setEnabled(false);
@@ -241,15 +265,11 @@ public class ButtonFactory {
 	private void addStaffConsumptionActionListener(
 			final JToggleButton staffConsumptionButton) {
 
-		staffConsumptionButton.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (staffConsumptionButton.isSelected()) {
-					appController.setStaffConsumption();
-				} else {
-					appController.clearStaffConsumption();
-				}
+		staffConsumptionButton.addActionListener(e -> {
+			if (staffConsumptionButton.isSelected()) {
+				appController.setStaffConsumption();
+			} else {
+				appController.clearStaffConsumption();
 			}
 		});
 
@@ -266,13 +286,8 @@ public class ButtonFactory {
 
 		final PopupListener popupListener = new PopupListener(popupMenu);
 
-		eventBroadcaster.addBillChangeListener(new BillChangeListener() {
-
-			@Override
-			public void billUpdated(Optional<Bill> newBill) {
-				popupListener.setActive(newBill.isPresent());
-			}
-		});
+		eventBroadcaster.addBillChangeListener(newBill -> popupListener
+				.setActive(newBill.isPresent()));
 
 		staffConsumptionButton.addMouseListener(popupListener);
 	}
@@ -293,21 +308,11 @@ public class ButtonFactory {
 
 	public Component createToGoButton() {
 		final JToggleButton btnToGo = new JToggleButton("To go");
-		btnToGo.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				appController.setBillToGo(btnToGo.isSelected());
-			}
-		});
+		btnToGo.addActionListener(e -> appController.setBillToGo(btnToGo
+				.isSelected()));
 
 		setToggleButtonUponBillChangeAndDisableUponMissingBill(btnToGo,
-				new Predicate<Bill>() {
-					@Override
-					public boolean apply(Bill bill) {
-						return appController.isBillToGo();
-					}
-				});
+				bill -> appController.isBillToGo());
 
 		btnToGo.setMinimumSize(new Dimension(0, 40));
 		btnToGo.setEnabled(false);

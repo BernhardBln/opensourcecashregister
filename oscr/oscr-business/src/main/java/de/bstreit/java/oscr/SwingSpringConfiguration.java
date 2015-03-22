@@ -13,7 +13,11 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.orm.jpa.vendor.Database;
 
 @Configuration
-@PropertySource({ "classpath:database.properties", "classpath:general.properties" })
+// Order is important: TEMPLATES first so they are used as defaults, then local
+// property files
+@PropertySource({ "classpath:database.properties.TEMPLATE", "classpath:general.properties.TEMPLATE",
+    "classpath:database.properties", "classpath:general.properties"
+})
 public class SwingSpringConfiguration {
 
   private static final Logger logger = LoggerFactory
@@ -67,6 +71,9 @@ public class SwingSpringConfiguration {
    */
   @Bean
   public static PropertySourcesPlaceholderConfigurer placeHolderConfigurer() {
-    return new PropertySourcesPlaceholderConfigurer();
+    PropertySourcesPlaceholderConfigurer configurer = new PropertySourcesPlaceholderConfigurer();
+    // configurer.setIgnoreUnresolvablePlaceholders(true);
+    // configurer.setProperties(new );
+    return configurer;
   }
 }
