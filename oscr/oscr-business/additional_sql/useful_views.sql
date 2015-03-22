@@ -456,3 +456,12 @@ and internalconsumer_id is null
 --and extract(hour from billopened) > 15
 group by weekday, hour
 order by weekday, hour;
+
+CREATE VIEW compare_month_performance_with_prev_details AS
+SELECT  day(L.date), L.total as LastMonthTotal, T.total as ThisMonthTotal
+FROM BILLS_SUMMED_UP_BY_DAY_LAST_MONTH L left join 
+           BILLS_SUMMED_UP_BY_DAY_THIS_MONTH  T
+on day(L.date) = day(T.date)
+
+
+
