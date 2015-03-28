@@ -7,9 +7,6 @@ target/
 libs/
 
 # OSCR-specific files
-sandbox/
-*/sandbox/
-*/*/sandbox/
  
 # OS Files #
 .DS_Store
