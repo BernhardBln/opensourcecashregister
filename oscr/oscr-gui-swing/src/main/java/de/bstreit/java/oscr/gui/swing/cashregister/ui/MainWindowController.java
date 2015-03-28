@@ -17,6 +17,7 @@ import javax.swing.JFrame;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Profile;
 
 import com.google.common.base.Optional;
 
@@ -34,6 +35,7 @@ import de.bstreit.java.oscr.business.staff.User;
 import de.bstreit.java.oscr.text.formatting.BillFormatter;
 
 @Named
+@Profile("with-ui")
 public class MainWindowController implements BillChangeListener {
 
 	private static final Logger logger = LoggerFactory

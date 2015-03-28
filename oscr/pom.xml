@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>1.0.1.RELEASE</version>
+		<version>1.2.2.RELEASE</version>
 	</parent>
 
 
@@ -18,13 +18,15 @@
 
 	<packaging>pom</packaging>
 
-
 	<properties>
 		<!-- General -->
 		<java.version>1.8</java.version>
 
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+		<!-- The main class to start by executing java -jar -->
+		<start-class>de.bstreit.java.oscr.gui.swing.cashregister.SwingStarter</start-class>
 
 		<!-- Dependencies -->
 		<javax-inject.version>1</javax-inject.version>
@@ -94,11 +96,11 @@
 				<version>${guava.version}</version>
 			</dependency>
 
-<dependency>
-	<groupId>org.liquibase</groupId>
-	<artifactId>liquibase-core</artifactId>
-	<version>3.2.2</version>
-</dependency>
+			<dependency>
+				<groupId>org.liquibase</groupId>
+				<artifactId>liquibase-core</artifactId>
+				<version>3.2.2</version>
+			</dependency>
 
 			<!-- Testing -->
 

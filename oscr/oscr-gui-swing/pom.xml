@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
@@ -15,10 +16,29 @@
 		<jdal.version>2.0.M1</jdal.version>
 	</properties>
 
-	<!-- <repositories> <repository> <id>jdal</id> <name>JDAL Repository</name> 
-		<url>http://www.jdal.org/repo</url> </repository> </repositories> -->
+
+	<build>
+		<plugins>
+
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+
+			<!-- <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-shade-plugin</artifactId> 
+				<executions> <execution> <phase>package</phase> <goals> <goal>shade</goal> 
+				</goals> </execution> </executions> </plugin> -->
+
+		</plugins>
+	</build>
 
 	<dependencies>
+
+		<dependency>
+			<groupId>de.bstreit.java.oscr</groupId>
+			<artifactId>oscr-initial-data</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 
 		<dependency>
 			<groupId>de.bstreit.java.oscr</groupId>
@@ -43,19 +63,23 @@
 			<artifactId>spring-boot-starter-logging</artifactId>
 		</dependency>
 
-		<!-- Data mapping and access -->
+		<!-- JDBC drivers -->
 
 		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-orm</artifactId>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
 		</dependency>
+
 		<dependency>
-			<groupId>org.springframework.data</groupId>
-			<artifactId>spring-data-jpa</artifactId>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
 		</dependency>
+
+		<!-- Data mapping and access -->
+		
 		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-entitymanager</artifactId>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
 
 		<!-- Tools -->
@@ -91,13 +115,12 @@
 		</dependency>
 
 
+
+
 		<dependency>
-			<groupId>com.h2database</groupId>
-			<artifactId>h2</artifactId>
-			<scope>test</scope>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter</artifactId>
 		</dependency>
-
-
 	</dependencies>
 
 </project>

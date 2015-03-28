@@ -2,19 +2,25 @@ package de.bstreit.java.oscr.gui.swing.cashregister;
 
 import java.awt.EventQueue;
 
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import de.bstreit.java.oscr.SpringConfigurationDoesComponentScan;
 import de.bstreit.java.oscr.business.export.IExportService;
 import de.bstreit.java.oscr.gui.swing.cashregister.ui.MainWindowController;
 
+@SpringBootApplication
 public class SwingStarter {
 
 	public static void main(String[] args) {
 
-		final ConfigurableApplicationContext context = new AnnotationConfigApplicationContext(
-				SpringConfigurationDoesComponentScan.class);
+		SpringApplication app = new SpringApplicationBuilder(
+				SpringConfigurationDoesComponentScan.class)
+		.addCommandLineProperties(true).headless(false).build();
+
+		final ConfigurableApplicationContext context = app.run(args);
 
 		createAndLaunchExportService(context);
 		createAndShowMainWindow(context);

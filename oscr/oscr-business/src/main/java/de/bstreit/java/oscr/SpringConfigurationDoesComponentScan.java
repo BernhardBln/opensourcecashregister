@@ -29,20 +29,15 @@ package de.bstreit.java.oscr;
 import java.util.Currency;
 import java.util.Locale;
 
-import javax.inject.Inject;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.orm.jpa.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.orm.jpa.JpaTransactionManager;
-import org.springframework.orm.jpa.JpaVendorAdapter;
-import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.Database;
-import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
-import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import de.bstreit.java.oscr.business.taxation.TaxInfo;
@@ -63,49 +58,53 @@ import de.bstreit.java.oscr.business.taxation.dao.ITaxInfoRepository;
  */
 @Configuration
 @ComponentScan
+@EntityScan
 @EnableJpaRepositories
 @EnableTransactionManagement
 public class SpringConfigurationDoesComponentScan {
 
-	@Inject
-	private Database database;
+	// @Inject
+	// private Database database;
 
 	@Value("${defaultGlobalTax}")
 	private TaxUsage defaultGlobalTax;
 
-	@Bean
-	public LocalContainerEntityManagerFactoryBean entityManagerFactory(
-			DataSource dataSource, JpaVendorAdapter jpaVendorAdapter) {
+	// @Bean
+	// public LocalContainerEntityManagerFactoryBean entityManagerFactory(
+	// DataSource dataSource, JpaVendorAdapter jpaVendorAdapter) {
+	//
+	// final LocalContainerEntityManagerFactoryBean lef = new
+	// LocalContainerEntityManagerFactoryBean();
+	//
+	// lef.setDataSource(dataSource);
+	// lef.setJpaVendorAdapter(jpaVendorAdapter);
+	//
+	// // Packages to scan for hibernate entities
+	// final String thisPackageAndSubpackages = this.getClass().getPackage()
+	// .getName();
+	// lef.setPackagesToScan(thisPackageAndSubpackages);
+	//
+	// return lef;
+	// }
 
-		final LocalContainerEntityManagerFactoryBean lef = new LocalContainerEntityManagerFactoryBean();
-
-		lef.setDataSource(dataSource);
-		lef.setJpaVendorAdapter(jpaVendorAdapter);
-
-		// Packages to scan for hibernate entities
-		final String thisPackageAndSubpackages = this.getClass().getPackage()
-				.getName();
-		lef.setPackagesToScan(thisPackageAndSubpackages);
-
-		return lef;
-	}
-
-	@Bean
-	public JpaVendorAdapter jpaVendorAdapter() {
-
-		final HibernateJpaVendorAdapter hibernateJpaVendorAdapter = new HibernateJpaVendorAdapter();
-
-		hibernateJpaVendorAdapter.setShowSql(false);
-		hibernateJpaVendorAdapter.setGenerateDdl(true);
-		hibernateJpaVendorAdapter.setDatabase(database);
-
-		return hibernateJpaVendorAdapter;
-	}
-
-	@Bean
-	public PlatformTransactionManager transactionManager() {
-		return new JpaTransactionManager();
-	}
+	//
+	// @Bean
+	// public JpaVendorAdapter jpaVendorAdapter() {
+	//
+	// final HibernateJpaVendorAdapter hibernateJpaVendorAdapter = new
+	// HibernateJpaVendorAdapter();
+	//
+	// hibernateJpaVendorAdapter.setShowSql(false);
+	// hibernateJpaVendorAdapter.setGenerateDdl(true);
+	// hibernateJpaVendorAdapter.setDatabase(database);
+	//
+	// return hibernateJpaVendorAdapter;
+	// }
+	//
+	// @Bean
+	// public PlatformTransactionManager transactionManager() {
+	// return new JpaTransactionManager();
+	// }
 
 	/**
 	 * TODO [11]: Maybe make this a setting that is saved in the database?

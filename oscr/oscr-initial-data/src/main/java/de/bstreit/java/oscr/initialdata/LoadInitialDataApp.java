@@ -1,28 +1,28 @@
 /*
  * Open Source Cash Register
- * 
+ *
  * Copyright (C) 2013, 2014 Bernhard Streit
- * 
+ *
  * This file is part of the Open Source Cash Register program.
- * 
- * Open Source Cash Register is free software: you can redistribute it 
- * and/or modify it under the terms of the GNU General Public License 
- * as published by the Free Software Foundation, either version 3 of 
+ *
+ * Open Source Cash Register is free software: you can redistribute it
+ * and/or modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation, either version 3 of
  * the License, or (at your option) any later version.
- * 
- * Open Source Cash Register is distributed in the hope that it will 
- * be useful, but WITHOUT ANY WARRANTY; without even the implied 
- * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+ *
+ * Open Source Cash Register is distributed in the hope that it will
+ * be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- *  
+ *
  * --------------------------------------------------------------------------
- *  
+ *
  * See oscr/licenses/gpl-3.txt for a copy of the GNU GPL.
  * See oscr/README.txt for more information about the software and the author(s).
- * 
+ *
  */
 package de.bstreit.java.oscr.initialdata;
 
@@ -31,115 +31,105 @@ import java.util.InputMismatchException;
 import java.util.Scanner;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.sql.DataSource;
 
 import org.springframework.beans.BeansException;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.context.support.AbstractApplicationContext;
-import org.springframework.orm.jpa.vendor.Database;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.Profile;
 
 import de.bstreit.java.oscr.SpringConfigurationDoesComponentScan;
-
 
 /**
  * Load initial data. Throw exception and exit if database already exists and is
  * not empty.
- * 
+ *
  * @author streit
  */
-@Named
+@SpringBootApplication
+@EnableAutoConfiguration
+@Profile("load-initial-data")
 public class LoadInitialDataApp {
 
-  static {
-  }
+	static {
+	}
 
-  @Inject
-  private Database database;
-  @Inject
-  private DataSource dataSource;
+	@Inject
+	private DataSource dataSource;
 
+	@Inject
+	private DataLoader dataLoader;
 
-  @Inject
-  private DataLoader dataLoader;
+	public static void main(String[] args) throws BeansException, SQLException {
+		System.out.println("Loading...");
 
+		ConfigurableApplicationContext context = SpringApplication.run(
+				SpringConfigurationDoesComponentScan.class, args);
 
-  public static void main(String[] args) throws BeansException, SQLException {
-    System.out.println("Loading...");
+		context.getBean(LoadInitialDataApp.class).start();
 
-    try (
-        final AbstractApplicationContext context = new AnnotationConfigApplicationContext(
-            SpringConfigurationDoesComponentScan.class)) {
+	}
 
-      context.getBean(LoadInitialDataApp.class).start();
+	private void start() throws SQLException {
+		allowUserToAbort();
 
-    } catch (RuntimeException e) {
-      if (!"Aborted".equals(e.getMessage())) {
-        throw e;
-      }
-    }
-  }
+		dataLoader.populateDatabase();
 
-  private void start() throws SQLException {
-    allowUserToAbort();
+		System.out.println("Done.");
 
-    dataLoader.populateDatabase();
+	}
 
-    System.out.println("Done.");
+	private void allowUserToAbort() throws SQLException {
+		printQuestion();
+		askUserForAbort();
+	}
 
-  }
+	private void printQuestion() throws SQLException {
+		System.out.println("");
+		System.out.println("Going to fill database "
+				+ dataSource.getConnection().getMetaData().toString());
+		System.out.println("");
+		System.out.println("Continue? [Y/N]");
+		System.out.println("");
+		System.out.print("> ");
+	}
 
-  private void allowUserToAbort() throws SQLException {
-    printQuestion();
-    askUserForAbort();
-  }
+	private void askUserForAbort() {
+		String choice;
 
-  private void printQuestion() throws SQLException {
-    System.out.println("");
-    System.out.println("Going to fill database " + database + " - "
-        + dataSource.getConnection().getMetaData().toString());
-    System.out.println("");
-    System.out.println("Continue? [Y/N]");
-    System.out.println("");
-    System.out.print("> ");
-  }
+		try (final Scanner scanner = new Scanner(System.in)) {
 
+			while (true) {
+				choice = readFromPrompt(scanner);
 
-  private void askUserForAbort() {
-    String choice;
+				if (choice == null) {
+					continue;
+				}
 
-    try (final Scanner scanner = new Scanner(System.in)) {
+				if (choice.toUpperCase().equals("Y")) {
+					return;
+				}
 
-      while (true) {
-        choice = readFromPrompt(scanner);
+				throw new RuntimeException("Aborted");
 
-        if (choice == null) {
-          continue;
-        }
+			}
 
-        if (choice.toUpperCase().equals("Y")) {
-          return;
-        }
+		}
 
-        throw new RuntimeException("Aborted");
+	}
 
-      }
+	private String readFromPrompt(final Scanner scanner) {
 
-    }
+		try {
+			return String.valueOf(scanner.next("\\w"));
 
-  }
+		} catch (InputMismatchException e) {
 
-  private String readFromPrompt(final Scanner scanner) {
+			return "";
+		}
 
-    try {
-      return String.valueOf(scanner.next("\\w"));
-
-    } catch (InputMismatchException e) {
-
-      return "";
-    }
-
-  }
-
+	}
 
 }
