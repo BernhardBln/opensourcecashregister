@@ -1,29 +1,20 @@
 package de.bstreit.java.oscr.gui.noswing.admin;
 
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ApplicationContext;
 
 import de.bstreit.java.oscr.SpringConfigurationDoesComponentScan;
 
+@SpringBootApplication
 public class AdminStarter {
 
 	public static void main(String[] args) {
 
-		final ConfigurableApplicationContext context = getContext();
+		final ApplicationContext context = SpringApplication.run(
+				SpringConfigurationDoesComponentScan.class, args);
 
-		final NoswingAdminController noswingAdminController = context
-				.getBean(NoswingAdminController.class);
-		try {
-			noswingAdminController.launchApplication();
-		} catch (final RuntimeException e) {
-			if (!"Aborted".equals(e.getMessage())) {
-				throw e;
-			}
-		}
+		context.getBean(NoswingAdminController.class).launchApplication();
 	}
 
-	private static ConfigurableApplicationContext getContext() {
-		return new AnnotationConfigApplicationContext(
-				SpringConfigurationDoesComponentScan.class);
-	}
 }
