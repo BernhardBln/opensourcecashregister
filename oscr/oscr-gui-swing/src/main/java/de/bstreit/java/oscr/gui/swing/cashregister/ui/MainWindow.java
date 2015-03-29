@@ -16,11 +16,13 @@ import javax.swing.JSplitPane;
 import javax.swing.JTextPane;
 import javax.swing.WindowConstants;
 
+import org.springframework.context.annotation.Profile;
 import org.w3c.dom.views.AbstractView;
 
 import de.bstreit.java.oscr.gui.swing.cashregister.ui.factories.ButtonPanelFactory;
 
 @Named
+@Profile("with-ui")
 public class MainWindow implements IBillDisplay {
 
 	private JFrame jFrame;

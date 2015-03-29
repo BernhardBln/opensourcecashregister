@@ -16,6 +16,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JToggleButton;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.context.annotation.Profile;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
@@ -34,6 +35,7 @@ import de.bstreit.java.oscr.business.staff.dao.IUserRepository;
 import de.bstreit.java.oscr.gui.swing.cashregister.ui.MainWindowController;
 
 @Named
+@Profile("with-ui")
 public class ButtonFactory {
 
 	@Inject
@@ -281,9 +283,9 @@ public class ButtonFactory {
 		final PopupListener popupListener = new PopupListener(popupMenu);
 
 		eventBroadcaster
-		.addBillChangeListener(newBill -> popupListener
-				.setActive(getStaffConsumptionIsEnabledLambda().apply(
-						newBill)));
+				.addBillChangeListener(newBill -> popupListener
+						.setActive(getStaffConsumptionIsEnabledLambda().apply(
+								newBill)));
 
 		staffConsumptionButton.addMouseListener(popupListener);
 	}

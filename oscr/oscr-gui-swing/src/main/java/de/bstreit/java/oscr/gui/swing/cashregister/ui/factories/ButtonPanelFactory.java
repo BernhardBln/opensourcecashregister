@@ -14,6 +14,7 @@ import javax.swing.JPopupMenu;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 
 import de.bstreit.java.oscr.business.offers.ExtraOffer;
 import de.bstreit.java.oscr.business.offers.ProductOffer;
@@ -27,6 +28,7 @@ import de.bstreit.java.oscr.business.products.category.dao.IProductCategoryRepos
 import de.bstreit.java.oscr.gui.swing.cashregister.ui.MainWindowController;
 
 @Named
+@Profile("with-ui")
 public class ButtonPanelFactory {
 
 	@Inject
@@ -169,9 +171,9 @@ public class ButtonPanelFactory {
 		}
 
 		promoOfferRepository
-		.findAllActiveOffers()
-		.stream()
-		.forEach(o -> drinksPanel.add(buttonFactory.createButtonFor(o)));
+				.findAllActiveOffers()
+				.stream()
+				.forEach(o -> drinksPanel.add(buttonFactory.createButtonFor(o)));
 
 	}
 

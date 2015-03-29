@@ -7,6 +7,8 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.swing.AbstractAction;
 
+import org.springframework.context.annotation.Profile;
+
 import com.google.common.base.Optional;
 
 import de.bstreit.java.oscr.business.bill.Bill;
@@ -15,8 +17,9 @@ import de.bstreit.java.oscr.business.eventbroadcasting.EventBroadcaster;
 import de.bstreit.java.oscr.gui.swing.cashregister.ui.MainWindowController;
 
 @Named
+@Profile("with-ui")
 public class ShowOpenBillsAction extends AbstractAction implements
-BillChangeListener {
+		BillChangeListener {
 
 	private static final String DESCRIPTION = "Show open Bills";
 

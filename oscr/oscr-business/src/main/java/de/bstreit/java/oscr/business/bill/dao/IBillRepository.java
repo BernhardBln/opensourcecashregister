@@ -58,9 +58,20 @@ public interface IBillRepository extends JpaRepository<Bill, String> {
 	 * @param from
 	 * @param to
 	 * @return all bills opened on or after the from date and before the to date
+	 * @deprecated use {@link #getBillsForStaffRanged(Date, Date)}
 	 */
+	@Deprecated
 	@Query("from Bill where billOpened >= ?1 AND billOpened < ?2 AND internalConsumer is NOT NULL")
 	public Collection<Bill> getBillsForStaff(Date from, Date to);
+
+	/**
+	 *
+	 * @param from
+	 * @param to
+	 * @return all bills opened &ge; from and &le; to
+	 */
+	@Query("from Bill where billOpened >= ?1 AND billOpened <= ?2 AND internalConsumer is NOT NULL")
+	public Collection<Bill> getBillsForStaffRanged(Date from, Date to);
 
 	@Query("from Bill where billOpened >= ?1 and billOpened < ?2 and internalConsumer is NULL order by billOpened desc")
 	public Collection<Bill> getBillsForDayWithoutStaff(Date from, Date to);
