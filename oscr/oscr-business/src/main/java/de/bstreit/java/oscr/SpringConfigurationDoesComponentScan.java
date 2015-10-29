@@ -150,11 +150,10 @@ public class SpringConfigurationDoesComponentScan {
 	protected TaxInfo getOtherGlobalTaxInfo(ITaxInfoRepository taxInfoRepository) {
 
 		if (defaultGlobalTax == TaxUsage.GLOBAL_REDUCED_VAT) {
-			return taxInfoRepository
-					.findByTaxUsage(TaxUsage.GLOBAL_STANDARD_VAT);
+			return taxInfoRepository.findByDenotationAndValidToIsNull("To go");
 		} else {
 			return taxInfoRepository
-					.findByTaxUsage(TaxUsage.GLOBAL_REDUCED_VAT);
+					.findByDenotationAndValidToIsNull("In-house");
 		}
 
 	}

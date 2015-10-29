@@ -18,7 +18,7 @@ public class SwingStarter {
 
 		SpringApplication app = new SpringApplicationBuilder(
 				SpringConfigurationDoesComponentScan.class)
-		.addCommandLineProperties(true).headless(false).build();
+				.addCommandLineProperties(true).headless(false).build();
 
 		final ConfigurableApplicationContext context = app.run(args);
 
