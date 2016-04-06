@@ -96,12 +96,16 @@ public class Bill implements Iterable<BillItem> {
 	@ManyToOne(optional = true)
 	private User internalConsumer = null;
 
+	@Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
+	private boolean twentyPercentOff = false;
+
 	/**
 	 * In case the customer didn't pay for this, e.g. because of an promotion,
 	 * as apologies for sth or because he brought a full loyalty card.
 	 */
 	@Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
 	private boolean freePromotionOffer = false;
+
 
 	Bill(TaxInfo defaultGlobalTaxInfo, Date billOpeningDate) {
 		checkNotNull(defaultGlobalTaxInfo);
@@ -251,6 +255,14 @@ public class Bill implements Iterable<BillItem> {
 		}
 
 		return billItems.get(billItems.size() - 1);
+	}
+
+	public boolean isTwentyPercentOff() {
+		return twentyPercentOff;
+	}
+	
+	public void setTwentyPercentOff(boolean twentyPercentOff) {
+		this.twentyPercentOff = twentyPercentOff;
 	}
 
 }

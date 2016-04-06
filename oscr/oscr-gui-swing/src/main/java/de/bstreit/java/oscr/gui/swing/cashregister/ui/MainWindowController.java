@@ -49,11 +49,11 @@ public class MainWindowController implements BillChangeListener {
 	@Inject
 	private IBillDisplay billDisplay;
 
-  @Inject
-  private BillFormatter billFormatter;
+	@Inject
+	private BillFormatter billFormatter;
 
-  @Inject
-  private BillService billService;
+	@Inject
+	private BillService billService;
 
 	@Inject
 	private ITaxInfoRepository taxInfoRepository;
@@ -236,6 +236,14 @@ public class MainWindowController implements BillChangeListener {
 	public void clearFreePromotion() {
 		billService.clearFreePromotion();
 
+	}
+	public void setTwentyPercentPromotion() {
+		billService.setTwentyPercentPromotion();
+	}
+	
+	public void clearTwentyPercentPromotion() {
+		billService.clearTwentyPercentPromotion();
+		
 	}
 
 	public void showOpenBills() {

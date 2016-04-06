@@ -29,14 +29,14 @@ import de.bstreit.java.oscr.gui.swing.cashregister.ui.MainWindowController;
 @Named
 public class ButtonPanelFactory {
 
-  @Inject
-  private MainWindowController appController;
+	@Inject
+	private MainWindowController appController;
 
-  @Inject
-  private IProductOfferRepository productOfferRep;
+	@Inject
+	private IProductOfferRepository productOfferRep;
 
-  @Inject
-  private IExtraOfferRepository extraOfferRepository;
+	@Inject
+	private IExtraOfferRepository extraOfferRepository;
 
 	@Inject
 	private IPromoOfferRepository promoOfferRepository;
@@ -44,11 +44,11 @@ public class ButtonPanelFactory {
 	@Inject
 	private IVariationOfferRepository variationOfferRepository;
 
-  @Inject
-  private IProductCategoryRepository productCategoryRepository;
+	@Inject
+	private IProductCategoryRepository productCategoryRepository;
 
-  @Inject
-  private ButtonFactory buttonFactory;
+	@Inject
+	private ButtonFactory buttonFactory;
 
 	@Inject
 	private ShowOpenBillsAction showOpenBillsAction;
@@ -56,90 +56,91 @@ public class ButtonPanelFactory {
 	@Value("${weeklyProductCategory}")
 	private String weeklyCategoryAsString;
 
-  private ProductCategory weeklyCategory;
+	private ProductCategory weeklyCategory;
 
-  private JPanel buttonPanel;
-  private JPanel weeklyAndDrinksPanel;
-  private JPanel drinksPanel;
-  private JPanel weeklyPanel;
+	private JPanel buttonPanel;
+	private JPanel weeklyAndDrinksPanel;
+	private JPanel drinksPanel;
+	private JPanel weeklyPanel;
 
-  @Inject
-  private EditWeeklyButonsAction editWeeklyButonsAction;
+	@Inject
+	private EditWeeklyButonsAction editWeeklyButonsAction;
 
+	public JPanel createButtonPanel() {
 
-  public JPanel createButtonPanel() {
+		buttonPanel = new JPanel();
 
-    buttonPanel = new JPanel();
+		try {
+			if (StringUtils.isNotBlank(weeklyCategoryAsString)) {
+				weeklyCategory = productCategoryRepository
+						.findByName(weeklyCategoryAsString);
+			}
 
-    try {
-      if (StringUtils.isNotBlank(weeklyCategoryAsString)) {
-        weeklyCategory = productCategoryRepository
-            .findByName(weeklyCategoryAsString);
-      }
+			initJPanel();
 
 			buildAndAddWeeklyPanelToMainPanel();
 			buildAndAddDrinksPanelToMainPanel();
 
-      buildAndAddWeeklyPanelToMainPanel();
-      buildAndAddDrinksPanelToMainPanel();
-      buildAndAddControlButtonsPanelToMainPanel();
+			return buttonPanel;
 
-      return buttonPanel;
+		} finally {
+			buttonPanel = null;
+			drinksPanel = null;
+			// Keep weekly panel so we can refresh it
+			// weeklyPanel = null;
+		}
+	}
 
-    } finally {
-      buttonPanel = null;
-      drinksPanel = null;
-      // Keep weekly panel so we can refresh it
-      // weeklyPanel = null;
-    }
-  }
+	private void initJPanel() {
+		buttonPanel.removeAll();
+		buttonPanel.setLayout(new BorderLayout(0, 0));
+		buttonPanel.setPreferredSize(new Dimension(10, 340));
 
-  private void initJPanel() {
-    buttonPanel.removeAll();
-    buttonPanel.setLayout(new BorderLayout(0, 0));
-    buttonPanel.setPreferredSize(new Dimension(10, 340));
+		weeklyAndDrinksPanel = new JPanel();
+		weeklyAndDrinksPanel.setLayout(new BoxLayout(weeklyAndDrinksPanel,
+				BoxLayout.X_AXIS));
 
-    weeklyAndDrinksPanel = new JPanel();
-    weeklyAndDrinksPanel.setLayout(new BoxLayout(weeklyAndDrinksPanel,
-        BoxLayout.X_AXIS));
+		buttonPanel.add(weeklyAndDrinksPanel, BorderLayout.CENTER);
+	}
 
-    buttonPanel.add(weeklyAndDrinksPanel, BorderLayout.CENTER);
-  }
+	private void buildAndAddWeeklyPanelToMainPanel() {
 
-  private void buildAndAddWeeklyPanelToMainPanel() {
+		if (weeklyCategory == null) {
+			return;
+		}
 
-    if (weeklyCategory == null) {
-      return;
-    }
+		final Collection<ProductOffer> allActiveOffers = productOfferRep
+				.findActiveOffersByProductCategory(weeklyCategory);
 
-    final Collection<ProductOffer> allActiveOffers = productOfferRep
-        .findActiveOffersByProductCategory(weeklyCategory);
+		if (allActiveOffers.isEmpty()) {
+			return;
+		}
 
-    if (allActiveOffers.isEmpty()) {
-      return;
-    }
+		weeklyPanel = new JPanel();
+		weeklyAndDrinksPanel.add(weeklyPanel);
 
-    weeklyPanel = new JPanel();
-    weeklyAndDrinksPanel.add(weeklyPanel);
+		final int rows = 4;
+		final int cols = 2;
+		weeklyPanel.setLayout(new GridLayout(rows, cols, 4, 3));
 
-    final int rows = 4;
-    final int cols = 2;
-    weeklyPanel.setLayout(new GridLayout(rows, cols, 4, 3));
+		final JPopupMenu editWeeklyOffersPopupMenu = new JPopupMenu();
+		editWeeklyOffersPopupMenu.add(editWeeklyButonsAction);
+		weeklyPanel.setComponentPopupMenu(editWeeklyOffersPopupMenu);
 
-    final JPopupMenu editWeeklyOffersPopupMenu = new JPopupMenu();
-    editWeeklyOffersPopupMenu.add(editWeeklyButonsAction);
-    weeklyPanel.setComponentPopupMenu(editWeeklyOffersPopupMenu);
+		for (final ProductOffer offer : allActiveOffers) {
+			weeklyPanel.add(buttonFactory.createButtonFor(offer));
+		}
 
-    for (final ProductOffer offer : allActiveOffers) {
-      weeklyPanel.add(buttonFactory.createButtonFor(offer));
-    }
+	}
 
-  }
+	private void buildAndAddDrinksPanelToMainPanel() {
 
-  private void buildAndAddDrinksPanelToMainPanel() {
+		drinksPanel = new JPanel();
+		weeklyAndDrinksPanel.add(drinksPanel);
 
-    drinksPanel = new JPanel();
-    weeklyAndDrinksPanel.add(drinksPanel);
+		final int rows = 4;
+		final int cols = 5;
+		drinksPanel.setLayout(new GridLayout(rows, cols, 3, 3));
 
 		final Collection<ProductOffer> allActiveOffers;
 		if (weeklyCategory != null) {
@@ -185,6 +186,7 @@ public class ButtonPanelFactory {
 		addPayButton(controlButtonsPanel);
 		addToGoButton(controlButtonsPanel);
 		addFreePromotionButton(controlButtonsPanel);
+		addTwentyPercentPromotionButton(controlButtonsPanel);
 		addStaffConsumptionButton(controlButtonsPanel);
 		addKassenstandButton(controlButtonsPanel);
 
@@ -217,6 +219,9 @@ public class ButtonPanelFactory {
 
 	private void addFreePromotionButton(JPanel controlButtonsPanel) {
 		controlButtonsPanel.add(buttonFactory.createFreePromotionButton());
+	}
+	private void addTwentyPercentPromotionButton(JPanel controlButtonsPanel) {
+		controlButtonsPanel.add(buttonFactory.createTwentyPercentPromotionButton());
 	}
 
 	private void addStaffConsumptionButton(JPanel controlButtonsPanel) {
