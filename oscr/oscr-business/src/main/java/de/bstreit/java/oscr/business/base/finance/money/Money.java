@@ -204,9 +204,9 @@ public class Money implements Serializable {
    */
   public Money getNet(VATClass vatClass) {
     final BigDecimal vatRateDivBy100 = vatClass.getRate().divide(HUNDRED);
-    final BigDecimal divider = BigDecimal.ONE.add(vatRateDivBy100);
+    final BigDecimal divider = BigDecimal.ONE.subtract(vatRateDivBy100);
     final BigDecimal netValue = amount
-        .divide(divider, RoundingMode.HALF_UP);
+        .multiply(divider);
     return new Money(netValue, currency);
   }
 

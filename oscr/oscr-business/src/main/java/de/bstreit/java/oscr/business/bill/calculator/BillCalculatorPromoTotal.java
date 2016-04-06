@@ -47,6 +47,7 @@ class BillCalculatorPromoTotal implements IBillCalculator {
 
 
   private static final BigDecimal TWENTY_PERCENT = new BigDecimal("0.2");
+  private static final BigDecimal TWENTY = new BigDecimal("20");
 
 
   BillCalculatorPromoTotal() {
@@ -116,14 +117,19 @@ class BillCalculatorPromoTotal implements IBillCalculator {
       }
 
       final Money currentPriceGross;
+      Money reduction = getGrossPromoReduction(item);
 
       if (bill.isFreePromotionOffer()) {
         currentPriceGross = item.getPriceGross().absolute();
-      } else if (bill.isTwentyPercentOff()) {
-        currentPriceGross = item.getPriceGross().absolute().multiply(TWENTY_PERCENT);
+      }
+      else if (bill.isTwentyPercentOff()) {
+        // if e.g. 1 EUR is taken off from an item that costs 3 EURs, and
+        // additionally 20% is offered,
+        // then the further reduction is (3 - 1) * 0.2
+        Money furtherReduction = item.getPriceGross().absolute().multiply(TWENTY_PERCENT);
+        currentPriceGross = reduction.add(furtherReduction);
       } else {
-        // bill item has promo
-        currentPriceGross = getGrossPromoReduction(item);
+        currentPriceGross = reduction;
       }
 
       total = total.add(currentPriceGross);
@@ -145,14 +151,18 @@ class BillCalculatorPromoTotal implements IBillCalculator {
       if (vatClass.equals(vatFinder.getVATClassFor(item, bill))) {
 
         final Money currentPriceGross;
+        Money reduction = getGrossPromoReduction(item);
 
         if (bill.isFreePromotionOffer()) {
           currentPriceGross = item.getPriceGross();
-        } else if (bill.isTwentyPercentOff()) {
-          currentPriceGross = item.getPriceGross().absolute().multiply(TWENTY_PERCENT);
+        }
+        else if (bill.isTwentyPercentOff()) {
+          Money furtherReduction = item.getPriceGross().absolute()
+              .multiply(TWENTY_PERCENT);
+          currentPriceGross = reduction.add(furtherReduction);
         } else {
           // whole bill is not free, but this item has a reduction
-          currentPriceGross = getGrossPromoReduction(item);
+          currentPriceGross = reduction;
         }
 
         final Money currentPriceNet = currentPriceGross
@@ -178,14 +188,18 @@ class BillCalculatorPromoTotal implements IBillCalculator {
       if (vatClass.equals(vatFinder.getVATClassFor(item, bill))) {
 
         final Money currentPriceGross;
+        Money reduction = getGrossPromoReduction(item);
 
         if (bill.isFreePromotionOffer()) {
           currentPriceGross = item.getPriceGross();
-        } else if (bill.isTwentyPercentOff()) {
-          currentPriceGross = item.getPriceGross().absolute().multiply(TWENTY_PERCENT);
+        }
+        else if (bill.isTwentyPercentOff()) {
+          Money furtherReduction = item.getPriceGross().absolute()
+              .multiply(TWENTY_PERCENT);
+          currentPriceGross = reduction.add(furtherReduction);
         } else {
           // whole bill is not free, but this item has a reduction
-          currentPriceGross = getGrossPromoReduction(item);
+          currentPriceGross = reduction;
         }
 
         total = total.add(currentPriceGross);
@@ -213,13 +227,15 @@ class BillCalculatorPromoTotal implements IBillCalculator {
     final VATClass applyingVATClass = vatFinder.getVATClassFor(billItem,
         bill);
 
-    Money amount = getGrossPromoReduction(billItem);
+    Money reduction = getGrossPromoReduction(billItem);
 
     if (bill.isTwentyPercentOff()) {
-      amount = amount.multiply(TWENTY_PERCENT).getNet(applyingVATClass);
+      Money furtherReduction = billItem.getPriceGross().absolute()
+          .multiply(TWENTY_PERCENT);
+      reduction = reduction.add(furtherReduction);
     }
 
-    return amount.getNet(applyingVATClass);
+    return reduction.getNet(applyingVATClass);
   }
 
   @Override
@@ -252,6 +268,6 @@ class BillCalculatorPromoTotal implements IBillCalculator {
     return item.getExtraAndVariationOffers().stream()
         .filter(o -> (o instanceof PromoOffer))
         .map(o -> o.getPriceGross().absolute())
-        .reduce((p1, p2) -> p1.add(p2)).get();
+        .reduce((p1, p2) -> p1.add(p2)).orElse(ZERO);
   }
 }
