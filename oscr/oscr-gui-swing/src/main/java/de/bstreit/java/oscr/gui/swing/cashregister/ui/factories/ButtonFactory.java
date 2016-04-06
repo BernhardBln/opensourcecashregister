@@ -181,10 +181,29 @@ public class ButtonFactory {
 		return freePromotionButton;
 	}
 
+	public Component createTwentyPercentPromotionButton() {
+		final JToggleButton button = new JToggleButton("20% off");
+
+		addTwentyPercentPromotion(button);
+
+		setToggleButtonUponBillChangeAndDisableUponMissingBill(button,
+				getTwentyPercentPromotionIsEnabledLambda(),
+				bill -> bill.isTwentyPercentOff());
+
+		button.setMinimumSize(new Dimension(0, 40));
+		button.setEnabled(false);
+
+		return button;
+	}
+
 	private Predicate<Optional<Bill>> getFreePromotionIsEnabledLambda() {
 		return billOpt -> billOpt.isPresent()
 				&& !billOpt.get().isConsumedByStaff()
 				&& hasNoPromoOffer(billOpt);
+	}
+	private Predicate<Optional<Bill>> getTwentyPercentPromotionIsEnabledLambda() {
+		return billOpt -> billOpt.isPresent()
+				&& !billOpt.get().isConsumedByStaff();
 	}
 
 	private boolean hasNoPromoOffer(Optional<Bill> billOpt) {
@@ -224,6 +243,7 @@ public class ButtonFactory {
 
 	private void addFreePromotionActionListener(
 			final JToggleButton freePromotionButton) {
+		
 		freePromotionButton.addActionListener(e -> {
 			if (freePromotionButton.isSelected()) {
 				appController.setFreePromotion();
@@ -231,6 +251,20 @@ public class ButtonFactory {
 				appController.clearFreePromotion();
 			}
 		});
+		
+	}
+	
+	private void addTwentyPercentPromotion(
+			final JToggleButton freePromotionButton) {
+		
+		freePromotionButton.addActionListener(e -> {
+			if (freePromotionButton.isSelected()) {
+				appController.setTwentyPercentPromotion();
+			} else {
+				appController.clearTwentyPercentPromotion();
+			}
+		});
+		
 	}
 
 	public Component createStaffConsumptionButton() {

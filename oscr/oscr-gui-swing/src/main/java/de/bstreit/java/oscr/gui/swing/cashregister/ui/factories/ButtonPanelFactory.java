@@ -186,6 +186,7 @@ public class ButtonPanelFactory {
 		addPayButton(controlButtonsPanel);
 		addToGoButton(controlButtonsPanel);
 		addFreePromotionButton(controlButtonsPanel);
+		addTwentyPercentPromotionButton(controlButtonsPanel);
 		addStaffConsumptionButton(controlButtonsPanel);
 		addKassenstandButton(controlButtonsPanel);
 
@@ -218,6 +219,9 @@ public class ButtonPanelFactory {
 
 	private void addFreePromotionButton(JPanel controlButtonsPanel) {
 		controlButtonsPanel.add(buttonFactory.createFreePromotionButton());
+	}
+	private void addTwentyPercentPromotionButton(JPanel controlButtonsPanel) {
+		controlButtonsPanel.add(buttonFactory.createTwentyPercentPromotionButton());
 	}
 
 	private void addStaffConsumptionButton(JPanel controlButtonsPanel) {

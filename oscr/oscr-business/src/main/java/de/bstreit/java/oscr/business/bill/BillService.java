@@ -158,6 +158,17 @@ public class BillService {
 		saveBill();
 		fireBillChangedEvent();
 	}
+	
+	public void setTwentyPercentPromotion() {
+		if (currentBill == null) {
+			return;
+		}
+		
+		currentBill.setTwentyPercentOff(true);
+		
+		saveBill();
+		fireBillChangedEvent();
+	}
 
 	public void clearFreePromotion() {
 		if (currentBill == null) {
@@ -166,6 +177,17 @@ public class BillService {
 
 		currentBill.setFreePromotionOffer(false);
 
+		saveBill();
+		fireBillChangedEvent();
+	}
+	
+	public void clearTwentyPercentPromotion() {
+		if (currentBill == null) {
+			return;
+		}
+		
+		currentBill.setTwentyPercentOff(false);
+		
 		saveBill();
 		fireBillChangedEvent();
 	}

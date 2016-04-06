@@ -237,6 +237,14 @@ public class MainWindowController implements BillChangeListener {
 		billService.clearFreePromotion();
 
 	}
+	public void setTwentyPercentPromotion() {
+		billService.setTwentyPercentPromotion();
+	}
+	
+	public void clearTwentyPercentPromotion() {
+		billService.clearTwentyPercentPromotion();
+		
+	}
 
 	public void showOpenBills() {
 		final Collection<Bill> openBills = billService.getOpenBills();
