@@ -30,146 +30,151 @@ import de.bstreit.java.oscr.business.taxation.IVATFinder;
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 class BillCalculatorTotal implements IBillCalculator {
 
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory
-			.getLogger(BillCalculatorTotal.class);
-	@Inject
-	private Currency defaultCurrency;
+  private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory
+      .getLogger(BillCalculatorTotal.class);
 
-	@Inject
-	private IVATFinder vatFinder;
 
-	private Bill bill;
-	private final Map<BillItem, Character> billItemsVatClassesAbbreviated = new HashMap<BillItem, Character>();
-	private final BiMap<Character, VATClass> vatClassAbbreviations = HashBiMap
-			.create();
+  @Inject
+  private Currency defaultCurrency;
 
-	private Money ZERO;
+  @Inject
+  private IVATFinder vatFinder;
 
-	BillCalculatorTotal() {
+  private Bill bill;
+  private final Map<BillItem, Character> billItemsVatClassesAbbreviated = new HashMap<BillItem, Character>();
+  private final BiMap<Character, VATClass> vatClassAbbreviations = HashBiMap
+      .create();
 
-	}
+  private Money ZERO;
 
-	@PostConstruct
-	private void init() {
-		ZERO = new Money(BigDecimal.ZERO, defaultCurrency);
-	}
 
-	/**
-	 * Analyse this bill. Use the get methods to query information about this
-	 * bill.
-	 *
-	 * TODO: After usage, call freeResults() to clear the cache. (??)
-	 *
-	 * @param bill
-	 */
-	@Override
-	public void analyse(Bill bill) {
-		this.bill = bill;
+  BillCalculatorTotal() {
 
-		char currentChar = 'A';
+  }
 
-		for (final BillItem item : bill) {
+  @PostConstruct
+  private void init() {
+    ZERO = new Money(BigDecimal.ZERO, defaultCurrency);
+  }
 
-			final VATClass vatClass = vatFinder.getVATClassFor(item, bill);
+  /**
+   * Analyse this bill. Use the get methods to query information about this
+   * bill.
+   *
+   * TODO: After usage, call freeResults() to clear the cache. (??)
+   *
+   * @param bill
+   */
+  @Override
+  public void analyse(Bill bill) {
+    this.bill = bill;
 
-			if (!vatClassAbbreviations.values().contains(vatClass)) {
-				vatClassAbbreviations.put(currentChar, vatClass);
-				currentChar++;
-			}
+    char currentChar = 'A';
 
-			billItemsVatClassesAbbreviated.put(item, vatClassAbbreviations
-					.inverse().get(vatClass));
+    for (final BillItem item : bill) {
 
-		}
+      final VATClass vatClass = vatFinder.getVATClassFor(item, bill);
 
-	}
+      if (!vatClassAbbreviations.values().contains(vatClass)) {
+        vatClassAbbreviations.put(currentChar, vatClass);
+        currentChar++;
+      }
 
-	@PreDestroy
-	@Override
-	public void close() {
-		logger.debug("closing bill calculator");
+      billItemsVatClassesAbbreviated.put(item, vatClassAbbreviations
+          .inverse().get(vatClass));
 
-		this.bill = null;
-		vatClassAbbreviations.clear();
-		billItemsVatClassesAbbreviated.clear();
-		// TODO: clear cache if there is any
-	}
+    }
 
-	@Override
-	public Money getTotalGross() {
+  }
 
-		return bill.getBillItems().stream().map(item -> getGrossPrice(item))
-				.reduce(ZERO, (p1, p2) -> p1.add(p2));
-	}
+  @PreDestroy
+  @Override
+  public void close() {
+    logger.debug("closing bill calculator");
 
-	@Override
-	public Money getTotalNetFor(VATClass vatClass) {
+    this.bill = null;
+    vatClassAbbreviations.clear();
+    billItemsVatClassesAbbreviated.clear();
+    // TODO: clear cache if there is any
+  }
 
-		return bill
-				.getBillItems()
-				.stream()
-				.filter(item -> vatClass.equals(vatFinder.getVATClassFor(item,
-						bill)))
-				.map(item -> getGrossPrice(item).getNet(vatClass))
-				.reduce(ZERO, (p1, p2) -> p1.add(p2));
+  @Override
+  public Money getTotalGross() {
 
-	}
+    return bill.getBillItems().stream()
+        .map(item -> getGrossPrice(item))
+        .reduce(ZERO, (p1, p2) -> p1.add(p2));
+  }
 
-	@Override
-	public Money getTotalGrossFor(VATClass vatClass) {
 
-		return bill
-				.getBillItems()
-				.stream()
-				.filter(item -> vatClass.equals(vatFinder.getVATClassFor(item,
-						bill))).map(item -> getGrossPrice(item))
-				.reduce(ZERO, (p1, p2) -> p1.add(p2));
+  @Override
+  public Money getTotalNetFor(VATClass vatClass) {
 
-	}
+    return bill
+        .getBillItems()
+        .stream()
+        .filter(item -> vatClass.equals(vatFinder.getVATClassFor(item, bill)))
+        .map(item -> getGrossPrice(item).getNet(vatClass))
+        .reduce(ZERO, (p1, p2) -> p1.add(p2));
 
-	@Override
-	public Money getTotalVATFor(VATClass vatClass) {
+  }
 
-		final Money totalGross = getTotalGrossFor(vatClass);
-		final Money totalNet = getTotalNetFor(vatClass);
+  @Override
+  public Money getTotalGrossFor(VATClass vatClass) {
 
-		return totalGross.subtract(totalNet);
-	}
+    return bill
+        .getBillItems()
+        .stream()
+        .filter(item -> vatClass.equals(vatFinder.getVATClassFor(item, bill)))
+        .map(item -> getGrossPrice(item))
+        .reduce(ZERO, (p1, p2) -> p1.add(p2));
 
-	@Override
-	public Money getNetFor(BillItem billItem) {
-		if (!bill.getBillItems().contains(billItem)) {
-			throw new RuntimeException("billItem not contained in bill!");
-		}
+  }
 
-		final VATClass applyingVATClass = vatFinder.getVATClassFor(billItem,
-				bill);
+  @Override
+  public Money getTotalVATFor(VATClass vatClass) {
 
-		return getGrossPrice(billItem).getNet(applyingVATClass);
-	}
+    final Money totalGross = getTotalGrossFor(vatClass);
+    final Money totalNet = getTotalNetFor(vatClass);
 
-	@Override
-	public String getVATClassAbbreviationFor(BillItem billItem) {
-		return billItemsVatClassesAbbreviated.get(billItem).toString();
-	}
+    return totalGross.subtract(totalNet);
+  }
 
-	@Override
-	public VATClass getVATClassForAbbreviation(Character abbreviation) {
-		return vatClassAbbreviations.get(abbreviation);
-	}
+  @Override
+  public Money getNetFor(BillItem billItem) {
+    if (!bill.getBillItems().contains(billItem)) {
+      throw new RuntimeException("billItem not contained in bill!");
+    }
 
-	@Override
-	public SortedSet<Character> allFoundVATClassesAbbreviated() {
-		return new TreeSet<Character>(vatClassAbbreviations.keySet());
-	}
+    final VATClass applyingVATClass = vatFinder.getVATClassFor(billItem,
+        bill);
 
-	private Money getGrossPrice(final BillItem item) {
+    return getGrossPrice(billItem).getNet(applyingVATClass);
+  }
 
-		final Money priceGross = item.getOffer().getPriceGross();
+  @Override
+  public String getVATClassAbbreviationFor(BillItem billItem) {
+    return billItemsVatClassesAbbreviated.get(billItem).toString();
+  }
 
-		return item.getExtraAndVariationOffers().stream()
-				.filter(o -> !(o instanceof PromoOffer))
-				.map(o -> o.getPriceGross())
-				.reduce(priceGross, (p1, p2) -> p1.add(p2));
-	}
+  @Override
+  public VATClass getVATClassForAbbreviation(Character abbreviation) {
+    return vatClassAbbreviations.get(abbreviation);
+  }
+
+  @Override
+  public SortedSet<Character> allFoundVATClassesAbbreviated() {
+    return new TreeSet<Character>(vatClassAbbreviations.keySet());
+  }
+
+  private Money getGrossPrice(final BillItem item) {
+
+    final Money priceGross = item.getOffer().getPriceGross();
+
+
+    return item.getExtraAndVariationOffers().stream()
+        .filter(o -> !(o instanceof PromoOffer))
+        .map(o -> o.getPriceGross())
+        .reduce(priceGross, (p1, p2) -> p1.add(p2));
+  }
 }
