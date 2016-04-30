@@ -37,32 +37,29 @@ import de.bstreit.java.oscr.business.bill.Bill;
 
 public interface IBillRepository extends JpaRepository<Bill, String> {
 
-	/**
-	 * @return all bills opened today, including promotional offers
-	 *         ("free drinks") but excluding staff consumption
-	 */
-	@Query("from Bill where billOpened >= current_date and internalConsumer is NULL order by billOpened desc")
-	public Collection<Bill> getBillsForTodayWithoutStaff();
+  /**
+   * @return all bills opened today, including promotional offers
+   *         ("free drinks") but excluding staff consumption
+   */
+  @Query("from Bill where billOpened >= current_date and internalConsumer is NULL order by billOpened desc")
+  public Collection<Bill> getBillsForTodayWithoutStaff();
 
-	/**
-	 * @return all bills opened yesterday, including promotional offers
-	 *         ("free drinks") but excluding staff consumption
-	 */
-	@Query("from Bill where billOpened >= current_date - 1 and internalConsumer is NULL AND billOpened < current_date")
-	public Collection<Bill> getBillsForYesterdayWithoutStaff();
+  /**
+   * @return all bills opened yesterday, including promotional offers
+   *         ("free drinks") but excluding staff consumption
+   */
+  @Query("from Bill where billOpened >= current_date - 1 and internalConsumer is NULL AND billOpened < current_date")
+  public Collection<Bill> getBillsForYesterdayWithoutStaff();
 
-	public List<Bill> billClosedIsNull();
+  public List<Bill> billClosedIsNull();
 
-	/**
-	 *
-	 * @param from
-	 * @param to
-	 * @return all bills opened on or after the from date and before the to date
-	 */
-	@Query("from Bill where billOpened >= ?1 AND billOpened < ?2 AND internalConsumer is NOT NULL")
-	public Collection<Bill> getBillsForStaff(Date from, Date to);
+  @Query("from Bill where billOpened >= ?1 AND billOpened < ?2 AND internalConsumer is NOT NULL AND internalConsumer.customer = false")
+  public Collection<Bill> getBillsForStaff(Date from, Date to);
 
-	@Query("from Bill where billOpened >= ?1 and billOpened < ?2 and internalConsumer is NULL order by billOpened desc")
-	public Collection<Bill> getBillsForDayWithoutStaff(Date from, Date to);
+  @Query("from Bill where billOpened >= ?1 AND billOpened < ?2 AND internalConsumer is NOT NULL AND internalConsumer.customer = true")
+  public Collection<Bill> getBillsForCustomers(Date from, Date to);
+
+  @Query("from Bill where billOpened >= ?1 and billOpened < ?2 and internalConsumer is NULL order by billOpened desc")
+  public Collection<Bill> getBillsForDayWithoutStaff(Date from, Date to);
 
 }
