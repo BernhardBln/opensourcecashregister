@@ -311,7 +311,7 @@ public class ButtonFactory {
 
     final JPopupMenu popupMenu = new JPopupMenu();
 
-    for (final User staffMember : userRepository.findAll()) {
+    for (final User staffMember : userRepository.findByValidToIsNull()) {
       popupMenu.add(createMenuItem(staffMember));
     }
 
