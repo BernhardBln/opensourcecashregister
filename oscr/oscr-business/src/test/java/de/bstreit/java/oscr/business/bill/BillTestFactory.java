@@ -15,29 +15,30 @@ import de.bstreit.java.oscr.business.taxation.TaxInfo;
 @Named
 public class BillTestFactory {
 
-	Logger logger = LoggerFactory.getLogger(BillTestFactory.class);
+  Logger logger = LoggerFactory.getLogger(BillTestFactory.class);
 
-	@Inject
-	private IUserRepository userRepository;
+  @Inject
+  private IUserRepository userRepository;
 
-	public Bill create(TaxInfo defaultGlobalTaxInfo, Date billOpeningDate,
-			Date billClosingDate) {
-		final Bill bill = new Bill(defaultGlobalTaxInfo, billOpeningDate);
 
-		if (billClosingDate != null) {
-			bill.closeBill(getUser(), billClosingDate);
-			logger.info("# of users: " + userRepository.count());
-		}
+  public Bill create(TaxInfo defaultGlobalTaxInfo, Date billOpeningDate,
+      Date billClosingDate) {
+    final Bill bill = new Bill(defaultGlobalTaxInfo, billOpeningDate);
 
-		return bill;
-	}
+    if (billClosingDate != null) {
+      bill.closeBill(getUser(), billClosingDate);
+      logger.info("# of users: " + userRepository.count());
+    }
 
-	private User getUser() {
-		final User user = userRepository.findByLoginname("test");
-		if (user != null) {
-			return null;
-		}
+    return bill;
+  }
 
-		return userRepository.save(new User("test", "test"));
-	}
+  private User getUser() {
+    final User user = userRepository.findByLoginname("test");
+    if (user != null) {
+      return null;
+    }
+
+    return userRepository.save(new User("test", "test"));
+  }
 }
