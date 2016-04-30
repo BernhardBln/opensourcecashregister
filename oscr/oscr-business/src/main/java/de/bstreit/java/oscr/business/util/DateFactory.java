@@ -31,36 +31,46 @@ import java.util.Date;
 
 public class DateFactory {
 
-	int x = 07;
+  int x = 07;
 
-	/**
-	 * Creates a date. For example,
-	 * 
-	 * <pre>
-	 * getDateWithTimeMidnight(2009, 1, 9)
-	 * </pre>
-	 * 
-	 * returns a Date with the following date and time fields:
-	 * 
-	 * <pre>
-	 *    2009-01-09 00:00:00.000
-	 * </pre>
-	 * 
-	 * @param year
-	 *            the year
-	 * @param month
-	 *            the month (1 = Jan, ...)
-	 * @param day
-	 *            the day (do not write single-digit days with leading zeros!)
-	 * @return the following Date: year-month-day 00:00:00.000
-	 */
-	public static Date getDateWithTimeMidnight(int year, int month, int day) {
-		final Calendar c = Calendar.getInstance();
-		c.clear();
 
-		c.set(year, month - 1, day);
+  /**
+   * Creates a date. For example,
+   * 
+   * <pre>
+   * getDateWithTimeMidnight(2009, 1, 9)
+   * </pre>
+   * 
+   * returns a Date with the following date and time fields:
+   * 
+   * <pre>
+   *    2009-01-09 00:00:00.000
+   * </pre>
+   * 
+   * @param year
+   *          the year
+   * @param month
+   *          the month (1 = Jan, ...)
+   * @param day
+   *          the day (do not write single-digit days with leading zeros!)
+   * @return the following Date: year-month-day 00:00:00.000
+   */
+  public static Date getDateWithTimeMidnight(int year, int month, int day) {
+    final Calendar c = Calendar.getInstance();
+    c.clear();
 
-		return c.getTime();
-	}
+    c.set(year, month - 1, day);
+
+    return c.getTime();
+  }
+
+  public static Calendar getCalendarWithTimeMidnight(int year, int month, int day) {
+    final Calendar c = Calendar.getInstance();
+    c.clear();
+
+    c.set(year, month - 1, day);
+
+    return c;
+  }
 
 }

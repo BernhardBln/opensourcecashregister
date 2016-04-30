@@ -195,8 +195,8 @@ public class Money implements Serializable {
    * </p>
    *
    * <pre>
-   * gross = net * (100 + vatRate)
-   * net = gross / (1 + vatRate / 100)
+   * gross = net * (1 + (vatRate / 100))
+   * net = gross / (1 + (vatRate / 100))
    * </pre>
    *
    * @param vatClass
@@ -204,16 +204,15 @@ public class Money implements Serializable {
    */
   public Money getNet(VATClass vatClass) {
     final BigDecimal vatRateDivBy100 = vatClass.getRate().divide(HUNDRED);
-    final BigDecimal divider = BigDecimal.ONE.subtract(vatRateDivBy100);
+    final BigDecimal divider = BigDecimal.ONE.add(vatRateDivBy100);
     final BigDecimal netValue = amount
-        .multiply(divider);
+        .divide(divider, RoundingMode.HALF_UP);
     return new Money(netValue, currency);
   }
 
   public Money getVAT(VATClass vatClass) {
-    final BigDecimal netValue = amount.multiply(vatClass.getRate()).divide(
-        HUNDRED);
-    return new Money(netValue, currency);
+    final BigDecimal vat = amount.subtract(getNet(vatClass).getAmount());
+    return new Money(vat, currency);
   }
 
   public Money absolute() {

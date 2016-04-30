@@ -26,12 +26,16 @@
  */
 package de.bstreit.java.oscr.business.staff.dao;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import de.bstreit.java.oscr.business.staff.User;
 
 public interface IUserRepository extends JpaRepository<User, Long> {
 
-	public User findByLoginname(String loginname);
+  public User findByLoginname(String loginname);
+
+  public List<User> findByValidToIsNull();
 
 }

@@ -14,42 +14,47 @@ import de.bstreit.java.oscr.business.staff.dao.IUserRepository;
 @Named
 public class StaffAdder implements IAdminBean {
 
-	@Inject
-	private IUserRepository userRepository;
+  @Inject
+  private IUserRepository userRepository;
 
-	private Scanner scanner;
+  private Scanner scanner;
 
-	@Override
-	public void performTask() {
-		System.out.println("Existing members: ");
-		final List<User> allUser = userRepository.findAll();
-		for (final User staffMember : allUser) {
-			System.out.println(" * " + staffMember);
-		}
 
-		System.out.println("Login name (leave empty to abort): ");
-		final String loginName = scanner.nextLine().trim();
+  @Override
+  public void performTask() {
+    System.out.println("Existing members: ");
+    final List<User> allUser = userRepository.findAll();
+    for (final User staffMember : allUser) {
+      System.out.println(" * " + staffMember);
+    }
 
-		if (StringUtils.isBlank(loginName)) {
-			return;
-		}
+    System.out.println("Login name (leave empty to abort): ");
+    final String loginName = scanner.nextLine().trim();
 
-		System.out.print("Full name: ");
-		final String fullName = scanner.nextLine().trim();
+    if (StringUtils.isBlank(loginName)) {
+      return;
+    }
 
-		final User user = new User(loginName, fullName);
+    System.out.print("Full name: ");
+    final String fullName = scanner.nextLine().trim();
 
-		userRepository.save(user);
-	}
+    System.out.print("(T)eam member or (C)ustomer? ");
+    final String membership = scanner.nextLine().trim().toLowerCase();
+    boolean customer = membership.equals("c");
 
-	@Override
-	public void setScanner(Scanner scanner) {
-		this.scanner = scanner;
-	}
+    final User user = new User(loginName, fullName, customer);
 
-	@Override
-	public String toString() {
-		return "Add staff member";
-	}
+    userRepository.save(user);
+  }
+
+  @Override
+  public void setScanner(Scanner scanner) {
+    this.scanner = scanner;
+  }
+
+  @Override
+  public String toString() {
+    return "Add staff member";
+  }
 
 }

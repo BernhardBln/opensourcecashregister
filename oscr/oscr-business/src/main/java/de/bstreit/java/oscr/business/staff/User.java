@@ -26,6 +26,9 @@
  */
 package de.bstreit.java.oscr.business.staff;
 
+import java.util.Date;
+
+import javax.persistence.Column;
 import javax.persistence.Entity;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -41,47 +44,62 @@ import de.bstreit.java.oscr.business.base.persistence.AbstractPersistentObjectWi
 @Entity
 public class User extends AbstractPersistentObjectWithContinuance<User> {
 
-	/**
-	 * The name <b>has</b> to be unique, at least during the period of time this
-	 * entity is valid.
-	 */
-	@NaturalId
-	private String loginname;
+  /**
+   * The name <b>has</b> to be unique, at least during the period of time this
+   * entity is valid.
+   */
+  @NaturalId
+  private String loginname;
 
-	private String fullname;
+  private String fullname;
 
-	public User() {
-	}
+  @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
+  private boolean customer = false;
 
-	public User(String name, String fullname) {
-		this.loginname = name;
-		this.fullname = fullname;
-	}
 
-	public String getName() {
-		return loginname;
-	}
+  public User() {
+  }
 
-	public String getFullname() {
-		return fullname;
-	}
+  public User(String name, String fullname) {
+    super(new Date(), null);
+    this.loginname = name;
+    this.fullname = fullname;
+  }
 
-	@Override
-	protected void additionalEqualsForSubclasses(EqualsBuilder equalsBuilder,
-			User otherObject) {
-		equalsBuilder.append(loginname, otherObject.loginname);
-	}
+  public User(String loginName, String fullName, boolean customer) {
+    this(loginName, fullName);
+    this.customer = customer;
+  }
 
-	@Override
-	protected void additionalHashcodeForSubclasses(HashCodeBuilder builder) {
-		builder.append(loginname);
-	}
+  public String getName() {
+    return loginname;
+  }
 
-	@Override
-	public String toString() {
-		return "User [loginname=" + loginname + ", fullname=" + fullname
-				+ ", getValidFrom()=" + getValidFrom() + ", getValidTo()="
-				+ getValidTo() + "]";
-	}
+  public String getFullname() {
+    return fullname;
+  }
+
+  public boolean isCustomer() {
+    return customer;
+  }
+
+  @Override
+  protected void additionalEqualsForSubclasses(EqualsBuilder equalsBuilder,
+      User otherObject) {
+    equalsBuilder.append(loginname, otherObject.loginname);
+  }
+
+  @Override
+  protected void additionalHashcodeForSubclasses(HashCodeBuilder builder) {
+    builder.append(loginname);
+  }
+
+  @Override
+  public String toString() {
+    return "User [loginname=" + loginname + ", fullname=" + fullname
+        + ", isCustomer=" + customer
+        + ", getValidFrom()=" + getValidFrom() + ", getValidTo()="
+        + getValidTo() + "]";
+  }
 
 }
