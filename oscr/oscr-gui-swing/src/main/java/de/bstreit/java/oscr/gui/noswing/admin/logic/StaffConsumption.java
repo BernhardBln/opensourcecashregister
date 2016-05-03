@@ -88,9 +88,9 @@ public class StaffConsumption implements IAdminBean {
       countBills(billsForStaff);
       printResults();
 
-      printCustomerBills();
-
       printManagementConsumption();
+
+      printCustomerBills();
 
     } finally {
       consumption.clear();
@@ -268,17 +268,13 @@ public class StaffConsumption implements IAdminBean {
   private Calendar getFrom() {
     final Calendar calendar = Calendar.getInstance();
 
-    // REVERT!
-    // calendar.add(Calendar.MONTH, -1);
+    calendar.add(Calendar.MONTH, -1);
 
     return getFirstOfMonth(calendar);
   }
 
   private Calendar getTo() {
     final Calendar calendar = Calendar.getInstance();
-
-    // REVERT!
-    calendar.add(Calendar.MONTH, 1);
 
     return getFirstOfMonth(calendar);
   }
