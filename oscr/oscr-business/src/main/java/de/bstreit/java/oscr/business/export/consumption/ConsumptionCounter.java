@@ -1,4 +1,4 @@
-package de.bstreit.java.oscr.gui.noswing.admin.logic;
+package de.bstreit.java.oscr.business.export.consumption;
 
 import java.util.Date;
 

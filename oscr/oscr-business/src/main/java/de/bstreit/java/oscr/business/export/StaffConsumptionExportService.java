@@ -17,35 +17,24 @@ import org.springframework.core.io.Resource;
 
 import com.google.common.base.Optional;
 
-import de.bstreit.java.oscr.business.base.finance.money.Money;
-import de.bstreit.java.oscr.business.base.finance.tax.VATClass;
 import de.bstreit.java.oscr.business.bill.Bill;
-import de.bstreit.java.oscr.business.bill.BillService;
-import de.bstreit.java.oscr.business.bill.IBillProcessor;
-import de.bstreit.java.oscr.business.bill.IMultipleBillsCalculator;
 import de.bstreit.java.oscr.business.eventbroadcasting.BillChangeListener;
 import de.bstreit.java.oscr.business.eventbroadcasting.EventBroadcaster;
-import de.bstreit.java.oscr.text.formatting.BillFormatter;
+import de.bstreit.java.oscr.business.export.consumption.ConsumptionExporter;
 
 @Named
-public class HtmlExportService extends AbstractService implements BillChangeListener
+public class StaffConsumptionExportService extends AbstractService implements BillChangeListener
 {
 
   private static final Logger logger = LoggerFactory
-      .getLogger(HtmlExportService.class);
+      .getLogger(StaffConsumptionExportService.class);
 
-  private static final long FIVE_MINUTES = 5 * 60 * 1_000;
-
-  @Inject
-  private BillService billService;
-
-  @Inject
-  private BillFormatter billFormatter;
+  private static final long FIVE_MINUTES = 5/* * 60 */* 1_000;
 
   @Inject
   private EventBroadcaster eventBroadcaster;
 
-  @Value("classpath:htmlexport_template.htm")
+  @Value("classpath:htmlstaffconsumptionexport_template.htm")
   private Resource htmlTemplateFile;
 
   @Value("${exportDir}")
@@ -53,14 +42,20 @@ public class HtmlExportService extends AbstractService implements BillChangeList
 
   private Boolean dataForExportAvailable = true;
 
+  @Inject
+  private ConsumptionExporter consumptionExporter;
 
-  public HtmlExportService() {
+
+  public StaffConsumptionExportService() {
     super(FIVE_MINUTES);
   }
+
 
   @Override
   protected void initService() {
     eventBroadcaster.addBillChangeListener(this);
+    consumptionExporter.setPrintCustomerBills(false);
+    consumptionExporter.setPrintManagementConsumption(false);
   }
 
   /**
@@ -92,8 +87,9 @@ public class HtmlExportService extends AbstractService implements BillChangeList
         return;
       }
 
+      // mark here already as exported, to prevent double invocation if export
+      // takes too much time
       dataForExportAvailable = false;
-
     }
 
     exportData();
@@ -122,27 +118,18 @@ public class HtmlExportService extends AbstractService implements BillChangeList
   }
 
   private void enrichAndExportFile(String htmlFile) {
-    final StringBuilder sb = new StringBuilder();
 
-    addBills(billService.getTotalForToday(), "today", sb);
-    addBills(billService.getFreePomotionTotalForToday(),
-        "promotion expenses for today", sb);
+    StringBuilder sb = new StringBuilder();
 
-    sb.append("\n\nAll bills for today:\n" + "====================\n\n");
+    consumptionExporter.setThisMonth(true);
+    consumptionExporter.setAppendable(sb);
+    consumptionExporter.export();
 
-    billService.processTodaysBills(new IBillProcessor() {
+    sb.append("\n\n=================================================================\n\n\n\n");
 
-      @Override
-      public void processBill(Bill bill) {
-        sb.append(billFormatter.formatBill(bill)).append("\n\n\n");
-      }
-
-    });
-
-    sb.append("\n\n").append(StringUtils.repeat("-", 80)).append("\n\n");
-    addBills(billService.getTotalForYesterday(), "yesterday", sb);
-    addBills(billService.getFreePomotionTotalForYesterday(),
-        "promotion expenses for yesterday", sb);
+    consumptionExporter.setThisMonth(false);
+    consumptionExporter.setAppendable(sb);
+    consumptionExporter.export();
 
     final String changedHtmlFile = htmlFile.replace("$CONTENT",
         sb.toString());
@@ -150,7 +137,7 @@ public class HtmlExportService extends AbstractService implements BillChangeList
     FileOutputStream fileOutputStream = null;
 
     try {
-      fileOutputStream = new FileOutputStream(exportDir + "/export.htm");
+      fileOutputStream = new FileOutputStream(exportDir + "/export_staff.htm");
       IOUtils.write(changedHtmlFile, fileOutputStream,
           Charset.forName("UTF-8"));
 
@@ -160,48 +147,16 @@ public class HtmlExportService extends AbstractService implements BillChangeList
     } finally {
       IOUtils.closeQuietly(fileOutputStream);
     }
-
   }
 
-  /**
-   * @param totalForToday
-   * @param sb
-   */
-  private void addBills(final IMultipleBillsCalculator totalForToday,
-      String date, final StringBuilder sb) {
-    sb.append("Bill for " + date + "\n==============\n\n");
-
-    Money totalNet = null;
-    for (final VATClass vatClass : totalForToday.getAllVatClasses()) {
-      if (totalNet == null) {
-        totalNet = totalForToday.getTotalNetFor(vatClass);
-      } else {
-        totalNet = totalNet.add(totalForToday.getTotalNetFor(vatClass));
-      }
-    }
-
-    sb.append("Total (gross): ").append(totalForToday.getTotalGross())
-        .append(";\t\t").append("Total (net): ").append(totalNet)
-        .append("\n\n");
-
-    sb.append("VAT classes:\n\n");
-    for (final VATClass vatClass : totalForToday.getAllVatClasses()) {
-      sb.append(vatClass + " \tgross: ")
-          .append(totalForToday.getTotalGrossFor(vatClass))
-          .append("; vat: ")
-          .append(totalForToday.getTotalVATFor(vatClass))
-          .append("; net: ")
-          .append(totalForToday.getTotalNetFor(vatClass))
-          .append("\n");
-    }
-    sb.append("\n\n");
-  }
 
   @Override
   public void billUpdated(Optional<Bill> newBill) {
 
-    synchronized (dataForExportAvailable) {
-      dataForExportAvailable = true;
+    if (newBill.isPresent() && newBill.get().isConsumedByStaff()) {
+      synchronized (dataForExportAvailable) {
+        dataForExportAvailable = true;
+      }
     }
 
   }

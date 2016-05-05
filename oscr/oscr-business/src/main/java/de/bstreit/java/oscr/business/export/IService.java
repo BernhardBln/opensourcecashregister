@@ -5,7 +5,7 @@ package de.bstreit.java.oscr.business.export;
  * 
  * @author Bernhard Streit
  */
-public interface IExportService {
+public interface IService {
 
   /**
    * Starts the service in a separate thread
