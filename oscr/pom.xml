@@ -19,6 +19,9 @@
 
 
 	<properties>
+		<!-- Skip Javadoc generation when releasing -->
+    		<maven.javadoc.skip>true</maven.javadoc.skip>
+
 		<!-- General -->
 		<java.version>1.8</java.version>
 

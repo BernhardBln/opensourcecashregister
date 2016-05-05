@@ -17,8 +17,8 @@ public class ConsumptionCounter {
 	 * Create a new consumption counter. Hours in 24h format.
 	 * 
 	 * @param lunchBegin
-	 *            everything before this hour is counted as breakfast (e.g. 11
-	 *            -> 10:59:59.999 is still breakfast)
+	 *            everything before this hour is counted as breakfast (e.g. if 11,
+	 *            then 10:59:59.999 is still breakfast)
 	 * @param dinnerBegin
 	 *            everything before this hour is counted as lunch (&lt;),
 	 *            everything after as dinner (&ge;)
