@@ -35,31 +35,41 @@ import de.bstreit.java.oscr.business.offers.ProductOffer;
 import de.bstreit.java.oscr.business.products.category.ProductCategory;
 
 public interface IProductOfferRepository extends
-		JpaRepository<ProductOffer, Long> {
+    JpaRepository<ProductOffer, Long> {
 
-	@Query("select productOffer " + "  from ProductOffer productOffer "
-			+ "  where productOffer.validTo is null"
-			+ "    and productOffer.offeredItem.name = ?1"
-			+ "    and productOffer.offeredItem.validTo is null")
-	public ProductOffer findActiveOfferByProductName(String name);
+  @Query("SELECT productOffer " + "  FROM ProductOffer productOffer "
+      + "  WHERE productOffer.validTo IS NULL"
+      + "    AND productOffer.offeredItem.name = ?1"
+      + "    AND productOffer.offeredItem.validTo IS NULL")
+  public ProductOffer findActiveOfferByProductName(String name);
 
-	@Query("select productOffer " + "  from ProductOffer productOffer "
-			+ "  where productOffer.validTo is null"
-			+ "    and productOffer.offeredItem.productCategory = ?1"
-			+ "    and productOffer.offeredItem.validTo is null")
-	public List<ProductOffer> findActiveOffersByProductCategory(
-			ProductCategory productCategory);
+  @Query("SELECT productOffer "
+      + "  FROM ProductOffer productOffer "
+      + "  WHERE productOffer.validTo IS NULL"
+      + "    AND productOffer.offeredItem.productCategory = ?1"
+      + "    AND productOffer.offeredItem.validTo IS NULL"
+      + "  ORDER BY productOffer.offeredItem.productCategory.orderNumber ASC, "
+      + "             productOffer.offeredItem.orderNumber ASC,"
+      + "             productOffer.offeredItem.name ASC")
+  public List<ProductOffer> findActiveOffersByProductCategory(
+      ProductCategory productCategory);
 
-	@Query("select productOffer " + "  from ProductOffer productOffer "
-			+ "  where productOffer.validTo is null"
-			+ "    and productOffer.offeredItem.productCategory <> ?1"
-			+ "    and productOffer.offeredItem.validTo is null")
-	public List<ProductOffer> findActiveOffersByIsNotProductCategory(
-			ProductCategory productCategory);
+  @Query("SELECT productOffer " + "  FROM ProductOffer productOffer "
+      + "  WHERE productOffer.validTo IS NULL"
+      + "    AND productOffer.offeredItem.productCategory <> ?1"
+      + "    AND productOffer.offeredItem.validTo IS NULL"
+      + "  ORDER BY productOffer.offeredItem.productCategory.orderNumber ASC, "
+      + "             productOffer.offeredItem.orderNumber ASC,"
+      + "             productOffer.offeredItem.name ASC")
+  public List<ProductOffer> findActiveOffersByIsNotProductCategory(
+      ProductCategory productCategory);
 
-	@Query("select productOffer " + "  from ProductOffer productOffer "
-			+ "  where productOffer.validTo is null"
-			+ "    and productOffer.offeredItem.validTo is null")
-	public List<ProductOffer> findAllActiveOffers();
+  @Query("SELECT productOffer " + "  FROM ProductOffer productOffer "
+      + "  WHERE productOffer.validTo IS NULL"
+      + "    AND productOffer.offeredItem.validTo IS NULL"
+      + "  ORDER BY productOffer.offeredItem.productCategory.orderNumber ASC, "
+      + "             productOffer.offeredItem.orderNumber ASC,"
+      + "             productOffer.offeredItem.name ASC")
+  public List<ProductOffer> findAllActiveOffers();
 
 }

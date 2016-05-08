@@ -25,66 +25,80 @@ import de.bstreit.java.oscr.business.base.persistence.AbstractPersistentObjectWi
  */
 @Entity
 public class ProductCategory extends
-		AbstractPersistentObjectWithContinuance<ProductCategory> {
+    AbstractPersistentObjectWithContinuance<ProductCategory> {
 
-	/**
-	 * The name of the category.
-	 * 
-	 * By setting unique to true, we do not allow two categories with the same
-	 * name to exist in different periods of time. The purpose of that is simply
-	 * to use the continuance feature only to hide categories, but not to have
-	 * them exist parallel in time.
-	 */
-	@Column(unique = true)
-	private String name;
+  /**
+   * The name of the category.
+   * 
+   * By setting unique to true, we do not allow two categories with the same
+   * name to exist in different periods of time. The purpose of that is simply
+   * to use the continuance feature only to hide categories, but not to have
+   * them exist parallel in time.
+   */
+  @Column(unique = true)
+  private String name;
 
-	/** Colour for this category (used in UI) */
-	@Column(length = 7)
-	private String colour;
+  /** Colour for this category (used in UI) */
+  @Column(length = 7)
+  private String colour;
 
-	@SuppressWarnings("unused")
-	private ProductCategory() {
-		// for spring
-	}
+  @Column(nullable = false, columnDefinition = "SMALLINT DEFAULT 0")
+  private int orderNumber = 0;
 
-	public ProductCategory(String name) {
-		super(new Date(), null);
-		this.name = name;
-	}
 
-	public String getName() {
-		return name;
-	}
+  @SuppressWarnings("unused")
+  private ProductCategory() {
+    // for spring
+  }
 
-	public String getColour() {
-		return colour;
-	}
+  public ProductCategory(String name) {
+    super(new Date(), null);
+    this.name = name;
+  }
 
-	public void setColour(String colour) {
-		colour = colour.trim().toLowerCase();
+  public String getName() {
+    return name;
+  }
 
-		if (!colour.startsWith("#")) {
-			colour = "#" + colour;
-		}
+  public String getColour() {
+    return colour;
+  }
 
-		this.colour = colour;
-	}
+  public void setColour(String colour) {
+    colour = colour.trim().toLowerCase();
 
-	@Override
-	protected void additionalEqualsForSubclasses(EqualsBuilder equalsBuilder,
-			ProductCategory otherObject) {
+    if (!colour.startsWith("#")) {
+      colour = "#" + colour;
+    }
 
-		equalsBuilder.append(name, otherObject.name);
-	}
+    this.colour = colour;
+  }
 
-	@Override
-	protected void additionalHashcodeForSubclasses(HashCodeBuilder builder) {
-		builder.append(name);
-	}
 
-	@Override
-	public String toString() {
-		return name;
-	}
+  public void setOrderNumber(int orderNumber) {
+    this.orderNumber = orderNumber;
+  }
+
+
+  public int getOrderNumber() {
+    return orderNumber;
+  }
+
+  @Override
+  protected void additionalEqualsForSubclasses(EqualsBuilder equalsBuilder,
+      ProductCategory otherObject) {
+
+    equalsBuilder.append(name, otherObject.name);
+  }
+
+  @Override
+  protected void additionalHashcodeForSubclasses(HashCodeBuilder builder) {
+    builder.append(name);
+  }
+
+  @Override
+  public String toString() {
+    return name;
+  }
 
 }

@@ -29,6 +29,7 @@ package de.bstreit.java.oscr.business.products;
 import java.util.Date;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.DiscriminatorType;
 import javax.persistence.Entity;
@@ -50,77 +51,91 @@ import de.bstreit.java.oscr.business.taxation.TaxInfo;
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "type", discriminatorType = DiscriminatorType.STRING)
 public abstract class AbstractSalesItem extends
-		AbstractPersistentObjectWithContinuance<AbstractSalesItem> implements
-		ILabelledItem {
+    AbstractPersistentObjectWithContinuance<AbstractSalesItem> implements
+    ILabelledItem {
 
-	@NaturalId
-	private final String name;
+  @NaturalId
+  private final String name;
 
-	/**
-	 * <p>
-	 * The vat class for products on the bill is usually globally determined by
-	 * the tax info attached to the bill.
-	 * </p>
-	 * <p>
-	 * Some products, however, might need to carry additional information that
-	 * help determining the correct tax class.
-	 * </p>
-	 * <p>
-	 * <b> Consider the following example (please be sure to read our warning
-	 * notice about tax examples, e.g. in the {@link TaxInfo} JavaDoc or in the
-	 * projects README.txt!) </b>
-	 * </p>
-	 * <p>
-	 * In a restaurant, the global tax information for the bill could be
-	 * "sold to go" or "eaten inhouse" which determines whether the tax class
-	 * for food is reduced or standard vat.
-	 * </p>
-	 * <p>
-	 * But if the same restaurant is selling China plates with their logo, the
-	 * tax class for those plates should always be "normal vat", even if the
-	 * other items on the bill are food that was ordered "to go" and hence taxed
-	 * "reduced vat".
-	 * </p>
-	 */
-	@ManyToOne(cascade = CascadeType.ALL, optional = true)
-	private TaxInfo overridingTaxInfo;
+  @Column(nullable = false, columnDefinition = "SMALLINT DEFAULT 0")
+  private int orderNumber = 0;
 
-	protected AbstractSalesItem(String name, Date validFrom, Date validTo) {
-		super(validFrom, validTo);
-		this.name = name;
-	}
+  /**
+   * <p>
+   * The vat class for products on the bill is usually globally determined by
+   * the tax info attached to the bill.
+   * </p>
+   * <p>
+   * Some products, however, might need to carry additional information that
+   * help determining the correct tax class.
+   * </p>
+   * <p>
+   * <b> Consider the following example (please be sure to read our warning
+   * notice about tax examples, e.g. in the {@link TaxInfo} JavaDoc or in the
+   * projects README.txt!) </b>
+   * </p>
+   * <p>
+   * In a restaurant, the global tax information for the bill could be
+   * "sold to go" or "eaten inhouse" which determines whether the tax class for
+   * food is reduced or standard vat.
+   * </p>
+   * <p>
+   * But if the same restaurant is selling China plates with their logo, the tax
+   * class for those plates should always be "normal vat", even if the other
+   * items on the bill are food that was ordered "to go" and hence taxed
+   * "reduced vat".
+   * </p>
+   */
+  @ManyToOne(cascade = CascadeType.ALL, optional = true)
+  private TaxInfo overridingTaxInfo;
 
-	public TaxInfo getOverridingTaxInfo() {
-		return overridingTaxInfo;
-	}
 
-	public String getName() {
-		return name;
-	}
+  protected AbstractSalesItem(String name, Date validFrom, Date validTo) {
+    super(validFrom, validTo);
+    this.name = name;
+  }
 
-	public void setOverridingTaxInfo(TaxInfo taxInfo) {
-		this.overridingTaxInfo = taxInfo;
-	}
+  public TaxInfo getOverridingTaxInfo() {
+    return overridingTaxInfo;
+  }
 
-	@Override
-	public String getLabel() {
-		// TODO: take out of bo!
-		return name;
-	}
+  public String getName() {
+    return name;
+  }
 
-	@Override
-	protected final void additionalEqualsForSubclasses(EqualsBuilder builder,
-			AbstractSalesItem obj) {
-		builder.append(name, obj.name);
-	}
+  public void setOverridingTaxInfo(TaxInfo taxInfo) {
+    this.overridingTaxInfo = taxInfo;
+  }
 
-	@Override
-	protected final void additionalHashcodeForSubclasses(HashCodeBuilder builder) {
-		builder.append(name);
-	}
+  @Override
+  public String getLabel() {
+    // TODO: take out of bo!
+    return name;
+  }
 
-	@Override
-	public String toString() {
-		return name;
-	}
+
+  public int getOrderNumber() {
+    return orderNumber;
+  }
+
+
+  public void setOrderNumber(int orderNumber) {
+    this.orderNumber = orderNumber;
+  }
+
+  @Override
+  protected final void additionalEqualsForSubclasses(EqualsBuilder builder,
+      AbstractSalesItem obj) {
+    builder.append(name, obj.name);
+  }
+
+  @Override
+  protected final void additionalHashcodeForSubclasses(HashCodeBuilder builder) {
+    builder.append(name);
+  }
+
+  @Override
+  public String toString() {
+    return name;
+  }
 }
