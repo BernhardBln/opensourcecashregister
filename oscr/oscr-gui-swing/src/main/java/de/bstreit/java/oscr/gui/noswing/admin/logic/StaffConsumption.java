@@ -16,7 +16,26 @@ public class StaffConsumption implements IAdminBean {
 
   @Override
   public void performTask() {
+    System.out.println("#################################################################");
+    System.out.println("########################## THIS MONTH ###########################");
+    System.out.println("#################################################################");
+    System.out.println("");
+
+    consumptionExporter.setThisMonth(true);
     consumptionExporter.export();
+
+    System.out.println("");
+
+
+    System.out.println("#################################################################");
+    System.out.println("########################## LAST MONTH ###########################");
+    System.out.println("#################################################################");
+    System.out.println("");
+
+    consumptionExporter.setThisMonth(false);
+    consumptionExporter.export();
+
+    System.out.println("");
   }
 
 
@@ -27,7 +46,7 @@ public class StaffConsumption implements IAdminBean {
 
   @Override
   public String toString() {
-    return "Staff Consumption for previous month";
+    return "Staff Consumption for this and for previous month";
   }
 
 
