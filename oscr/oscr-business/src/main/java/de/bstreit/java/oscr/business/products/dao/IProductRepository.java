@@ -38,7 +38,7 @@ public interface IProductRepository extends JpaRepository<Product, Long> {
 	/** Find currently active product by name */
 	public Product findByNameAndValidToIsNull(String name);
 
-	@Query("FROM Product WHERE validTo IS NULL")
+	@Query("FROM Product WHERE validFrom < current_timestamp and (validTo IS NULL OR validTo > current_timestamp)")
 	public List<Product> findActiveProducts();
 
 }

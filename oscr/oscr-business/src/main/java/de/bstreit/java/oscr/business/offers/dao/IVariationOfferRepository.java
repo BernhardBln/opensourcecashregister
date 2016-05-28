@@ -36,7 +36,8 @@ import de.bstreit.java.oscr.business.offers.VariationOffer;
 public interface IVariationOfferRepository extends
 		JpaRepository<VariationOffer, Long> {
 
-	@Query("FROM VariationOffer WHERE validTo IS NULL AND offeredItem.validTo IS NULL")
+	@Query("FROM VariationOffer WHERE validFrom < current_timestamp and (validTo IS NULL OR validTo > current_timestamp)"
+		+ " AND offeredItem.validFrom < current_timestamp and (offeredItem.validTo IS NULL OR offeredItem.validTo > current_timestamp)")
 	public Collection<VariationOffer> findAllActiveOffers();
 
 }

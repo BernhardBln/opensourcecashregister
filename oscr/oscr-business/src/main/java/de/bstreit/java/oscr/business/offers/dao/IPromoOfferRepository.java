@@ -35,7 +35,8 @@ import de.bstreit.java.oscr.business.offers.PromoOffer;
 
 public interface IPromoOfferRepository extends JpaRepository<PromoOffer, Long> {
 
-	@Query("FROM PromoOffer WHERE validTo IS NULL AND offeredItem.validTo IS NULL")
+	@Query("FROM PromoOffer WHERE validFrom < current_timestamp and (validTo IS NULL OR validTo > current_timestamp) "
+		+ " AND offeredItem.validFrom < current_timestamp and (offeredItem.validTo IS NULL OR offeredItem.validTo > current_timestamp)")
 	public Collection<PromoOffer> findAllActiveOffers();
 
 }

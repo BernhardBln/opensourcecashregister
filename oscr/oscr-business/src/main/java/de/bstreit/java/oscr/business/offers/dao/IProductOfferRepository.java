@@ -38,16 +38,18 @@ public interface IProductOfferRepository extends
     JpaRepository<ProductOffer, Long> {
 
   @Query("SELECT productOffer " + "  FROM ProductOffer productOffer "
-      + "  WHERE productOffer.validTo IS NULL"
+      + "  WHERE productOffer.validFrom < current_timestamp and (productOffer.validTo IS NULL OR productOffer.validTo > current_timestamp)"
       + "    AND productOffer.offeredItem.name = ?1"
-      + "    AND productOffer.offeredItem.validTo IS NULL")
+      + "    AND productOffer.offeredItem.validFrom < current_timestamp "
+      + "        AND (productOffer.offeredItem.validTo IS NULL OR productOffer.offeredItem.validTo > current_timestamp)")
   public ProductOffer findActiveOfferByProductName(String name);
 
   @Query("SELECT productOffer "
       + "  FROM ProductOffer productOffer "
-      + "  WHERE productOffer.validTo IS NULL"
+      + "  WHERE productOffer.validFrom < current_timestamp and (productOffer.validTo IS NULL OR productOffer.validTo > current_timestamp)"
       + "    AND productOffer.offeredItem.productCategory = ?1"
-      + "    AND productOffer.offeredItem.validTo IS NULL"
+      + "    AND productOffer.offeredItem.validFrom < current_timestamp "
+      + "        AND (productOffer.offeredItem.validTo IS NULL OR productOffer.offeredItem.validTo > current_timestamp)"
       + "  ORDER BY productOffer.offeredItem.productCategory.orderNumber ASC, "
       + "             productOffer.offeredItem.orderNumber ASC,"
       + "             productOffer.offeredItem.name ASC")
@@ -55,9 +57,10 @@ public interface IProductOfferRepository extends
       ProductCategory productCategory);
 
   @Query("SELECT productOffer " + "  FROM ProductOffer productOffer "
-      + "  WHERE productOffer.validTo IS NULL"
+      + "  WHERE productOffer.validFrom < current_timestamp and (productOffer.validTo IS NULL OR productOffer.validTo > current_timestamp)"
       + "    AND productOffer.offeredItem.productCategory <> ?1"
-      + "    AND productOffer.offeredItem.validTo IS NULL"
+      + "    AND productOffer.offeredItem.validFrom < current_timestamp "
+      + "        AND (productOffer.offeredItem.validTo IS NULL OR productOffer.offeredItem.validTo > current_timestamp)"
       + "  ORDER BY productOffer.offeredItem.productCategory.orderNumber ASC, "
       + "             productOffer.offeredItem.orderNumber ASC,"
       + "             productOffer.offeredItem.name ASC")
@@ -65,8 +68,9 @@ public interface IProductOfferRepository extends
       ProductCategory productCategory);
 
   @Query("SELECT productOffer " + "  FROM ProductOffer productOffer "
-      + "  WHERE productOffer.validTo IS NULL"
-      + "    AND productOffer.offeredItem.validTo IS NULL"
+      + "  WHERE productOffer.validFrom < current_timestamp and (productOffer.validTo IS NULL OR productOffer.validTo > current_timestamp)"
+      + "    AND productOffer.offeredItem.validFrom < current_timestamp "
+      + "        AND (productOffer.offeredItem.validTo IS NULL OR productOffer.offeredItem.validTo > current_timestamp)"
       + "  ORDER BY productOffer.offeredItem.productCategory.orderNumber ASC, "
       + "             productOffer.offeredItem.orderNumber ASC,"
       + "             productOffer.offeredItem.name ASC")

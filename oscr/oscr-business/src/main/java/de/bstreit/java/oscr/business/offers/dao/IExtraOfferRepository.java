@@ -35,7 +35,8 @@ import de.bstreit.java.oscr.business.offers.ExtraOffer;
 
 public interface IExtraOfferRepository extends JpaRepository<ExtraOffer, Long> {
 
-	@Query("FROM ExtraOffer WHERE validTo IS NULL AND offeredItem.validTo IS NULL")
+	@Query("FROM ExtraOffer WHERE validFrom < current_timestamp and (validTo IS NULL OR validTo > current_timestamp) " +
+ 		" AND offeredItem.validFrom < current_timestamp and (offeredItem.validTo IS NULL OR offeredItem.validTo > current_timestamp)")
 	public Collection<ExtraOffer> findAllActiveOffers();
 
 }
