@@ -40,6 +40,8 @@ import javax.transaction.Transactional;
 
 import org.hibernate.Hibernate;
 
+import com.google.common.annotations.VisibleForTesting;
+
 import de.bstreit.java.oscr.business.base.date.ICurrentDateProvider;
 import de.bstreit.java.oscr.business.bill.calculator.WhatToCount;
 import de.bstreit.java.oscr.business.bill.dao.IBillRepository;
@@ -395,24 +397,48 @@ public class BillService {
   @Transactional
   public void processBillsAt(IBillProcessor billProcessor, Date day) {
 
-    Date from = DateFactory.getDateWithTimeMidnight(day.getYear() + 1900,
-        day.getMonth() + 1, day.getDate());
-
-    Calendar calendar = Calendar.getInstance();
-    calendar.setTime(day);
-    calendar.roll(Calendar.DAY_OF_MONTH, true);
-    Date nextDay = calendar.getTime();
-    Date to = DateFactory.getDateWithTimeMidnight(nextDay.getYear() + 1900,
-        nextDay.getMonth() + 1, nextDay.getDate());
-
-    final Collection<Bill> allBillsForToday = billRepository
-        .getBillsForDayWithoutStaff(from, to);
+    final Collection<Bill> allBillsForToday = getBillsForAllDay(day);
 
     for (final Bill bill : allBillsForToday) {
       billProcessor.processBill(bill);
     }
 
   }
+
+  public Collection<Bill> getBillsForAllDay(Date day) {
+    Date from = DateFactory.getDateWithTimeMidnight(day.getYear() + 1900,
+        day.getMonth() + 1, day.getDate());
+
+    Calendar nextDayCalendar = Calendar.getInstance();
+    nextDayCalendar.setTime(day);
+    nextDayCalendar.add(Calendar.DAY_OF_MONTH, 1);
+    Date to = nextDayCalendar.getTime();
+
+    final Collection<Bill> allBillsForToday = billRepository
+        .getBillsForDayWithoutStaff(from, to);
+
+    return allBillsForToday;
+  }
+
+  /**
+   * Get all bills from the whole month this day lies in.
+   * 
+   * @param day
+   * @return
+   */
+  public Collection<Bill> getBillsForMonthOf(Date day) {
+    // first of "current" month (the month that the given day lies in)
+    Date firstOfThisMonth = DateFactory.getDateWithTimeMidnight(day.getYear() + 1900,
+        day.getMonth() + 1, 1);
+
+    Date firstOfNextMonth = DateFactory.getFirstOfNextMonthAtMidnight(firstOfThisMonth).getTime();
+
+    final Collection<Bill> allBillsOfThatMonth = billRepository
+        .getBillsForDayWithoutStaff(firstOfThisMonth, firstOfNextMonth);
+
+    return allBillsOfThatMonth;
+  }
+
 
   public void notifyShutdown() {
     for (IService service : services) {
@@ -457,5 +483,41 @@ public class BillService {
     lastAddedItem = (bill == null ? null : bill.getLastBillItemOrNull());
     fireBillChangedEvent();
   }
+
+  @VisibleForTesting
+  void setBillRepository(IBillRepository billRepository) {
+    this.billRepository = billRepository;
+  }
+
+  @VisibleForTesting
+  void setUserProvider(IUserService userProvider) {
+    this.userProvider = userProvider;
+  }
+
+  @VisibleForTesting
+  void setDefaultTaxInfoForNewBills(TaxInfo defaultTaxInfoForNewBills) {
+    this.defaultTaxInfoForNewBills = defaultTaxInfoForNewBills;
+  }
+
+  @VisibleForTesting
+  void setCurrentDateProvider(ICurrentDateProvider currentDateProvider) {
+    this.currentDateProvider = currentDateProvider;
+  }
+
+  @VisibleForTesting
+  void setMultipleBillsCalculatorFactory(IMultipleBillsCalculatorFactory multipleBillsCalculatorFactory) {
+    this.multipleBillsCalculatorFactory = multipleBillsCalculatorFactory;
+  }
+
+  @VisibleForTesting
+  void setServices(Set<IService> services) {
+    this.services = services;
+  }
+
+  @VisibleForTesting
+  void setEventBroadcaster(EventBroadcaster eventBroadcaster) {
+    this.eventBroadcaster = eventBroadcaster;
+  }
+
 
 }
