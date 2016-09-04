@@ -26,10 +26,9 @@
  */
 package de.bstreit.java.oscr.business.util;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+
 
 public class DateFactory {
 
@@ -75,17 +74,15 @@ public class DateFactory {
     return c;
   }
 
-  public static Calendar getFirstOfNextMonthAtMidnight(Date firstOfThisMonth) {
-
-    DateFormat i = SimpleDateFormat.getInstance();
+  public static Date getFirstOfNextMonthAtMidnight(Date firstOfThisMonth) {
 
     Calendar firstOfNextMonthCalendar = Calendar.getInstance();
     firstOfNextMonthCalendar.setTime(firstOfThisMonth);
     firstOfNextMonthCalendar.set(Calendar.DAY_OF_MONTH, 1);
     firstOfNextMonthCalendar.add(Calendar.MONTH, 1);
     // Should be next month, at midnight
-    Date firstOfNextMonth = firstOfNextMonthCalendar.getTime();
-    return getCalendarWithTimeMidnight(firstOfNextMonth.getYear(), firstOfNextMonth.getMonth() + 1,
-        firstOfNextMonth.getDate());
+
+    return getDateWithTimeMidnight(firstOfNextMonthCalendar.get(Calendar.YEAR),
+        firstOfNextMonthCalendar.get(Calendar.MONTH) + 1, 1);
   }
 }

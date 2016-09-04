@@ -56,7 +56,11 @@ public class TotalsPrinter implements IAdminBean {
       return;
     }
 
-    Calendar lastOfMonth = DateFactory.getFirstOfNextMonthAtMidnight(firstOfMonth);
+    Date lastOfMonthDate = DateFactory.getFirstOfNextMonthAtMidnight(firstOfMonth);
+
+    Calendar lastOfMonth = Calendar.getInstance();
+    lastOfMonth.setTime(lastOfMonthDate);
+
     lastOfMonth.add(Calendar.DAY_OF_MONTH, -1);
 
     for (int i = 1; i <= lastOfMonth.get(Calendar.DAY_OF_MONTH); i++) {

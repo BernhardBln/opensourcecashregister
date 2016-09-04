@@ -431,7 +431,7 @@ public class BillService {
     Date firstOfThisMonth = DateFactory.getDateWithTimeMidnight(day.getYear() + 1900,
         day.getMonth() + 1, 1);
 
-    Date firstOfNextMonth = DateFactory.getFirstOfNextMonthAtMidnight(firstOfThisMonth).getTime();
+    Date firstOfNextMonth = DateFactory.getFirstOfNextMonthAtMidnight(firstOfThisMonth);
 
     final Collection<Bill> allBillsOfThatMonth = billRepository
         .getBillsForDayWithoutStaff(firstOfThisMonth, firstOfNextMonth);
