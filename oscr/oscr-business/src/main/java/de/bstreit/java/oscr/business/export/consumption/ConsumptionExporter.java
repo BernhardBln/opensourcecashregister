@@ -16,6 +16,7 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
@@ -67,6 +68,9 @@ public class ConsumptionExporter {
   private String managementUser;
 
   private Money dinnerPrice;
+
+  @Value("${staffConsumption.managementConsumptionCustomMessage}")
+  private String customManagementConsumptionMessage = "";
 
   private transient Map<User, ConsumptionCounter> consumption = Maps
       .newHashMap();
@@ -149,7 +153,7 @@ public class ConsumptionExporter {
     }
 
     appendable.append(MessageFormat.format(
-        "\nManagement consumption: GROS {0} - NET {1}",
+        "\nManagement consumption / Eigenbedarf: GROS {0} - NET {1}",
         multipleBillsCalculator.getTotalGross(), totalNet) + "\n");
 
     for (final VATClass vatClass : multipleBillsCalculator
@@ -160,7 +164,10 @@ public class ConsumptionExporter {
           + multipleBillsCalculator.getTotalVATFor(vatClass) + "\n");
     }
 
-    appendable.append("\n" + "\n");
+    if (StringUtils.isNotBlank(customManagementConsumptionMessage)) {
+      appendable.append("\n" + customManagementConsumptionMessage + "\n");
+    }
+    appendable.append("\n\n");
   }
 
   private void printResults() throws IOException {

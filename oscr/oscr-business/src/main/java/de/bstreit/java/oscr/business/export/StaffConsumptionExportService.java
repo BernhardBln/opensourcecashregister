@@ -55,7 +55,7 @@ public class StaffConsumptionExportService extends AbstractService implements Bi
   protected void initService() {
     eventBroadcaster.addBillChangeListener(this);
     consumptionExporter.setPrintCustomerBills(false);
-    consumptionExporter.setPrintManagementConsumption(false);
+    consumptionExporter.setPrintManagementConsumption(true);
   }
 
   /**
