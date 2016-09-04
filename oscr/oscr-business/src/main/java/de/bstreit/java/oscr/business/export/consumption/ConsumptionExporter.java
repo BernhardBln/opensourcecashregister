@@ -69,7 +69,7 @@ public class ConsumptionExporter {
 
   private Money dinnerPrice;
 
-  @Value("${staffConsumption.managementConsumptionCustomMessage}")
+  @Value("${staffConsumption.managementConsumptionCustomMessage ?: ''}")
   private String customManagementConsumptionMessage = "";
 
   private transient Map<User, ConsumptionCounter> consumption = Maps
