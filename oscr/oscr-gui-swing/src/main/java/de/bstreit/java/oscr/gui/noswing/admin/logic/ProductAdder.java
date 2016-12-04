@@ -21,80 +21,103 @@ import de.bstreit.java.oscr.gui.noswing.admin.util.ChoiceHelper;
 @Named
 public class ProductAdder implements IAdminBean {
 
-	@Inject
-	private IProductOfferRepository productOfferRepository;
-	@Inject
-	private IProductCategoryRepository productCategoryRepository;
+  @Inject
+  private IProductOfferRepository productOfferRepository;
+  @Inject
+  private IProductCategoryRepository productCategoryRepository;
 
-	private Scanner scanner;
+  private Scanner scanner;
 
-	@Override
-	public void setScanner(Scanner scanner) {
-		this.scanner = scanner;
-	}
 
-	@Transactional
-	@Override
-	public void performTask() {
+  @Override
+  public void setScanner(Scanner scanner) {
+    this.scanner = scanner;
+  }
 
-		System.out.println("Add product:\n" + "============\n\n");
+  @Transactional
+  @Override
+  public void performTask() {
 
-		final Product product = getProduct();
-		final Money price = getPrice("price (gross)", false);
-		final Money costsNet = getPrice("costs (net)", true);
+    System.out.println("Existing products:\n==================\n");
 
-		final ProductOffer productOffer = new ProductOffer(product, price,
-				costsNet, new Date(), null);
+    showProductOffers();
 
-		productOfferRepository.save(productOffer);
-	}
+    System.out.println("Add product:\n" + "============\n\n");
 
-	private Money getPrice(String label, boolean isOptional) {
+    final Product product = getProduct();
+    final Money price = getPrice("price (gross)", false);
+    final Money costsNet = getPrice("costs (net)", true);
 
-		final String leaveEmptyOpt = isOptional ? " (Press enter to leave empty)"
-				: "";
+    final ProductOffer productOffer = new ProductOffer(product, price,
+        costsNet, new Date(), null);
 
-		System.out.println("Enter " + label + leaveEmptyOpt + ": ");
-		final String amount = scanner.nextLine().trim().replace(",", ".");
+    productOfferRepository.save(productOffer);
+  }
 
-		if (isOptional && StringUtils.isBlank(amount)) {
-			return null;
-		}
+  private void showProductOffers() {
 
-		System.out.println("Enter Currency [EUR]: ");
-		String currencyCode = scanner.nextLine().trim();
+    final List<ProductOffer> allActiveOffers = productOfferRepository
+        .findAllActiveOffers();
 
-		if (StringUtils.isBlank(currencyCode)) {
-			currencyCode = "EUR";
-		}
-		return new Money(amount, currencyCode);
-	}
+    int i = 1;
+    for (final ProductOffer productOffer : allActiveOffers) {
+      System.out.println(i++ + ") " + productOffer + " [# " + productOffer.getOfferedItem().getOrderNumber()
+          + "]");
+    }
+    System.out.println();
 
-	private Product getProduct() {
-		System.out.println("Enter product name: ");
-		final String name = scanner.nextLine().trim();
+  }
 
-		final Product product = new Product(name, new Date(), null);
+  private Money getPrice(String label, boolean isOptional) {
 
-		final ProductCategory productCategory = getProductCategory();
-		product.setProductCategory(productCategory);
+    final String leaveEmptyOpt = isOptional ? " (Press enter to leave empty)"
+        : "";
 
-		return product;
-	}
+    System.out.println("Enter " + label + leaveEmptyOpt + ": ");
+    final String amount = scanner.nextLine().trim().replace(",", ".");
 
-	private ProductCategory getProductCategory() {
+    if (isOptional && StringUtils.isBlank(amount)) {
+      return null;
+    }
 
-		final List<ProductCategory> categories = productCategoryRepository
-				.findActiveProductCategories();
+    System.out.println("Enter Currency [EUR]: ");
+    String currencyCode = scanner.nextLine().trim();
 
-		final ChoiceHelper<ProductCategory> choiceHelper = ChoiceHelper
-				.withoutCancelOption(categories, "Select category:", scanner);
+    if (StringUtils.isBlank(currencyCode)) {
+      currencyCode = "EUR";
+    }
+    return new Money(amount, currencyCode);
+  }
 
-		return choiceHelper.makeChoice();
-	}
+  private Product getProduct() {
+    System.out.println("Enter product name: ");
+    final String name = scanner.nextLine().trim();
 
-	@Override
-	public String toString() {
-		return "Add a product";
-	}
+    System.out.println("Enter order number: ");
+    final int orderNumber = Integer.parseInt(scanner.nextLine().trim());
+
+    final Product product = new Product(name, new Date(), null);
+    product.setOrderNumber(orderNumber);
+
+    final ProductCategory productCategory = getProductCategory();
+    product.setProductCategory(productCategory);
+
+    return product;
+  }
+
+  private ProductCategory getProductCategory() {
+
+    final List<ProductCategory> categories = productCategoryRepository
+        .findActiveProductCategories();
+
+    final ChoiceHelper<ProductCategory> choiceHelper = ChoiceHelper
+        .withoutCancelOption(categories, "Select category:", scanner);
+
+    return choiceHelper.makeChoice();
+  }
+
+  @Override
+  public String toString() {
+    return "Add a product";
+  }
 }
