@@ -184,7 +184,7 @@ public class ButtonFactory {
   }
 
   public Component createTwentyPercentPromotionButton() {
-    final JButton button = new JButton("10% / 20% / 30% off");
+    final JButton button = new JButton("10% / 20% / 40% off");
 
     addReductionButton(button);
 
