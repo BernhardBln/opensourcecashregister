@@ -45,9 +45,7 @@ class BillCalculatorPromoTotal implements IBillCalculator {
 
   private Money ZERO;
 
-
-  private static final BigDecimal TWENTY_PERCENT = new BigDecimal("0.2");
-  private static final BigDecimal TWENTY = new BigDecimal("20");
+  private static final BigDecimal ONE_HUNDRED = BigDecimal.valueOf(100);
 
 
   BillCalculatorPromoTotal() {
@@ -122,11 +120,11 @@ class BillCalculatorPromoTotal implements IBillCalculator {
       if (bill.isFreePromotionOffer()) {
         currentPriceGross = item.getPriceGross().absolute();
       }
-      else if (bill.isTwentyPercentOff()) {
+      else if (bill.hasReduction()) {
         // if e.g. 1 EUR is taken off from an item that costs 3 EURs, and
         // additionally 20% is offered,
         // then the further reduction is (3 - 1) * 0.2
-        Money furtherReduction = item.getPriceGross().absolute().multiply(TWENTY_PERCENT);
+        Money furtherReduction = item.getPriceGross().absolute().multiply(percentReduction(bill));
         currentPriceGross = reduction.add(furtherReduction);
       } else {
         currentPriceGross = reduction;
@@ -137,6 +135,7 @@ class BillCalculatorPromoTotal implements IBillCalculator {
 
     return total;
   }
+
 
   @Override
   public Money getTotalNetFor(VATClass vatClass) {
@@ -156,9 +155,9 @@ class BillCalculatorPromoTotal implements IBillCalculator {
         if (bill.isFreePromotionOffer()) {
           currentPriceGross = item.getPriceGross();
         }
-        else if (bill.isTwentyPercentOff()) {
+        else if (bill.hasReduction()) {
           Money furtherReduction = item.getPriceGross().absolute()
-              .multiply(TWENTY_PERCENT);
+              .multiply(percentReduction(bill));
           currentPriceGross = reduction.add(furtherReduction);
         } else {
           // whole bill is not free, but this item has a reduction
@@ -193,9 +192,9 @@ class BillCalculatorPromoTotal implements IBillCalculator {
         if (bill.isFreePromotionOffer()) {
           currentPriceGross = item.getPriceGross();
         }
-        else if (bill.isTwentyPercentOff()) {
+        else if (bill.hasReduction()) {
           Money furtherReduction = item.getPriceGross().absolute()
-              .multiply(TWENTY_PERCENT);
+              .multiply(percentReduction(bill));
           currentPriceGross = reduction.add(furtherReduction);
         } else {
           // whole bill is not free, but this item has a reduction
@@ -229,9 +228,9 @@ class BillCalculatorPromoTotal implements IBillCalculator {
 
     Money reduction = getGrossPromoReduction(billItem);
 
-    if (bill.isTwentyPercentOff()) {
+    if (bill.hasReduction()) {
       Money furtherReduction = billItem.getPriceGross().absolute()
-          .multiply(TWENTY_PERCENT);
+          .multiply(percentReduction(bill));
       reduction = reduction.add(furtherReduction);
     }
 
@@ -256,7 +255,11 @@ class BillCalculatorPromoTotal implements IBillCalculator {
   private boolean noPromoAtAll(Bill bill,
       final BillItem item) {
 
-    return !bill.isFreePromotionOffer() && !hasPromoOffer(item) && !bill.isTwentyPercentOff();
+    return !bill.isFreePromotionOffer() && !hasPromoOffer(item) && !bill.hasReduction();
+  }
+
+  private BigDecimal percentReduction(Bill bill2) {
+    return BigDecimal.valueOf(bill2.getReduction()).divide(ONE_HUNDRED);
   }
 
   private boolean hasPromoOffer(final BillItem item) {

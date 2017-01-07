@@ -165,16 +165,6 @@ public class BillService {
     fireBillChangedEvent();
   }
 
-  public void setTwentyPercentPromotion() {
-    if (currentBill == null) {
-      return;
-    }
-
-    currentBill.setTwentyPercentOff(true);
-
-    saveBill();
-    fireBillChangedEvent();
-  }
 
   public void clearFreePromotion() {
     if (currentBill == null) {
@@ -187,12 +177,30 @@ public class BillService {
     fireBillChangedEvent();
   }
 
-  public void clearTwentyPercentPromotion() {
+  public void toggleReduction() {
     if (currentBill == null) {
       return;
     }
 
-    currentBill.setTwentyPercentOff(false);
+    switch (currentBill.getReduction()) {
+
+    case 0:
+      currentBill.setReduction(10);
+      break;
+
+    case 10:
+      currentBill.setReduction(20);
+      break;
+
+    case 20:
+      currentBill.setReduction(40);
+      break;
+
+    case 40:
+      currentBill.setReduction(null);
+      break;
+
+    }
 
     saveBill();
     fireBillChangedEvent();

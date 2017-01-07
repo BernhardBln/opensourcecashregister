@@ -110,7 +110,7 @@ public class BillFormatter {
             + NEWLINE //
             + taxInformationIfApplies()
             + freePromotionIfApplies()
-            + twentyPercentOffIfApplies()
+            + reductionIfApplies()
             + "                     Mwst.  netto*    brutto"
             + NEWLINE);
   }
@@ -123,9 +123,9 @@ public class BillFormatter {
     return "";
   }
 
-  private String twentyPercentOffIfApplies() {
-    if (_bill.isTwentyPercentOff()) {
-      return "  20% OFF PROMOTION" + NEWLINE;
+  private String reductionIfApplies() {
+    if (_bill.hasReduction()) {
+      return "  " + _bill.getReduction() + "% OFF PROMOTION" + NEWLINE;
     }
 
     return "";

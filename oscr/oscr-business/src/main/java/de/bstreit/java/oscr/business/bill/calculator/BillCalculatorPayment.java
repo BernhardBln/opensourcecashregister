@@ -15,6 +15,7 @@ import javax.inject.Named;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 
@@ -44,7 +45,7 @@ class BillCalculatorPayment implements IBillCalculator {
 
   private Money ZERO;
 
-  private static final BigDecimal EIGHTY_PERCENT = new BigDecimal("0.8");
+  private static final BigDecimal ONE_HUNDRED = BigDecimal.valueOf(100);
 
 
   BillCalculatorPayment() {
@@ -111,12 +112,13 @@ class BillCalculatorPayment implements IBillCalculator {
       total = total.add(currentPriceGross);
     }
 
-    if (bill.isTwentyPercentOff()) {
-      total = total.multiply(EIGHTY_PERCENT);
+    if (bill.hasReduction()) {
+      total = total.multiply(getPromotionPercentageForReduction(bill.getReduction()));
     }
 
     return total;
   }
+
 
   @Override
   public Money getTotalNetFor(VATClass vatClass) {
@@ -138,8 +140,8 @@ class BillCalculatorPayment implements IBillCalculator {
       }
     }
 
-    if (bill.isTwentyPercentOff()) {
-      total = total.multiply(EIGHTY_PERCENT);
+    if (bill.hasReduction()) {
+      total = total.multiply(getPromotionPercentageForReduction(bill.getReduction()));
     }
 
     return total;
@@ -160,8 +162,8 @@ class BillCalculatorPayment implements IBillCalculator {
       }
     }
 
-    if (bill.isTwentyPercentOff()) {
-      total = total.multiply(EIGHTY_PERCENT);
+    if (bill.hasReduction()) {
+      total = total.multiply(getPromotionPercentageForReduction(bill.getReduction()));
     }
 
     return total;
@@ -196,11 +198,28 @@ class BillCalculatorPayment implements IBillCalculator {
 
     Money netAmount = billItem.getPriceGross().getNet(applyingVATClass);
 
-    if (bill.isTwentyPercentOff()) {
-      netAmount = netAmount.multiply(EIGHTY_PERCENT);
+    if (bill.hasReduction()) {
+      netAmount = netAmount.multiply(getPromotionPercentageForReduction(bill.getReduction()));
     }
 
     return netAmount;
+  }
+
+
+  @VisibleForTesting
+  static BigDecimal getPromotionPercentageForReduction(Integer promotion) {
+
+    // Input: 20% Promotion
+    //
+    // Calculation:
+    // 100 - 20 = 80
+    // 80 / 100 = 0.8
+    //
+    // Result: Multiply with 0.8
+
+    BigDecimal promotionAsBD = BigDecimal.valueOf(promotion);
+
+    return ONE_HUNDRED.subtract(promotionAsBD).divide(ONE_HUNDRED);
   }
 
   @Override

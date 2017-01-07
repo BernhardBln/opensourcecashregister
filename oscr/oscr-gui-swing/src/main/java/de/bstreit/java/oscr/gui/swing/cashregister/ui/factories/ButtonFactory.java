@@ -145,7 +145,7 @@ public class ButtonFactory {
         .setEnabled(newBill.isPresent() && !newBill.get().isEmpty()
             && !newBill.get().isConsumedByStaff()
             && !newBill.get().isFreePromotionOffer()
-            && !newBill.get().isTwentyPercentOff()
+            && !newBill.get().hasReduction()
             // only allow one promo per Bill:
             && hasNoPromoOffer(newBill)));
     button.setEnabled(false);
@@ -184,13 +184,12 @@ public class ButtonFactory {
   }
 
   public Component createTwentyPercentPromotionButton() {
-    final JToggleButton button = new JToggleButton("20% off");
+    final JButton button = new JButton("10% / 20% / 30% off");
 
-    addTwentyPercentPromotion(button);
+    addReductionButton(button);
 
-    setToggleButtonUponBillChangeAndDisableUponMissingBill(button,
-        getTwentyPercentPromotionIsEnabledLambda(),
-        bill -> bill.isTwentyPercentOff());
+    eventBroadcaster.addBillChangeListener(newBill -> button
+        .setEnabled(getReductionEnabledLambda().apply(newBill)));
 
     button.setMinimumSize(new Dimension(0, 40));
     button.setEnabled(false);
@@ -201,10 +200,10 @@ public class ButtonFactory {
   private Predicate<Optional<Bill>> getFreePromotionIsEnabledLambda() {
     return billOpt -> billOpt.isPresent()
         && !billOpt.get().isConsumedByStaff()
-        && hasNoPromoOffer(billOpt) && !billOpt.get().isTwentyPercentOff();
+        && hasNoPromoOffer(billOpt) && !billOpt.get().hasReduction();
   }
 
-  private Predicate<Optional<Bill>> getTwentyPercentPromotionIsEnabledLambda() {
+  private Predicate<Optional<Bill>> getReductionEnabledLambda() {
     return billOpt -> billOpt.isPresent()
         && !billOpt.get().isConsumedByStaff() && !billOpt.get().isFreePromotionOffer();
   }
@@ -257,16 +256,10 @@ public class ButtonFactory {
 
   }
 
-  private void addTwentyPercentPromotion(
-      final JToggleButton freePromotionButton) {
+  private void addReductionButton(
+      final JButton button) {
 
-    freePromotionButton.addActionListener(e -> {
-      if (freePromotionButton.isSelected()) {
-        appController.setTwentyPercentPromotion();
-      } else {
-        appController.clearTwentyPercentPromotion();
-      }
-    });
+    button.addActionListener(e -> appController.toggleReduction());
 
   }
 
@@ -289,7 +282,7 @@ public class ButtonFactory {
   private Predicate<Optional<Bill>> getStaffConsumptionIsEnabledLambda() {
 
     return billOpt -> billOpt.isPresent()
-        && !billOpt.get().isFreePromotionOffer() && !billOpt.get().isTwentyPercentOff()
+        && !billOpt.get().isFreePromotionOffer() && !billOpt.get().hasReduction()
         && hasNoPromoOffer(billOpt);
   }
 
