@@ -11,8 +11,9 @@
 
 		<preConditions onFail="CONTINUE">
 			<columnExists tableName="Bill" columnName="reduction" />
+			<columnExists tableName="Bill" columnName="twentyPercentOff" />
 		</preConditions>
-
+		
 		<update tableName="Bill">
 			<column name="reduction" value="20"></column>
 			<where>twentyPercentOff = true</where>
