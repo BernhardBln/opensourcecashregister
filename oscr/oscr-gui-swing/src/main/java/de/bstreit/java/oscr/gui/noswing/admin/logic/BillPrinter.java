@@ -5,10 +5,12 @@ import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Scanner;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.transaction.Transactional;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -33,12 +35,17 @@ public class BillPrinter implements IAdminBean {
   @Inject
   private IMultipleBillsCalculatorFactory multipleBillsCalculatorFactory;
 
+
+  @Inject
+  private Locale locale;
+
   private Scanner scanner;
 
 
   @Override
+  @Transactional
   public void performTask() {
-    System.out.println("Which day? (blank for yesterday): ");
+    System.out.println("Which day [DD.MM.YYYY]? (blank for yesterday): ");
     final String dateAsStr = scanner.nextLine().trim();
 
     final Date day;
@@ -48,7 +55,7 @@ public class BillPrinter implements IAdminBean {
     } else {
 
       try {
-        day = DateFormat.getInstance().parse(dateAsStr);
+        day = dateFormat().parse(dateAsStr);
       } catch (ParseException e) {
         e.printStackTrace();
         return;
@@ -72,6 +79,10 @@ public class BillPrinter implements IAdminBean {
         multipleBillsCalculatorFactory.create(bills, WhatToCount.PAYMENT));
     print("Promo total", multipleBillsCalculatorFactory.create(bills, WhatToCount.PROMO_TOTAL));
     print("Total (payments + promo)", multipleBillsCalculatorFactory.create(bills, WhatToCount.TOTAL));
+  }
+
+  private DateFormat dateFormat() {
+    return DateFormat.getDateInstance(DateFormat.MEDIUM, locale);
   }
 
   private void print(String label, IMultipleBillsCalculator calc) {

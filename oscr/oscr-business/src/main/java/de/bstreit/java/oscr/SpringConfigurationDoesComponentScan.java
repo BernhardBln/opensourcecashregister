@@ -32,6 +32,8 @@ import java.util.Locale;
 import javax.inject.Inject;
 import javax.sql.DataSource;
 
+import liquibase.integration.spring.SpringLiquibase;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -84,6 +86,17 @@ public class SpringConfigurationDoesComponentScan {
     lef.setPackagesToScan(thisPackageAndSubpackages);
 
     return lef;
+  }
+
+
+  @Bean
+  public SpringLiquibase springLiquibase(DataSource dataSource) {
+    SpringLiquibase springLiquibase = new SpringLiquibase();
+
+    springLiquibase.setChangeLog("classpath:liquibase/db-changelog.xml");
+    springLiquibase.setDataSource(dataSource);
+
+    return springLiquibase;
   }
 
   @Bean

@@ -49,6 +49,15 @@
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-dbcp2</artifactId>
 		</dependency>
+		
+		
+
+		<!-- https://mvnrepository.com/artifact/org.liquibase/liquibase-core -->
+		<dependency>
+			<groupId>org.liquibase</groupId>
+			<artifactId>liquibase-core</artifactId>
+		</dependency>
+		
 
 		<!-- Tools -->
 
