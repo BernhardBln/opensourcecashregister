@@ -82,18 +82,18 @@ public class StorageService {
 				new Date().getHours() > 1 && new Date().getHours() < 21);
 
 		final Calendar yesterdayOneHourEarlier = Calendar.getInstance();
-		yesterdayOneHourEarlier.roll(Calendar.DAY_OF_MONTH, false);
-		yesterdayOneHourEarlier.roll(Calendar.HOUR_OF_DAY, false);
+		yesterdayOneHourEarlier.add(Calendar.DAY_OF_MONTH, -1);
+		yesterdayOneHourEarlier.add(Calendar.HOUR_OF_DAY, -1);
 
 		final Calendar yesterdayOneHourLater = Calendar.getInstance();
-		yesterdayOneHourLater.roll(Calendar.DAY_OF_MONTH, false);
-		yesterdayOneHourLater.roll(Calendar.HOUR_OF_DAY, true);
+		yesterdayOneHourLater.add(Calendar.DAY_OF_MONTH, -1);
+		yesterdayOneHourLater.add(Calendar.HOUR_OF_DAY, 1);
 
 		final Calendar todayOneHourEarlier = Calendar.getInstance();
-		todayOneHourEarlier.roll(Calendar.HOUR_OF_DAY, false);
+		todayOneHourEarlier.add(Calendar.HOUR_OF_DAY, -1);
 
 		final Calendar todayOneHourLater = Calendar.getInstance();
-		todayOneHourLater.roll(Calendar.HOUR_OF_DAY, true);
+		todayOneHourLater.add(Calendar.HOUR_OF_DAY, 1);
 
 		final TaxInfo taxInfo = new TaxInfo("19%", null, null);
 		final Bill billYesterdayOneHourEarlier = billTestFactory.create(
@@ -127,7 +127,7 @@ public class StorageService {
 				new Date().getHours() > 1 && new Date().getHours() < 21);
 
 		final Calendar todayOneHourEarlier = Calendar.getInstance();
-		todayOneHourEarlier.roll(Calendar.HOUR_OF_DAY, false);
+		todayOneHourEarlier.add(Calendar.HOUR_OF_DAY, -1);
 
 		final TaxInfo taxInfo = new TaxInfo("19%", null, null);
 

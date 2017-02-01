@@ -96,7 +96,7 @@ public class BillPrinter implements IAdminBean {
 
   private Date getYesterday() {
     Calendar calendar = Calendar.getInstance();
-    calendar.roll(Calendar.DAY_OF_MONTH, false);
+    calendar.add(Calendar.DAY_OF_MONTH, -1);
     return calendar.getTime();
   }
 
