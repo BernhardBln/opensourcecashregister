@@ -418,7 +418,7 @@ public class BillService {
         day.getMonth() + 1, day.getDate());
 
     Calendar nextDayCalendar = Calendar.getInstance();
-    nextDayCalendar.setTime(day);
+    nextDayCalendar.setTime(from);
     nextDayCalendar.add(Calendar.DAY_OF_MONTH, 1);
     Date to = nextDayCalendar.getTime();
 
