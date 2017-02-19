@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>de.bstreit.java.oscr</groupId>
 		<artifactId>oscr</artifactId>
-		<version>0.1.24-SNAPSHOT</version>
+		<version>0.1.24</version>
 	</parent>
 
 	<artifactId>oscr-gui-swing</artifactId>
