@@ -5,7 +5,9 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
+import java.util.Set;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.swing.AbstractAction;
@@ -14,11 +16,15 @@ import javax.swing.JButton;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JToggleButton;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
+import com.google.common.collect.Sets;
 
 import de.bstreit.java.oscr.business.bill.Bill;
 import de.bstreit.java.oscr.business.eventbroadcasting.EventBroadcaster;
@@ -29,12 +35,17 @@ import de.bstreit.java.oscr.business.offers.ProductOffer;
 import de.bstreit.java.oscr.business.offers.PromoOffer;
 import de.bstreit.java.oscr.business.offers.VariationOffer;
 import de.bstreit.java.oscr.business.products.Product;
+import de.bstreit.java.oscr.business.products.category.ProductCategory;
+import de.bstreit.java.oscr.business.products.category.dao.IProductCategoryRepository;
 import de.bstreit.java.oscr.business.staff.User;
 import de.bstreit.java.oscr.business.staff.dao.IUserRepository;
 import de.bstreit.java.oscr.gui.swing.cashregister.ui.MainWindowController;
 
 @Named
 public class ButtonFactory {
+
+  private static final Color DEFAULT_BACKGROUND = (Color) UIManager.get("ToggleButton.select");
+  private static final Color WARNING_BACKGROUND = new Color(255, 204, 153);
 
   @Inject
   private MainWindowController appController;
@@ -45,6 +56,37 @@ public class ButtonFactory {
   @Inject
   private IUserRepository userRepository;
 
+  @Inject
+  private IProductCategoryRepository productCategoryRepository;
+
+  @Value("${foodCategories:''}")
+  private String foodCategoryNamesStrList;
+
+  private Set<ProductCategory> foodCategories = Sets.newHashSet();
+
+
+  @PostConstruct
+  public void initFoodCategory() {
+    if (StringUtils.isBlank(foodCategoryNamesStrList)) {
+      return;
+    }
+
+    String[] foodCategoriesStr = StringUtils.splitByWholeSeparator(foodCategoryNamesStrList, ",");
+
+    for (String foodCategoryStr : foodCategoriesStr) {
+
+      if (StringUtils.isBlank(foodCategoryStr)) {
+        continue;
+      }
+
+      ProductCategory category = productCategoryRepository.findByName(foodCategoryStr.trim());
+
+      if (category != null) {
+        foodCategories.add(category);
+      }
+
+    }
+  }
 
   public JButton createButtonFor(AbstractOffer<?> offer) {
 
@@ -341,10 +383,26 @@ public class ButtonFactory {
         billOpt -> billOpt.isPresent(),
         bill -> appController.isBillToGo());
 
+    eventBroadcaster.addBillChangeListener(billOpt -> setToGoWarning(btnToGo, billOpt));
+
     btnToGo.setMinimumSize(new Dimension(0, 40));
     btnToGo.setEnabled(false);
 
     return btnToGo;
+  }
+
+  private void setToGoWarning(JToggleButton btnToGo, Optional<Bill> billOpt) {
+
+    boolean showWarning = billOpt.isPresent() && containsFood(billOpt.get());
+
+    UIManager.put("ToggleButton.select", showWarning ? WARNING_BACKGROUND : DEFAULT_BACKGROUND);
+    SwingUtilities.updateComponentTreeUI(btnToGo);
+  }
+
+  private boolean containsFood(Bill bill) {
+    return bill.getBillItems().stream()//
+        .map(b -> b.getOffer().getOfferedItem().getProductCategory())//
+        .anyMatch(cat -> foodCategories.contains(cat));
   }
 
   public Component createPayButton() {

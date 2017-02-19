@@ -9,6 +9,10 @@ exportDir=
 # Leave empty to disable
 weeklyProductCategory=
 
+# Comma-separated list of category names that contain food
+# that is typically consumed in-house
+foodCategories=
+
 staffConsumption.breakfast.price=0
 staffConsumption.lunch.price=0
 staffConsumption.dinner.price=0
