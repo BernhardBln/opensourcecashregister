@@ -9,6 +9,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import de.bstreit.java.oscr.SpringConfigurationDoesComponentScan;
 import de.bstreit.java.oscr.business.export.IService;
 import de.bstreit.java.oscr.gui.swing.cashregister.ui.MainWindowController;
+import org.springframework.core.env.ConfigurableEnvironment;
 
 public class SwingStarter {
 
@@ -17,6 +18,7 @@ public class SwingStarter {
 
 
   public static void main(String[] args) {
+
 
     final ConfigurableApplicationContext context = getContext();
 
@@ -39,8 +41,14 @@ public class SwingStarter {
   }
 
   private static ConfigurableApplicationContext getContext() {
-    return new AnnotationConfigApplicationContext(
-        SpringConfigurationDoesComponentScan.class);
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+
+    context.getEnvironment().addActiveProfile("UI");
+    context.register(SpringConfigurationDoesComponentScan.class);
+
+    context.refresh();
+
+    return context;
   }
 
 }

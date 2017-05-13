@@ -7,8 +7,10 @@ import javax.inject.Named;
 import javax.swing.AbstractAction;
 
 import de.bstreit.java.oscr.gui.swing.cashregister.ui.MainWindowController;
+import org.springframework.context.annotation.Profile;
 
 @Named
+@Profile("UI")
 public class EditWeeklyButonsAction extends AbstractAction {
 
 	@Inject

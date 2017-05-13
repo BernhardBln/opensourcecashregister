@@ -13,8 +13,10 @@ import de.bstreit.java.oscr.business.bill.Bill;
 import de.bstreit.java.oscr.business.eventbroadcasting.BillChangeListener;
 import de.bstreit.java.oscr.business.eventbroadcasting.EventBroadcaster;
 import de.bstreit.java.oscr.gui.swing.cashregister.ui.MainWindowController;
+import org.springframework.context.annotation.Profile;
 
 @Named
+@Profile("UI")
 public class ShowOpenBillsAction extends AbstractAction implements
 BillChangeListener {
 

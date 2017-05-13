@@ -1,5 +1,7 @@
 package de.bstreit.java.oscr.gui.swing.cashregister.ui.factories;
 
+import org.springframework.context.annotation.Profile;
+
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 

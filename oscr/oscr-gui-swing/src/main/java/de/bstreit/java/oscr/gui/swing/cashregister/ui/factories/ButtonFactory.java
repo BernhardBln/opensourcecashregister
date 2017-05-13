@@ -40,7 +40,9 @@ import de.bstreit.java.oscr.business.products.category.dao.IProductCategoryRepos
 import de.bstreit.java.oscr.business.staff.User;
 import de.bstreit.java.oscr.business.staff.dao.IUserRepository;
 import de.bstreit.java.oscr.gui.swing.cashregister.ui.MainWindowController;
+import org.springframework.context.annotation.Profile;
 
+@Profile("UI")
 @Named
 public class ButtonFactory {
 

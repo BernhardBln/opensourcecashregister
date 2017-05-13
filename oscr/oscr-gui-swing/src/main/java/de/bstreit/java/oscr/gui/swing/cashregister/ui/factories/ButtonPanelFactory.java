@@ -25,8 +25,10 @@ import de.bstreit.java.oscr.business.offers.dao.IVariationOfferRepository;
 import de.bstreit.java.oscr.business.products.category.ProductCategory;
 import de.bstreit.java.oscr.business.products.category.dao.IProductCategoryRepository;
 import de.bstreit.java.oscr.gui.swing.cashregister.ui.MainWindowController;
+import org.springframework.context.annotation.Profile;
 
 @Named
+@Profile("UI")
 public class ButtonPanelFactory {
 
 	@Inject

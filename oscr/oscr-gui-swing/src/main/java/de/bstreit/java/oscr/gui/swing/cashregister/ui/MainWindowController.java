@@ -37,7 +37,9 @@ import de.bstreit.java.oscr.business.staff.User;
 import de.bstreit.java.oscr.business.taxation.TaxInfo;
 import de.bstreit.java.oscr.business.taxation.dao.ITaxInfoRepository;
 import de.bstreit.java.oscr.text.formatting.BillFormatter;
+import org.springframework.context.annotation.Profile;
 
+@Profile("UI")
 @Named
 public class MainWindowController implements BillChangeListener {
 
