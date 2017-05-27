@@ -4,7 +4,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 import org.apache.commons.lang3.text.WordUtils;
 
-class BillItemWrapper {
+public class BillItemWrapper {
 
   private final int maxLen;
   private final String newline;

@@ -10,4 +10,5 @@ public interface IBillDisplay {
 
 	void clear();
 
+    void showError(String message);
 }

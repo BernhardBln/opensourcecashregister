@@ -34,9 +34,9 @@ public class BillFormatter {
   @Value("#{ systemProperties['line.separator'] }")
   private String NEWLINE;
 
-  private static final int MAX_LINE_LENGTH = 44;
+  public static final int MAX_LINE_LENGTH = 44;
 
-  private static final int MAX_PRODUCT_COLUMN_LENGTH = 20;
+  public static final int MAX_PRODUCT_COLUMN_LENGTH = 20;
 
   @Inject
   private IBillCalculatorFactory billCalculatorFactory;

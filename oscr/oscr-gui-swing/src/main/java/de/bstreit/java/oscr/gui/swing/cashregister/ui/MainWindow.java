@@ -16,111 +16,145 @@ import javax.swing.JSplitPane;
 import javax.swing.JTextPane;
 import javax.swing.WindowConstants;
 
+import de.bstreit.java.oscr.text.formatting.BillItemWrapper;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.w3c.dom.views.AbstractView;
 
 import de.bstreit.java.oscr.gui.swing.cashregister.ui.factories.ButtonPanelFactory;
 
+import static de.bstreit.java.oscr.text.formatting.BillFormatter.MAX_LINE_LENGTH;
+import static de.bstreit.java.oscr.text.formatting.BillFormatter.MAX_PRODUCT_COLUMN_LENGTH;
+
 @Profile("UI")
 @Named
 public class MainWindow implements IBillDisplay {
 
-	private JFrame jFrame;
+    private JFrame jFrame;
 
-	@Inject
-	private MainWindowController appController;
+    @Inject
+    private MainWindowController appController;
 
-	@Inject
-	private ButtonPanelFactory buttonPanelFactory;
+    @Inject
+    private ButtonPanelFactory buttonPanelFactory;
 
-	private JTextPane billView;
 
-	private JPanel buttonPanel;
-	private JScrollPane scrollPane;
+    @Value("#{ systemProperties['line.separator'] }")
+    private String NEWLINE;
 
-	@Override
-	public void printBill(String billAsText) {
-		billView.setText(billAsText);
-	}
 
-	// @Override
-	protected JComponent buildPanel() {
-		final JSplitPane mainSplitPane = new JSplitPane();
-		mainSplitPane.setBounds(100, 100, 757, 555);
-		mainSplitPane.setResizeWeight(1.0);
-		mainSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+    private BillItemWrapper billItemWrapper = new BillItemWrapper(MAX_LINE_LENGTH,
+            NEWLINE);
 
-		setTopPanel(mainSplitPane);
+    private JTextPane billView;
 
-		buttonPanel = buttonPanelFactory.createButtonPanel();
+    private JPanel buttonPanel;
+    private JScrollPane scrollPane;
 
-		buttonPanel.validate();
+    @Override
+    public void printBill(String billAsText) {
+        billView.setText(billAsText);
+    }
 
-		mainSplitPane.setRightComponent(buttonPanel);
+    // @Override
+    protected JComponent buildPanel() {
+        final JSplitPane mainSplitPane = new JSplitPane();
+        mainSplitPane.setBounds(100, 100, 757, 555);
+        mainSplitPane.setResizeWeight(1.0);
+        mainSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
 
-		return mainSplitPane;
-	}
+        setTopPanel(mainSplitPane);
 
-	private void setTopPanel(final JSplitPane mainSplitPane) {
-		billView = new JTextPane();
-		billView.setFont(new Font("Courier New", Font.PLAIN, 12));
-		billView.setPreferredSize(new Dimension(6, 150));
+        buttonPanel = buttonPanelFactory.createButtonPanel();
 
-		scrollPane = new JScrollPane(billView);
+        buttonPanel.validate();
 
-		final JSplitPane splitPane = new JSplitPane();
-		// splitPane.setBounds(100, 100, 757, 555);
-		splitPane.setResizeWeight(1.0);
-		splitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
+        mainSplitPane.setRightComponent(buttonPanel);
 
-		splitPane.setLeftComponent(scrollPane);
+        return mainSplitPane;
+    }
 
-		splitPane.setRightComponent(buttonPanelFactory
-				.createControlButtonsPanel());
+    private void setTopPanel(final JSplitPane mainSplitPane) {
+        billView = new JTextPane();
+        billView.setFont(new Font("Courier New", Font.PLAIN, 12));
+        billView.setPreferredSize(new Dimension(6, 150));
 
-		mainSplitPane.setLeftComponent(splitPane);
-	}
+        scrollPane = new JScrollPane(billView);
 
-	/**
-	 * @wbp.parser.entryPoint
-	 */
-	@Override
-	public void show() {
-		jFrame = new JFrame();
-		jFrame.setBounds(100, 100, 757, 555);
-		jFrame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-		jFrame.setExtendedState(Frame.MAXIMIZED_BOTH);
+        final JSplitPane splitPane = new JSplitPane();
+        // splitPane.setBounds(100, 100, 757, 555);
+        splitPane.setResizeWeight(1.0);
+        splitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
 
-		jFrame.addWindowListener(new WindowAdapter() {
+        splitPane.setLeftComponent(scrollPane);
 
-			@Override
-			public void windowClosed(WindowEvent arg0) {
-				appController.notifyShutdown();
-			}
+        splitPane.setRightComponent(buttonPanelFactory
+                .createControlButtonsPanel());
 
-		});
+        mainSplitPane.setLeftComponent(splitPane);
+    }
 
-		// if child of abstractview, use getPanel!
-		if (AbstractView.class.isAssignableFrom(getClass())) {
-			// jFrame.getContentPane().add(getPanel());
-		} else {
-			jFrame.getContentPane().add(buildPanel());
-		}
+    /**
+     * @wbp.parser.entryPoint
+     */
+    @Override
+    public void show() {
+        jFrame = new JFrame();
+        jFrame.setBounds(100, 100, 757, 555);
+        jFrame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        jFrame.setExtendedState(Frame.MAXIMIZED_BOTH);
 
-		jFrame.setVisible(true);
+        jFrame.addWindowListener(new WindowAdapter() {
 
-		// init
-		appController.guiLaunched();
-	}
+            @Override
+            public void windowClosed(WindowEvent arg0) {
+                appController.notifyShutdown();
+            }
 
-	@Override
-	public void scrollToBeginning() {
-		billView.setCaretPosition(0);
-	}
+        });
 
-	@Override
-	public void clear() {
-		billView.setText("");
-	}
+        // if child of abstractview, use getPanel!
+        if (AbstractView.class.isAssignableFrom(getClass())) {
+            // jFrame.getContentPane().add(getPanel());
+        } else {
+            jFrame.getContentPane().add(buildPanel());
+        }
+
+        jFrame.setVisible(true);
+
+        // init
+        appController.guiLaunched();
+    }
+
+    @Override
+    public void scrollToBeginning() {
+        billView.setCaretPosition(0);
+    }
+
+    @Override
+    public void clear() {
+        billView.setText("");
+    }
+
+    @Override
+    public void showError(String message) {
+
+        billView.select(0, 0);
+
+        billItemWrapper.wrapText(message);
+
+        String messageFormatted = "\n"
+                + StringUtils.repeat("#", MAX_LINE_LENGTH) + "\n"
+                + StringUtils.repeat("!", MAX_LINE_LENGTH) + "\n" + "\n"
+                + billItemWrapper.getFirstLine() + "\n"
+                + billItemWrapper.getFurtherLines() + "\n" + "\n"
+                + StringUtils.repeat("!", MAX_LINE_LENGTH) + "\n"
+                + StringUtils.repeat("#", MAX_LINE_LENGTH) + "\n" + "\n" + "\n";
+
+        billView.replaceSelection(messageFormatted);
+        scrollToBeginning();
+
+    }
 
 }

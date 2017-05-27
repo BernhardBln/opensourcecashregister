@@ -113,7 +113,7 @@ public class BillFormatterTest extends AbstractSpringTestWithContext {
 
   @Test
   @Transactional
-  public void sampleBill_inhouse_onlyOneVATClass() {
+  public void sampleBill_inhouse_onlyOneVATClass() throws Exception {
     // INIT
     final ProductOffer espressoOffer = createOffer("Espresso", "1.07");
     final ProductOffer cappuccinoOffer = createOffer("Cappuccino", "2.38");
@@ -175,7 +175,7 @@ public class BillFormatterTest extends AbstractSpringTestWithContext {
 
   @Test
   @Transactional
-  public void sampleBill_inhouse_onlyOneVATClass_withVariation() {
+  public void sampleBill_inhouse_onlyOneVATClass_withVariation() throws Exception  {
 
     // INIT
     final ProductOffer espressoOffer = createOffer("Espresso", "1.07");

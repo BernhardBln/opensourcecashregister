@@ -90,6 +90,9 @@ public abstract class AbstractSalesItem extends
   private TaxInfo overridingTaxInfo;
 
 
+  @Column(nullable = false , columnDefinition =  "BIT DEFAULT 0")
+  private   boolean noReduction=false;
+
   protected AbstractSalesItem(String name, Date validFrom, Date validTo) {
     super(validFrom, validTo);
     this.name = name;
@@ -101,6 +104,10 @@ public abstract class AbstractSalesItem extends
 
   public String getName() {
     return name;
+  }
+
+  public boolean isNoReduction() {
+    return noReduction;
   }
 
   public void setOverridingTaxInfo(TaxInfo taxInfo) {
@@ -121,6 +128,10 @@ public abstract class AbstractSalesItem extends
 
   public void setOrderNumber(int orderNumber) {
     this.orderNumber = orderNumber;
+  }
+
+  public void setNoReduction(boolean noReduction) {
+    this.noReduction = noReduction;
   }
 
   @Override

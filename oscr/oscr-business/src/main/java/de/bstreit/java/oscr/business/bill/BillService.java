@@ -105,10 +105,18 @@ public class BillService {
    *
    * @param productOffer
    * @return the bill item which was created and added to the bill with the
-   *         given offer
+   *         given offer. Can be null if the item could not be added to the bill, for whatever constraints
    */
-  public BillItem addProductOffer(ProductOffer productOffer) {
+  public BillItem addProductOffer(ProductOffer productOffer) throws CannotAddItemException {
+
+
+    if (currentBill != null && productOffer.getOfferedItem().isNoReduction() && currentBill.isFreePromotionOffer()) {
+      // no-reduction items cannot be added to bills which are totally free
+      throw new CannotAddItemException("Cannot add this item to a bill which is free/promo! Use a new bill to charge this!");
+    }
+
     initBillIfEmpty();
+
 
     final BillItem billItem = new BillItem(productOffer);
     currentBill.addBillItem(billItem);

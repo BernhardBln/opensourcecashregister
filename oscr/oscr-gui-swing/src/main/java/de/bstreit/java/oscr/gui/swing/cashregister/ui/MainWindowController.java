@@ -15,6 +15,7 @@ import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 
+import de.bstreit.java.oscr.business.bill.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -22,10 +23,6 @@ import com.google.common.base.Optional;
 
 import de.bstreit.java.oscr.business.base.finance.money.Money;
 import de.bstreit.java.oscr.business.base.finance.tax.VATClass;
-import de.bstreit.java.oscr.business.bill.Bill;
-import de.bstreit.java.oscr.business.bill.BillItem;
-import de.bstreit.java.oscr.business.bill.BillService;
-import de.bstreit.java.oscr.business.bill.IMultipleBillsCalculator;
 import de.bstreit.java.oscr.business.eventbroadcasting.BillChangeListener;
 import de.bstreit.java.oscr.business.eventbroadcasting.EventBroadcaster;
 import de.bstreit.java.oscr.business.offers.ExtraOffer;
@@ -94,7 +91,12 @@ public class MainWindowController implements BillChangeListener {
   }
 
   public void addToBill(ProductOffer offer) {
-    billService.addProductOffer(offer);
+    try {
+      billService.addProductOffer(offer);
+
+    } catch (CannotAddItemException e) {
+      billDisplay.showError(e.getMessage());
+    }
   }
 
   public void setVariationOffer(VariationOffer variationOffer) {
