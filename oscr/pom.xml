@@ -13,7 +13,7 @@
 	<groupId>de.bstreit.java.oscr</groupId>
 	<artifactId>oscr</artifactId>
 	<name>oscr</name>
-	<version>0.1.27-SNAPSHOT</version>
+	<version>0.1.27</version>
 
 	<packaging>pom</packaging>
 
@@ -238,6 +238,6 @@
 
 		<url>https://github.com/BernhardBln/opensourcecashregister</url>
 		<connection>scm:git:git@github.com:BernhardBln/opensourcecashregister.git</connection>
-		<tag>HEAD</tag>
+		<tag>v0.1.27</tag>
 	</scm>
 </project>
