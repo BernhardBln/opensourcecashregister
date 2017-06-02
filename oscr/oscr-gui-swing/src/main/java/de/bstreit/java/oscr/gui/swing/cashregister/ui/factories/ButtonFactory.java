@@ -1,9 +1,6 @@
 package de.bstreit.java.oscr.gui.swing.cashregister.ui.factories;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Insets;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.Set;
 
@@ -145,6 +142,10 @@ public class ButtonFactory {
         button.setMaximumSize(new Dimension(120, 40));
         button.setInheritsPopupMenu(true);
         button.setMargin(new Insets(0, 0, 0, 0));
+
+        Font oldFont = button.getFont();
+        Font newFont = new Font(oldFont.getName(),oldFont.getStyle(), 10 );
+        button.setFont(newFont);
     }
 
     private void setColourIfNotEmpty(final JButton button,
