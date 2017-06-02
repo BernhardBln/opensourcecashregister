@@ -144,7 +144,7 @@ public class ButtonFactory {
         button.setMargin(new Insets(0, 0, 0, 0));
 
         Font oldFont = button.getFont();
-        Font newFont = new Font(oldFont.getName(),oldFont.getStyle(), 10 );
+        Font newFont = new Font(oldFont.getName(),oldFont.getStyle(), 11 );
         button.setFont(newFont);
     }
 
