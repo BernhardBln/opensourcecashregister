@@ -26,29 +26,17 @@
  */
 package de.bstreit.java.oscr.business.bill;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.UUID;
-
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-
 import de.bstreit.java.oscr.business.staff.User;
 import de.bstreit.java.oscr.business.taxation.TaxInfo;
 
+import javax.persistence.*;
+import java.util.*;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+
 /**
- *
  * @author streit
  */
 @Entity
@@ -56,7 +44,9 @@ public class Bill implements Iterable<BillItem> {
 
   @Id
   @Column(length = 36)
-  private final String id = UUID.randomUUID().toString();
+  private final String id = UUID
+    .randomUUID()
+    .toString();
 
   /**
    * An optional description of the bill, can help to identify an opened bill
@@ -66,13 +56,17 @@ public class Bill implements Iterable<BillItem> {
   private String description;
 
   @OneToMany(cascade = CascadeType.ALL)
-  private final List<BillItem> billItems = new ArrayList<BillItem>();
+  private final List<BillItem> billItems = new ArrayList<>();
 
-  /** The date when the bill was opened. */
+  /**
+   * The date when the bill was opened.
+   */
   @Column(nullable = false)
   private Date billOpened;
 
-  /** The date when the bill was closed and paid. */
+  /**
+   * The date when the bill was closed and paid.
+   */
   @Column(nullable = true)
   private Date billClosed;
 
@@ -82,7 +76,7 @@ public class Bill implements Iterable<BillItem> {
    */
   // TODO [10]: check which cascade types we really need here. Same at
   // AbstractSalesItem.overridingTaxInfo
-  @ManyToOne(cascade = { CascadeType.REFRESH }, optional = false)
+  @ManyToOne(cascade = {CascadeType.REFRESH}, optional = false)
   private TaxInfo globalTaxInfo;
 
   /**
@@ -106,7 +100,7 @@ public class Bill implements Iterable<BillItem> {
   private boolean freePromotionOffer = false;
 
 
-  Bill(TaxInfo defaultGlobalTaxInfo, Date billOpeningDate) {
+  public Bill(final TaxInfo defaultGlobalTaxInfo, final Date billOpeningDate) {
     checkNotNull(defaultGlobalTaxInfo);
     setGlobalTaxInfo(defaultGlobalTaxInfo);
     billOpened = billOpeningDate;
@@ -116,7 +110,7 @@ public class Bill implements Iterable<BillItem> {
     // for spring
   }
 
-  void addBillItem(BillItem item) {
+  public void addBillItem(final BillItem item) {
     billItems.add(item);
   }
 
@@ -125,7 +119,7 @@ public class Bill implements Iterable<BillItem> {
    *
    * @param consumer
    */
-  public void setStaffConsumer(User internalConsumer) {
+  public void setStaffConsumer(final User internalConsumer) {
     Preconditions.checkNotNull(internalConsumer);
 
     this.internalConsumer = internalConsumer;
@@ -151,14 +145,13 @@ public class Bill implements Iterable<BillItem> {
   }
 
   /**
-   * @param globalTaxInfo
-   *          the {@link #globalTaxInfo} to set
+   * @param globalTaxInfo the {@link #globalTaxInfo} to set
    */
-  public void setGlobalTaxInfo(TaxInfo globalTaxInfo) {
+  public void setGlobalTaxInfo(final TaxInfo globalTaxInfo) {
     this.globalTaxInfo = globalTaxInfo;
   }
 
-  public void setFreePromotionOffer(boolean freePromotionOffer) {
+  public void setFreePromotionOffer(final boolean freePromotionOffer) {
     this.freePromotionOffer = freePromotionOffer;
   }
 
@@ -179,7 +172,7 @@ public class Bill implements Iterable<BillItem> {
    * @param billClosed
    * @param billClosingDate
    */
-  void closeBill(User cashier, Date billClosingDate) {
+  void closeBill(final User cashier, final Date billClosingDate) {
     this.billClosed = billClosingDate;
     this.cashier = cashier;
   }
@@ -197,7 +190,7 @@ public class Bill implements Iterable<BillItem> {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -245,7 +238,6 @@ public class Bill implements Iterable<BillItem> {
   }
 
   /**
-   *
    * @return the last bill item - or null, if there aren't any
    */
   public BillItem getLastBillItemOrNull() {
@@ -262,7 +254,7 @@ public class Bill implements Iterable<BillItem> {
   }
 
 
-  public void setReduction(Integer reduction) {
+  public void setReduction(final Integer reduction) {
     this.reduction = reduction;
   }
 

@@ -1,16 +1,18 @@
 package de.bstreit.java.oscr.business.taxation;
 
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import javax.inject.Named;
-
 import com.google.common.base.Optional;
-
 import de.bstreit.java.oscr.business.base.finance.tax.VATClass;
 import de.bstreit.java.oscr.business.base.finance.tax.dao.IVATClassRepository;
 import de.bstreit.java.oscr.business.bill.Bill;
 import de.bstreit.java.oscr.business.bill.BillItem;
 import de.bstreit.java.oscr.business.taxation.dao.ITaxInfoRepository;
+import lombok.Setter;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Named;
+
+import static lombok.AccessLevel.PROTECTED;
 
 /**
  * <p>
@@ -25,6 +27,7 @@ import de.bstreit.java.oscr.business.taxation.dao.ITaxInfoRepository;
  * @author Bernhard Streit
  */
 @Named
+@Setter(PROTECTED)
 public class SimpleVATFinderDoNotUseInProduction implements IVATFinder {
 
 	@Inject
