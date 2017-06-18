@@ -46,9 +46,31 @@ public class BillGenerator {
     return add(ICECREAM);
   }
 
+  public BillGenerator addPfand() {
+    return add(PFAND);
+  }
+
+  public BillGenerator addPfandReturn() {
+    return add(PFAND_RETURN);
+  }
+
+  public BillGenerator addCappuccinoWithOwnCup() {
+    final BillItem billItem = new BillItem(CAPPUCCINO);
+
+    billItem.toggleVariationOffer(OWN_CUP);
+
+    bill.addBillItem(billItem);
+    return this;
+  }
+
   private BillGenerator add(final ProductOffer offer) {
     final BillItem billItem = new BillItem(offer);
     bill.addBillItem(billItem);
+    return this;
+  }
+
+  public BillGenerator setReduction10Percent() {
+    bill.setReduction(10);
     return this;
   }
 
