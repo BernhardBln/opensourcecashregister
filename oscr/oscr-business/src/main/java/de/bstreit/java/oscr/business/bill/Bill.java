@@ -116,8 +116,6 @@ public class Bill implements Iterable<BillItem> {
 
   /**
    * In case this was consumed by a member of the staff
-   *
-   * @param consumer
    */
   public void setStaffConsumer(final User internalConsumer) {
     Preconditions.checkNotNull(internalConsumer);
@@ -169,7 +167,6 @@ public class Bill implements Iterable<BillItem> {
   /**
    * Invoked when an open bill is getting paid and hence closed.
    *
-   * @param billClosed
    * @param billClosingDate
    */
   void closeBill(final User cashier, final Date billClosingDate) {
@@ -246,6 +243,15 @@ public class Bill implements Iterable<BillItem> {
     }
 
     return billItems.get(billItems.size() - 1);
+  }
+
+  public boolean hasPfand() {
+    return billItems
+      .stream()
+      .anyMatch(b -> b
+        .getOffer()
+        .getOfferedItem()
+        .isPfand());
   }
 
 
