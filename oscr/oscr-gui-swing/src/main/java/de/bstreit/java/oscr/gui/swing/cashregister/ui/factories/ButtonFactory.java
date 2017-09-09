@@ -96,6 +96,15 @@ public class ButtonFactory {
 
     button.addActionListener(e -> appController.addToBill(productOffer));
 
+    eventBroadcaster.addBillChangeListener(newBill -> button
+      .setEnabled(!newBill.isPresent()
+        ||
+        (!productOffer
+          .getOfferedItem()
+          .isPfand() || !newBill
+          .get()
+          .isConsumedByStaff())));
+
     eventBroadcaster.addListener(new OfferChangeListener() {
 
       @Override
