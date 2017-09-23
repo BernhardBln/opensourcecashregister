@@ -223,6 +223,7 @@ public class BillService {
       lastAddedItem = null;
     } else {
       lastAddedItem = currentBill.getLastBillItemOrNull();
+      saveBill();
     }
 
     fireBillChangedEvent();
