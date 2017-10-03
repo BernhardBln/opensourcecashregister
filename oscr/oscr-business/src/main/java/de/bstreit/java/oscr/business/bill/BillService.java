@@ -107,8 +107,11 @@ public class BillService {
       .getOfferedItem()
       .isNoReduction() && currentBill.isFreePromotionOffer()) {
       // no-reduction items cannot be added to bills which are totally free
-      throw new CannotAddItemException("Cannot add this item to a bill which is free/promo! Use a" +
-        " new bill to charge this!");
+      throw new CannotAddItemException("Cannot add " + productOffer
+        .getOfferedItem()
+        .getName() +
+        " to a bill which is free/promo! Instead, use a separate" +
+        " new bill in order to add, make it NOT free and let the guest pay for it!");
     }
 
     initBillIfEmpty();
