@@ -26,28 +26,28 @@
  */
 package de.bstreit.java.oscr.business.products;
 
-import java.util.Date;
-
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
+import java.util.Date;
 
 /**
  * A variation modifies a product (e.g.
  * "replace cow milk by soy milk and charge 0,30 EUR extra for that")
- * 
+ * <p>
+ * Variations overwrite the parents overriding tax info in case their overriding tax info is set.
+ *
  * @author streit
- * 
  */
 @Entity
 @DiscriminatorValue(value = "Variation")
 public class Variation extends AbstractSalesItem {
 
-	private Variation() {
-		super(null, null, null);
-	}
+  private Variation() {
+    super(null, null, null);
+  }
 
-	public Variation(String name, Date validFrom, Date validTo) {
-		super(name, validFrom, validTo);
-	}
+  public Variation(final String name, final Date validFrom, final Date validTo) {
+    super(name, validFrom, validTo);
+  }
 
 }

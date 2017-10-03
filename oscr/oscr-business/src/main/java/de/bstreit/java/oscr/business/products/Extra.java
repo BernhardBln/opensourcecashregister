@@ -26,27 +26,27 @@
  */
 package de.bstreit.java.oscr.business.products;
 
-import java.util.Date;
-
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
+import java.util.Date;
 
 /**
  * An extra can only be sold together with a product.
- * 
+ * <p>
+ * Extras overwrite the parents overriding tax info in case their overriding tax info is set.
+ *
  * @author streit
- * 
  */
 @Entity
 @DiscriminatorValue(value = "Extra")
 public class Extra extends AbstractSalesItem {
 
-	private Extra() {
-		super(null, null, null);
-	}
+  private Extra() {
+    super(null, null, null);
+  }
 
-	public Extra(String name, Date validFrom, Date validTo) {
-		super(name, validFrom, validTo);
-	}
+  public Extra(final String name, final Date validFrom, final Date validTo) {
+    super(name, validFrom, validTo);
+  }
 
 }

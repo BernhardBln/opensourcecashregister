@@ -37,6 +37,7 @@ import java.util.Currency;
 import java.util.Objects;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static java.math.RoundingMode.HALF_EVEN;
 
 public class Money implements Serializable {
 
@@ -56,19 +57,14 @@ public class Money implements Serializable {
    * @param currencyCode The ISO 4217 code of the currency
    */
   public Money(final String amount, final String currencyCode) {
-    Preconditions.checkNotNull(amount);
-    Preconditions.checkNotNull(currencyCode);
-
-    this.amount = new BigDecimal(amount);
-
-    this.currency = Currency.getInstance(currencyCode);
+    this(amount, Currency.getInstance(currencyCode));
   }
 
   public Money(final BigDecimal amount, final Currency currency) {
     Preconditions.checkNotNull(amount);
     Preconditions.checkNotNull(currency);
 
-    this.amount = amount;
+    this.amount = amount.setScale(4, HALF_EVEN);
     this.currency = currency;
   }
 
@@ -79,8 +75,8 @@ public class Money implements Serializable {
     this.amount = new BigDecimal(amount
       .trim()
       .replace(
-        ",", "."));
-
+        ",", "."))
+      .setScale(4, HALF_EVEN);
     this.currency = currency;
   }
 
@@ -103,12 +99,13 @@ public class Money implements Serializable {
 
   @Override
   public String toString() {
-    return nf.format(amount);
+    // TODO: change back
+    return amount.toString(); // nf.format(amount);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(amount.setScale(2, RoundingMode.HALF_EVEN), currency);
+    return Objects.hash(amount.setScale(2, HALF_EVEN), currency);
   }
 
   @Override

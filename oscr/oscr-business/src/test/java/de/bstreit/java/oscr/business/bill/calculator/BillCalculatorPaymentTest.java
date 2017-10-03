@@ -11,6 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 import static de.bstreit.java.oscr.testutils.TestConstants.*;
 import static org.junit.Assert.*;
@@ -62,7 +63,7 @@ public class BillCalculatorPaymentTest {
     assertEquals(money("2,60"), underTest.getTotalGrossFor(REDUCED_VAT_CLASS));
     assertEquals(NULL, underTest.getTotalGrossFor(NORMAL_VAT_CLASS));
 
-    assertEquals(money("2,43"), underTest.getTotalNetFor(REDUCED_VAT_CLASS));
+    assertEquals(money("2,4299"), underTest.getTotalNetFor(REDUCED_VAT_CLASS));
     assertEquals(NULL, underTest.getTotalNetFor(NORMAL_VAT_CLASS));
 
     assertEquals(money("0,17"), underTest.getTotalVATFor(REDUCED_VAT_CLASS));
@@ -203,8 +204,7 @@ public class BillCalculatorPaymentTest {
     assertEquals(money("5,20"), underTest.getTotalGrossFor(NORMAL_VAT_CLASS));
     assertEquals(money("2,14"), underTest.getTotalGrossFor(REDUCED_VAT_CLASS));
 
-    // TODO: 4,37
-    assertEquals(money("4,36"), underTest.getTotalNetFor(NORMAL_VAT_CLASS));
+    assertEquals(money("4,3698"), underTest.getTotalNetFor(NORMAL_VAT_CLASS));
     assertEquals(money("2"), underTest.getTotalNetFor(REDUCED_VAT_CLASS));
 
     assertEquals(money("0,84"), underTest.getTotalVATFor(NORMAL_VAT_CLASS));
@@ -242,17 +242,14 @@ public class BillCalculatorPaymentTest {
     underTest.analyse(bill);
 
     // ASSERT
-    assertEquals(money("9,34"), underTest.getTotalGross());
-
-    assertEquals(money("7,20"), underTest.getTotalGrossFor(NORMAL_VAT_CLASS));
-    assertEquals(money("2,14"), underTest.getTotalGrossFor(REDUCED_VAT_CLASS));
-
+    assertEquals(money("9,34"), round(underTest.getTotalGross()));
+    assertEquals(money("7,20"), round(underTest.getTotalGrossFor(NORMAL_VAT_CLASS)));
+    assertEquals(money("2,14"), round(underTest.getTotalGrossFor(REDUCED_VAT_CLASS)));
     // TODO: 4,37
-    assertEquals(money("6,04"), underTest.getTotalNetFor(NORMAL_VAT_CLASS));
-    assertEquals(money("2"), underTest.getTotalNetFor(REDUCED_VAT_CLASS));
-
-    assertEquals(money("1,16"), underTest.getTotalVATFor(NORMAL_VAT_CLASS));
-    assertEquals(money("0,14"), underTest.getTotalVATFor(REDUCED_VAT_CLASS));
+    assertEquals(money("6,04"), round(underTest.getTotalNetFor(NORMAL_VAT_CLASS)));
+    assertEquals(money("2"), round(underTest.getTotalNetFor(REDUCED_VAT_CLASS)));
+    assertEquals(money("1,16"), round(underTest.getTotalVATFor(NORMAL_VAT_CLASS)));
+    assertEquals(money("0,14"), round(underTest.getTotalVATFor(REDUCED_VAT_CLASS)));
 
 
     final BillItem capp1 = bill
@@ -288,16 +285,13 @@ public class BillCalculatorPaymentTest {
     underTest.analyse(bill);
 
     // ASSERT
-    assertEquals(money("-0,80"), underTest.getTotalGross());
-
-    assertEquals(money("-2"), underTest.getTotalGrossFor(NORMAL_VAT_CLASS));
-    assertEquals(money("1,20"), underTest.getTotalGrossFor(REDUCED_VAT_CLASS));
-
-    assertEquals(money("-1,68"), underTest.getTotalNetFor(NORMAL_VAT_CLASS));
-    assertEquals(money("1,12"), underTest.getTotalNetFor(REDUCED_VAT_CLASS));
-
-    assertEquals(money("-0,32"), underTest.getTotalVATFor(NORMAL_VAT_CLASS));
-    assertEquals(money("0,08"), underTest.getTotalVATFor(REDUCED_VAT_CLASS));
+    assertEquals(money("-0,80"), round(underTest.getTotalGross()));
+    assertEquals(money("-2"), round(underTest.getTotalGrossFor(NORMAL_VAT_CLASS)));
+    assertEquals(money("1,20"), round(underTest.getTotalGrossFor(REDUCED_VAT_CLASS)));
+    assertEquals(money("-1,68"), round(underTest.getTotalNetFor(NORMAL_VAT_CLASS)));
+    assertEquals(money("1,12"), round(underTest.getTotalNetFor(REDUCED_VAT_CLASS)));
+    assertEquals(money("-0,32"), round(underTest.getTotalVATFor(NORMAL_VAT_CLASS)));
+    assertEquals(money("0,08"), round(underTest.getTotalVATFor(REDUCED_VAT_CLASS)));
 
 
     final BillItem espr = bill
@@ -328,16 +322,13 @@ public class BillCalculatorPaymentTest {
 
     // ASSERT
     // 1,20 * 0,9 - 2 = -0,92
-    assertEquals(money("-0,92"), underTest.getTotalGross());
-
-    assertEquals(money("-2"), underTest.getTotalGrossFor(NORMAL_VAT_CLASS));
-    assertEquals(money("1,08"), underTest.getTotalGrossFor(REDUCED_VAT_CLASS));
-
-    assertEquals(money("-1,68"), underTest.getTotalNetFor(NORMAL_VAT_CLASS));
-    assertEquals(money("1,01"), underTest.getTotalNetFor(REDUCED_VAT_CLASS));
-
-    assertEquals(money("-0,32"), underTest.getTotalVATFor(NORMAL_VAT_CLASS));
-    assertEquals(money("0,07"), underTest.getTotalVATFor(REDUCED_VAT_CLASS));
+    assertEquals(money("-0,92"), round(underTest.getTotalGross()));
+    assertEquals(money("-2"), round(underTest.getTotalGrossFor(NORMAL_VAT_CLASS)));
+    assertEquals(money("1,08"), round(underTest.getTotalGrossFor(REDUCED_VAT_CLASS)));
+    assertEquals(money("-1,68"), round(underTest.getTotalNetFor(NORMAL_VAT_CLASS)));
+    assertEquals(money("1,01"), round(underTest.getTotalNetFor(REDUCED_VAT_CLASS)));
+    assertEquals(money("-0,32"), round(underTest.getTotalVATFor(NORMAL_VAT_CLASS)));
+    assertEquals(money("0,07"), round(underTest.getTotalVATFor(REDUCED_VAT_CLASS)));
 
 
     final BillItem espr = bill
@@ -374,10 +365,14 @@ public class BillCalculatorPaymentTest {
     assertEquals(money("2,25"), underTest.getTotalGrossFor(REDUCED_VAT_CLASS));
 
     assertEquals(NULL, underTest.getTotalNetFor(NORMAL_VAT_CLASS));
-    assertEquals(money("2,11"), underTest.getTotalNetFor(REDUCED_VAT_CLASS));
+    final Money m = money("2,11");
+    final Money mAct = underTest.getTotalNetFor(REDUCED_VAT_CLASS);
+    assertEquals(round(m.getAmount()), round(mAct.getAmount()));
 
     assertEquals(NULL, underTest.getTotalVATFor(NORMAL_VAT_CLASS));
-    assertEquals(money("0,14"), underTest.getTotalVATFor(REDUCED_VAT_CLASS));
+    final Money m1 = money("0,14");
+    final Money m1act = underTest.getTotalVATFor(REDUCED_VAT_CLASS);
+    assertEquals(round(m1.getAmount()), round(m1act.getAmount()));
 
 
     final BillItem capp = bill
@@ -385,6 +380,11 @@ public class BillCalculatorPaymentTest {
       .get(0);
 
     assertBillItem(capp, REDUCED_VAT_CLASS, "2,11");
+  }
+
+  private BigDecimal round(final BigDecimal amount) {
+    return amount
+      .setScale(2, RoundingMode.HALF_UP);
   }
 
   @Test
@@ -408,13 +408,13 @@ public class BillCalculatorPaymentTest {
     assertEquals(money("4,59"), underTest.getTotalGross());
 
     assertEquals(NULL, underTest.getTotalGrossFor(NORMAL_VAT_CLASS));
-    assertEquals(money("4,59"), underTest.getTotalGrossFor(REDUCED_VAT_CLASS));
+    assertEquals(money("4,59"), round(underTest.getTotalGrossFor(REDUCED_VAT_CLASS)));
 
     assertEquals(NULL, underTest.getTotalNetFor(NORMAL_VAT_CLASS));
-    assertEquals(money("4,30"), underTest.getTotalNetFor(REDUCED_VAT_CLASS));
+    assertEquals(money("4,29"), round(underTest.getTotalNetFor(REDUCED_VAT_CLASS)));
 
     assertEquals(NULL, underTest.getTotalVATFor(NORMAL_VAT_CLASS));
-    assertEquals(money("0,29"), underTest.getTotalVATFor(REDUCED_VAT_CLASS));
+    assertEquals(money("0,30"), round(underTest.getTotalVATFor(REDUCED_VAT_CLASS)));
 
 
     final BillItem cappByoc = bill
@@ -428,11 +428,20 @@ public class BillCalculatorPaymentTest {
     assertBillItem(capp, REDUCED_VAT_CLASS, "2,19");
   }
 
+  private Money round(final Money money) {
+    return new Money(
+      round(money.getAmount()),
+      money.getCurrency()
+    );
+  }
+
 
   private void assertBillItem(final BillItem billItem, final VATClass vatClass,
                               final String priceNet) {
 
-    assertEquals(money(priceNet), underTest.getNetFor(billItem));
+    assertEquals(round(money(priceNet).getAmount()), round(underTest
+      .getNetFor(billItem)
+      .getAmount()));
     final char vatClassAbbreviation = underTest
       .getVATClassAbbreviationFor(billItem)
       .charAt(0);
