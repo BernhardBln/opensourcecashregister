@@ -1,8 +1,8 @@
 package de.bstreit.java.oscr.text.formatting;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
 import org.apache.commons.lang3.text.WordUtils;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 public class BillItemWrapper {
 
@@ -13,13 +13,13 @@ public class BillItemWrapper {
   private String furtherLines;
 
 
-  public BillItemWrapper(int maxLen, String newline) {
+  public BillItemWrapper(final int maxLen, final String newline) {
     checkArgument(maxLen > 2);
     this.maxLen = maxLen;
     this.newline = newline;
   }
 
-  public void wrapText(String originalText) {
+  public void wrapText(final String originalText) {
 
     if (originalText.length() <= maxLen) {
       firstLine = originalText;
@@ -27,9 +27,9 @@ public class BillItemWrapper {
       return;
     }
 
-    final String wrappedLinesLong = WordUtils.wrap(originalText, maxLen, "\n", true);
+    final String wrappedLinesLong = WordUtils.wrap(originalText, maxLen, newline, true);
 
-    final int firstLineBreakIdx = wrappedLinesLong.indexOf("\n");
+    final int firstLineBreakIdx = wrappedLinesLong.indexOf(newline);
 
     firstLine = wrappedLinesLong.substring(0, firstLineBreakIdx);
 
