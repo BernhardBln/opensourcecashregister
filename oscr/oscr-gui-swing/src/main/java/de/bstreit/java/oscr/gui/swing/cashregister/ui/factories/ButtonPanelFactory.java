@@ -1,5 +1,6 @@
 package de.bstreit.java.oscr.gui.swing.cashregister.ui.factories;
 
+import de.bstreit.java.oscr.business.offers.AbstractOffer;
 import de.bstreit.java.oscr.business.offers.ExtraOffer;
 import de.bstreit.java.oscr.business.offers.ProductOffer;
 import de.bstreit.java.oscr.business.offers.VariationOffer;
@@ -147,11 +148,13 @@ public class ButtonPanelFactory {
     final int cols = 5;
     favouritesPanel.setLayout(new GridLayout(rows, cols, 3, 3));
 
-
-    final List<ProductOffer> allActiveOffers = productOfferRep.findAllActiveOffers();
-
     final List<String> selectedFavourites = newArrayList(this.favourites.split(";"));
 
+    final List<AbstractOffer> allActiveOffers = newArrayList();
+
+    allActiveOffers.addAll(productOfferRep.findAllActiveOffers());
+    allActiveOffers.addAll(variationOfferRepository.findAllActiveOffers());
+    allActiveOffers.addAll(extraOfferRepository.findAllActiveOffers());
 
     allActiveOffers
       .stream()
