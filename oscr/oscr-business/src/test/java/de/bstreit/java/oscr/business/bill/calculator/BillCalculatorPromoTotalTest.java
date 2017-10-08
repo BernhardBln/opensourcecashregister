@@ -320,10 +320,10 @@ public class BillCalculatorPromoTotalTest {
     assertEquals(money("0,26"), underTest.getTotalGrossFor(REDUCED_VAT_CLASS));
 
     assertEquals(NULL, underTest.getTotalNetFor(NORMAL_VAT_CLASS));
-    assertEquals(money("0,24"), underTest.getTotalNetFor(REDUCED_VAT_CLASS));
+    assertEquals(money("0,2430"), underTest.getTotalNetFor(REDUCED_VAT_CLASS));
 
     assertEquals(NULL, underTest.getTotalVATFor(NORMAL_VAT_CLASS));
-    assertEquals(money("0,02"), underTest.getTotalVATFor(REDUCED_VAT_CLASS));
+    assertEquals(money("0,0170"), underTest.getTotalVATFor(REDUCED_VAT_CLASS));
 
 
     final BillItem espr = bill
@@ -333,7 +333,7 @@ public class BillCalculatorPromoTotalTest {
       .getBillItems()
       .get(1);
 
-    assertBillItem(espr, REDUCED_VAT_CLASS, "0,24");
+    assertBillItem(espr, REDUCED_VAT_CLASS, "0,2430");
     assertBillItem(pfandReturn, null, "0");
   }
 
@@ -359,17 +359,17 @@ public class BillCalculatorPromoTotalTest {
     assertEquals(money("0,25"), underTest.getTotalGrossFor(REDUCED_VAT_CLASS));
 
     assertEquals(NULL, underTest.getTotalNetFor(NORMAL_VAT_CLASS));
-    assertEquals(money("0,23"), underTest.getTotalNetFor(REDUCED_VAT_CLASS));
+    assertEquals(money("0,2336"), underTest.getTotalNetFor(REDUCED_VAT_CLASS));
 
     assertEquals(NULL, underTest.getTotalVATFor(NORMAL_VAT_CLASS));
-    assertEquals(money("0,02"), underTest.getTotalVATFor(REDUCED_VAT_CLASS));
+    assertEquals(money("0,0164"), underTest.getTotalVATFor(REDUCED_VAT_CLASS));
 
 
     final BillItem capp = bill
       .getBillItems()
       .get(0);
 
-    assertBillItem(capp, REDUCED_VAT_CLASS, "0,23");
+    assertBillItem(capp, REDUCED_VAT_CLASS, "0,2336");
   }
 
   @Test
@@ -396,10 +396,10 @@ public class BillCalculatorPromoTotalTest {
     assertEquals(money("0,51"), underTest.getTotalGrossFor(REDUCED_VAT_CLASS));
 
     assertEquals(NULL, underTest.getTotalNetFor(NORMAL_VAT_CLASS));
-    assertEquals(money("0,47"), underTest.getTotalNetFor(REDUCED_VAT_CLASS));
+    assertEquals(money("0,4766"), underTest.getTotalNetFor(REDUCED_VAT_CLASS));
 
     assertEquals(NULL, underTest.getTotalVATFor(NORMAL_VAT_CLASS));
-    assertEquals(money("0,04"), underTest.getTotalVATFor(REDUCED_VAT_CLASS));
+    assertEquals(money("0,0334"), underTest.getTotalVATFor(REDUCED_VAT_CLASS));
 
 
     final BillItem cappByoc = bill
@@ -409,8 +409,8 @@ public class BillCalculatorPromoTotalTest {
       .getBillItems()
       .get(1);
 
-    assertBillItem(cappByoc, REDUCED_VAT_CLASS, "0,23");
-    assertBillItem(capp, REDUCED_VAT_CLASS, "0,24");
+    assertBillItem(cappByoc, REDUCED_VAT_CLASS, "0,2336");
+    assertBillItem(capp, REDUCED_VAT_CLASS, "0,2430");
   }
 
   private void assertBillItem(final BillItem billItem, final VATClass vatClass,

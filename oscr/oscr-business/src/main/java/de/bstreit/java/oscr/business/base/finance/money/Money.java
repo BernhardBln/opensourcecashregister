@@ -99,8 +99,7 @@ public class Money implements Serializable {
 
   @Override
   public String toString() {
-    // TODO: change back
-    return amount.toString(); // nf.format(amount);
+    return nf.format(amount);
   }
 
   @Override
@@ -118,10 +117,12 @@ public class Money implements Serializable {
     }
 
     final Money otherObj = (Money) obj;
+    System.out.println(otherObj.getAmount());
 
     // need to use compare for big decimal
     final boolean sameAmount = amount == null ? otherObj.getAmount() == null : amount.compareTo
       (otherObj.getAmount()) == 0;
+
     final boolean sameCurrency = Objects.equals(currency,
       otherObj.getCurrency());
 
