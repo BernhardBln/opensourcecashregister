@@ -113,6 +113,11 @@ public class MainWindowController implements BillChangeListener {
   }
 
   public void printTodaysTotal() {
+    // in order to avoid confusion, remove last bill as current (it will still be shown as open)
+    // so when after printing the total, somebody pushes a product button, it appears in a new bill
+    billService.newBill();
+
+
     final StringBuilder sb = new StringBuilder();
 
     addBills(billService.getTotalForToday(), "today", sb);
