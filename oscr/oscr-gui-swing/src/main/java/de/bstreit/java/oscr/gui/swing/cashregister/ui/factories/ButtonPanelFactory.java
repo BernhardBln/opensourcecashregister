@@ -1,5 +1,6 @@
 package de.bstreit.java.oscr.gui.swing.cashregister.ui.factories;
 
+import de.bstreit.java.oscr.business.eventbroadcasting.EventBroadcaster;
 import de.bstreit.java.oscr.business.offers.AbstractOffer;
 import de.bstreit.java.oscr.business.offers.ExtraOffer;
 import de.bstreit.java.oscr.business.offers.ProductOffer;
@@ -28,6 +29,9 @@ import static javax.swing.SwingConstants.LEFT;
 @Named
 @Profile("UI")
 public class ButtonPanelFactory {
+
+  @Inject
+  private EventBroadcaster eventBroadcaster;
 
   @Inject
   private MainWindowController appController;
@@ -102,10 +106,16 @@ public class ButtonPanelFactory {
 
     weeklyAndDrinksPanel = new JTabbedPane(LEFT);
 
-//    weeklyAndDrinksPanel.setLayout(new BoxLayout(weeklyAndDrinksPanel,
-//      BoxLayout.X_AXIS));
-
     buttonPanel.add(weeklyAndDrinksPanel, BorderLayout.CENTER);
+
+
+    eventBroadcaster.addBillChangeListener(billOpt -> {
+      if (!billOpt.isPresent()) {
+        // bill cleared, set favourite buttons
+        weeklyAndDrinksPanel.setSelectedIndex(0);
+      }
+    });
+
   }
 
   private void buildAndAddWeeklyPanelToMainPanel() {
