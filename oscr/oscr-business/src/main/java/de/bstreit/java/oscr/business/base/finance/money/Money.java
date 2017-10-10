@@ -117,7 +117,6 @@ public class Money implements Serializable {
     }
 
     final Money otherObj = (Money) obj;
-    System.out.println(otherObj.getAmount());
 
     // need to use compare for big decimal
     final boolean sameAmount = amount == null ? otherObj.getAmount() == null : amount.compareTo
