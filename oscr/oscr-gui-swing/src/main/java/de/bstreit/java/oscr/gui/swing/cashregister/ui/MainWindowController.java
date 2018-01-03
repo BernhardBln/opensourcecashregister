@@ -1,28 +1,13 @@
 package de.bstreit.java.oscr.gui.swing.cashregister.ui;
 
-import java.awt.Container;
-import java.awt.FlowLayout;
-import java.awt.event.ActionEvent;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Collection;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-
-import de.bstreit.java.oscr.business.bill.*;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
-
 import com.google.common.base.Optional;
-
+import de.bstreit.java.oscr.business.base.DisplayableException;
 import de.bstreit.java.oscr.business.base.finance.money.Money;
 import de.bstreit.java.oscr.business.base.finance.tax.VATClass;
+import de.bstreit.java.oscr.business.bill.Bill;
+import de.bstreit.java.oscr.business.bill.BillItem;
+import de.bstreit.java.oscr.business.bill.BillService;
+import de.bstreit.java.oscr.business.bill.IMultipleBillsCalculator;
 import de.bstreit.java.oscr.business.eventbroadcasting.BillChangeListener;
 import de.bstreit.java.oscr.business.eventbroadcasting.EventBroadcaster;
 import de.bstreit.java.oscr.business.offers.ExtraOffer;
@@ -34,7 +19,19 @@ import de.bstreit.java.oscr.business.staff.User;
 import de.bstreit.java.oscr.business.taxation.TaxInfo;
 import de.bstreit.java.oscr.business.taxation.dao.ITaxInfoRepository;
 import de.bstreit.java.oscr.text.formatting.BillFormatter;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Collection;
 
 @Profile("UI")
 @Named
@@ -74,12 +71,14 @@ public class MainWindowController implements BillChangeListener {
   private void initController() {
     eventBroadcaster.addBillChangeListener(this);
     toGoTaxInfo = taxInfoRepository
-        .findByDenotationAndValidToIsNull("to go");
+      .findByDenotationAndValidToIsNull("to go");
     inHouseTaxInfo = taxInfoRepository
-        .findByDenotationAndValidToIsNull("inhouse");
+      .findByDenotationAndValidToIsNull("inhouse");
 
     openBillsFrame = new JFrame("Open Bills");
-    openBillsFrame.getContentPane().setLayout(
+    openBillsFrame
+      .getContentPane()
+      .setLayout(
         new FlowLayout(FlowLayout.LEFT));
     openBillsFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
     openBillsFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -94,7 +93,7 @@ public class MainWindowController implements BillChangeListener {
     try {
       billService.addProductOffer(offer);
 
-    } catch (CannotAddItemException e) {
+    } catch (DisplayableException e) {
       billDisplay.showError(e.getMessage());
     }
   }
@@ -125,24 +124,29 @@ public class MainWindowController implements BillChangeListener {
     addBills(billService.getTotalForToday(), "today", sb);
 
     final IMultipleBillsCalculator freePomotionTotalForToday = billService
-        .getFreePomotionTotalForToday();
+      .getFreePomotionTotalForToday();
     if (freePomotionTotalForToday.isFilled()) {
       addBills(freePomotionTotalForToday, "promotion expenses for today",
-          sb);
+        sb);
     }
     sb.append("\n\nAll bills for today:\n" + "====================\n\n");
 
-    billService.processTodaysBills(bill -> sb.append(
-        billFormatter.formatBill(bill)).append("\n\n\n"));
+    billService.processTodaysBills(bill -> sb
+      .append(
+        billFormatter.formatBill(bill))
+      .append("\n\n\n"));
 
-    sb.append("\n\n").append(StringUtils.repeat("-", 80)).append("\n\n");
+    sb
+      .append("\n\n")
+      .append(StringUtils.repeat("-", 80))
+      .append("\n\n");
     addBills(billService.getTotalForYesterday(), "yesterday", sb);
 
     final IMultipleBillsCalculator freePomotionTotalForYesterday = billService
-        .getFreePomotionTotalForYesterday();
+      .getFreePomotionTotalForYesterday();
     if (freePomotionTotalForYesterday.isFilled()) {
       addBills(freePomotionTotalForYesterday,
-          "promotion expenses for yesterday", sb);
+        "promotion expenses for yesterday", sb);
     }
 
     billDisplay.printBill(sb.toString());
@@ -155,7 +159,7 @@ public class MainWindowController implements BillChangeListener {
    * @param sb
    */
   private void addBills(final IMultipleBillsCalculator totalForToday,
-      String date, final StringBuilder sb) {
+                        String date, final StringBuilder sb) {
     sb.append("Bill for " + date + "\n==============\n\n");
 
     Money totalNet = null;
@@ -167,19 +171,24 @@ public class MainWindowController implements BillChangeListener {
       }
     }
 
-    sb.append("Total (gross): ").append(totalForToday.getTotalGross())
-        .append(";\t\t").append("Total (net): ").append(totalNet)
-        .append("\n\n");
+    sb
+      .append("Total (gross): ")
+      .append(totalForToday.getTotalGross())
+      .append(";\t\t")
+      .append("Total (net): ")
+      .append(totalNet)
+      .append("\n\n");
 
     sb.append("VAT classes:\n\n");
     for (final VATClass vatClass : totalForToday.getAllVatClasses()) {
-      sb.append(vatClass + " \tgross: ")
-          .append(totalForToday.getTotalGrossFor(vatClass))
-          .append("; vat: ")
-          .append(totalForToday.getTotalVATFor(vatClass))
-          .append("; net: ")
-          .append(totalForToday.getTotalNetFor(vatClass))
-          .append("\n");
+      sb
+        .append(vatClass + " \tgross: ")
+        .append(totalForToday.getTotalGrossFor(vatClass))
+        .append("; vat: ")
+        .append(totalForToday.getTotalVATFor(vatClass))
+        .append("; net: ")
+        .append(totalForToday.getTotalNetFor(vatClass))
+        .append("\n");
     }
     sb.append("\n\n");
   }
@@ -232,6 +241,11 @@ public class MainWindowController implements BillChangeListener {
     } else {
       billDisplay.clear();
     }
+
+    if (billService.hasWarnings()) {
+      billDisplay.showWarnings(billService.warnings());
+    }
+
   }
 
   public void setFreePromotion() {
@@ -266,11 +280,15 @@ public class MainWindowController implements BillChangeListener {
     final StringBuilder sb = new StringBuilder();
 
     sb.append("<html><body>");
-    sb.append("<b>Bill opened ").append(df.format(bill.getBillOpened()))
-        .append("</b><BR><br>");
+    sb
+      .append("<b>Bill opened ")
+      .append(df.format(bill.getBillOpened()))
+      .append("</b><BR><br>");
 
     for (final BillItem bi : bill) {
-      sb.append(bi.getName()).append("<BR>");
+      sb
+        .append(bi.getName())
+        .append("<BR>");
     }
 
     sb.append("</body></html>");
@@ -292,11 +310,15 @@ public class MainWindowController implements BillChangeListener {
   }
 
   public int getNumberOfOpenBills() {
-    return billService.getOpenBills().size();
+    return billService
+      .getOpenBills()
+      .size();
   }
 
   public boolean hasOpenBills() {
-    return !billService.getOpenBills().isEmpty();
+    return !billService
+      .getOpenBills()
+      .isEmpty();
   }
 
 }

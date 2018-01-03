@@ -28,11 +28,16 @@ package de.bstreit.java.oscr.business.bill;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import de.bstreit.java.oscr.business.offers.AbstractOffer;
+import de.bstreit.java.oscr.business.offers.ProductOffer;
+import de.bstreit.java.oscr.business.products.AbstractSalesItem;
 import de.bstreit.java.oscr.business.staff.User;
 import de.bstreit.java.oscr.business.taxation.TaxInfo;
 
 import javax.persistence.*;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -164,6 +169,27 @@ public class Bill implements Iterable<BillItem> {
    */
   public Date getBillClosed() {
     return billClosed;
+  }
+
+  /**
+   * @return a flat list with all offered items, that is, all offered items, and all attached
+   * variation or extra offers, without a specific order. If an item was added multiple times, it
+   * is returned multiple times.
+   */
+  public Collection<AbstractOffer<?>> getOfferedItemsFlat() {
+
+    Stream<ProductOffer> products = billItems
+      .stream()
+      .map(BillItem::getOffer);
+
+    Stream<AbstractOffer<?>> extrasAndVariations = billItems
+      .stream()
+      .map(b -> b.getExtraAndVariationOffers())
+      .flatMap(List::stream);
+
+    return Stream
+      .concat(products, extrasAndVariations)
+      .collect(Collectors.toList());
   }
 
   /**

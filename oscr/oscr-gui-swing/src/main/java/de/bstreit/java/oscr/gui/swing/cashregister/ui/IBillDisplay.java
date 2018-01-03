@@ -1,14 +1,18 @@
 package de.bstreit.java.oscr.gui.swing.cashregister.ui;
 
+import java.util.List;
+
 public interface IBillDisplay {
 
-	void printBill(String billAsText);
+  void printBill(String billAsText);
 
-	public void show();
+  void show();
 
-	void scrollToBeginning();
+  void scrollToBeginning();
 
-	void clear();
+  void clear();
 
-    void showError(String message);
+  void showError(String message);
+
+  void showWarnings(List<String> billService);
 }

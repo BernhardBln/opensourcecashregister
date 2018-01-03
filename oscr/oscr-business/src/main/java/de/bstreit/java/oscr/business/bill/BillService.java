@@ -26,22 +26,9 @@
  */
 package de.bstreit.java.oscr.business.bill;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.transaction.Transactional;
-
-import org.hibernate.Hibernate;
-
 import com.google.common.annotations.VisibleForTesting;
-
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import de.bstreit.java.oscr.business.base.date.ICurrentDateProvider;
 import de.bstreit.java.oscr.business.bill.calculator.WhatToCount;
 import de.bstreit.java.oscr.business.bill.dao.IBillRepository;
@@ -51,10 +38,25 @@ import de.bstreit.java.oscr.business.offers.ExtraOffer;
 import de.bstreit.java.oscr.business.offers.ProductOffer;
 import de.bstreit.java.oscr.business.offers.PromoOffer;
 import de.bstreit.java.oscr.business.offers.VariationOffer;
+import de.bstreit.java.oscr.business.products.category.ProductCategory;
+import de.bstreit.java.oscr.business.products.category.dao.IProductCategoryRepository;
 import de.bstreit.java.oscr.business.staff.IUserService;
 import de.bstreit.java.oscr.business.staff.User;
 import de.bstreit.java.oscr.business.taxation.TaxInfo;
 import de.bstreit.java.oscr.business.util.DateFactory;
+import org.apache.commons.lang3.StringUtils;
+import org.hibernate.Hibernate;
+import org.springframework.beans.factory.annotation.Value;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.transaction.Transactional;
+import java.util.*;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.Sets.newHashSet;
+import static java.util.stream.Collectors.*;
 
 /**
  * For the bill management. Creates new bills, keeps one bill as "active" (i.e.
@@ -78,8 +80,19 @@ public class BillService {
   @Named("defaultGlobalTaxInfoForNewBills")
   private TaxInfo defaultTaxInfoForNewBills;
 
+  @Value("${categoriesForRecup:''}")
+  private String categoriesForRecupStr;
+  private Set<ProductCategory> categoriesForRecup = newHashSet();
+
+  @Value("${cupNames:''}")
+  private String cupNamesStr;
+  private Set<String> cupNames = newHashSet();
+
   @Inject
   private ICurrentDateProvider currentDateProvider;
+
+  @Inject
+  private IProductCategoryRepository productCategoryRepository;
 
   @Inject
   private IMultipleBillsCalculatorFactory multipleBillsCalculatorFactory;
@@ -94,6 +107,49 @@ public class BillService {
 
   private BillItem lastAddedItem;
 
+  private List<String> warnings = Lists.newArrayList();
+
+  @PostConstruct
+  public void initCategoriesForRecup() {
+    if (StringUtils.isBlank(categoriesForRecupStr)) {
+      return;
+    }
+
+    String[] categoriesForRecupStrs = StringUtils.splitByWholeSeparator(categoriesForRecupStr, ";");
+
+    for (String categoryForRecupStr : categoriesForRecupStrs) {
+
+      if (StringUtils.isBlank(categoryForRecupStr)) {
+        continue;
+      }
+
+      ProductCategory category = productCategoryRepository.findByName(categoryForRecupStr.trim());
+
+      if (category != null) {
+        categoriesForRecup.add(category);
+      }
+    }
+  }
+
+  @PostConstruct
+  public void initCupNames() {
+    if (StringUtils.isBlank(cupNamesStr)) {
+      return;
+    }
+
+    String[] cupNamesStrArray = StringUtils.splitByWholeSeparator(cupNamesStr, ";");
+
+    cupNames = newHashSet(cupNamesStrArray);
+  }
+
+  public boolean hasWarnings() {
+    return !warnings.isEmpty();
+  }
+
+  public List<String> warnings() {
+    return ImmutableList.copyOf(warnings);
+  }
+
 
   private void fireBillChangedEvent() {
     eventBroadcaster.notifyBillUpdated(this, currentBill);
@@ -105,14 +161,17 @@ public class BillService {
    *
    * @param productOffer
    * @return the bill item which was created and added to the bill with the
-   *         given offer. Can be null if the item could not be added to the bill, for whatever constraints
+   * given offer. Can be null if the item could not be added to the bill, for whatever constraints
    */
   public BillItem addProductOffer(ProductOffer productOffer) throws CannotAddItemException {
 
 
-    if (currentBill != null && productOffer.getOfferedItem().isNoReduction() && currentBill.isFreePromotionOffer()) {
+    if (currentBill != null && productOffer
+      .getOfferedItem()
+      .isNoReduction() && currentBill.isFreePromotionOffer()) {
       // no-reduction items cannot be added to bills which are totally free
-      throw new CannotAddItemException("Cannot add this item to a bill which is free/promo! Use a new bill to charge this!");
+      throw new CannotAddItemException("Cannot add this item to a bill which is free/promo! Use a" +
+        " new bill to charge this!");
     }
 
     initBillIfEmpty();
@@ -192,21 +251,21 @@ public class BillService {
 
     switch (currentBill.getReduction()) {
 
-    case 0:
-      currentBill.setReduction(10);
-      break;
+      case 0:
+        currentBill.setReduction(10);
+        break;
 
-    case 10:
-      currentBill.setReduction(20);
-      break;
+      case 10:
+        currentBill.setReduction(20);
+        break;
 
-    case 20:
-      currentBill.setReduction(40);
-      break;
+      case 20:
+        currentBill.setReduction(40);
+        break;
 
-    case 40:
-      currentBill.setReduction(null);
-      break;
+      case 40:
+        currentBill.setReduction(null);
+        break;
 
     }
 
@@ -229,46 +288,50 @@ public class BillService {
       lastAddedItem = currentBill.getLastBillItemOrNull();
     }
 
+
+    checkForWarnings();
+
     fireBillChangedEvent();
   }
 
   @Transactional
   public IMultipleBillsCalculator getTotalForToday() {
     final Collection<Bill> todaysBills = billRepository
-        .getBillsForTodayWithoutStaff();
+      .getBillsForTodayWithoutStaff();
     return multipleBillsCalculatorFactory.create(todaysBills,
-        WhatToCount.TOTAL);
+      WhatToCount.TOTAL);
   }
 
   @Transactional
   public IMultipleBillsCalculator getTotalForYesterday() {
     final Collection<Bill> yesterdaysBills = billRepository
-        .getBillsForYesterdayWithoutStaff();
+      .getBillsForYesterdayWithoutStaff();
     return multipleBillsCalculatorFactory.create(yesterdaysBills,
-        WhatToCount.TOTAL);
+      WhatToCount.TOTAL);
   }
 
   @Transactional
   public IMultipleBillsCalculator getFreePomotionTotalForToday() {
     final Collection<Bill> todaysBills = billRepository
-        .getBillsForTodayWithoutStaff();
+      .getBillsForTodayWithoutStaff();
     return multipleBillsCalculatorFactory.create(todaysBills,
-        WhatToCount.PROMO_TOTAL);
+      WhatToCount.PROMO_TOTAL);
   }
 
   @Transactional
   public IMultipleBillsCalculator getFreePomotionTotalForYesterday() {
     final Collection<Bill> yesterdaysBills = billRepository
-        .getBillsForYesterdayWithoutStaff();
+      .getBillsForYesterdayWithoutStaff();
     return multipleBillsCalculatorFactory.create(yesterdaysBills,
-        WhatToCount.PROMO_TOTAL);
+      WhatToCount.PROMO_TOTAL);
   }
 
   private void initBillIfEmpty() {
     if (currentBill == null) {
       currentBill = new Bill(defaultTaxInfoForNewBills,
-          currentDateProvider.getCurrentDate());
+        currentDateProvider.getCurrentDate());
       lastAddedItem = null;
+      warnings.clear();
     }
   }
 
@@ -276,12 +339,11 @@ public class BillService {
    * Add an extra offer to the last added product offer on the bill.
    *
    * @param extraOffer
-   * @throws NoOpenBillException
-   *           when there is no open bill or the bill is empty
+   * @throws NoOpenBillException when there is no open bill or the bill is empty
    */
   public void addExtraOffer(ExtraOffer extraOffer) {
     final String errorMessage = "Cannot add extra offer '" + extraOffer
-        + "' - no bill available!";
+      + "' - no bill available!";
     assertCurrentBillNotNull(errorMessage);
     assertCurrentBillNotEmpty(errorMessage);
 
@@ -296,12 +358,11 @@ public class BillService {
    * Set a product variation offer to the last added product offer on the bill.
    *
    * @param variationOffer
-   * @throws NoOpenBillException
-   *           when there is no open bill or the bill is empty
+   * @throws NoOpenBillException when there is no open bill or the bill is empty
    */
   public void setVariationOffer(VariationOffer variationOffer) {
     final String errorMessage = "Cannot set variation '" + variationOffer
-        + "' - no bill available!";
+      + "' - no bill available!";
 
     assertCurrentBillNotNull(errorMessage);
     assertCurrentBillNotEmpty(errorMessage);
@@ -316,7 +377,7 @@ public class BillService {
 
   public void setPromoOffer(PromoOffer promoOffer) {
     final String errorMessage = "Cannot set promo  offer '" + promoOffer
-        + "' - no bill available!";
+      + "' - no bill available!";
 
     assertCurrentBillNotNull(errorMessage);
     assertCurrentBillNotEmpty(errorMessage);
@@ -324,8 +385,9 @@ public class BillService {
     checkNotNull(promoOffer);
 
     boolean hasAlreadyPromoOffer = lastAddedItem
-        .getExtraAndVariationOffers().stream()
-        .anyMatch(o -> o instanceof PromoOffer);
+      .getExtraAndVariationOffers()
+      .stream()
+      .anyMatch(o -> o instanceof PromoOffer);
 
     if (hasAlreadyPromoOffer) {
       throw new AlreadyHasPromoOfferException();
@@ -341,7 +403,7 @@ public class BillService {
     assertCurrentBillNotNull("Cannot close bill - no bill available!");
 
     currentBill.closeBill(userProvider.getCurrentUser(),
-        currentDateProvider.getCurrentDate());
+      currentDateProvider.getCurrentDate());
 
     saveBill();
 
@@ -349,6 +411,7 @@ public class BillService {
 
     currentBill = null;
     lastAddedItem = null;
+    warnings.clear();
 
     fireBillChangedEvent();
 
@@ -372,6 +435,74 @@ public class BillService {
 
     // only keep reference if saveBill was successful
     lastAddedItem = currentBill.getLastBillItemOrNull();
+
+    checkForWarnings();
+  }
+
+  private void checkForWarnings() {
+    warnings.clear();
+
+    // later, make dynamic
+    checkForToGoWithoutRecup();
+  }
+
+  // todo: put into modules later
+  private void checkForToGoWithoutRecup() {
+    if (currentBill == null || !currentBill
+      .getGlobalTaxInfo()
+      .getDenotation()
+      .equals("to go")) {
+
+      return;
+    }
+
+    // we have a bill with to go
+
+    // count all products that are for recup
+    long recupProducts = currentBill
+      .getBillItems()
+      .stream()
+      .filter(bi -> categoriesForRecup.contains(bi
+        .getOffer()
+        .getOfferedItem()
+        .getProductCategory()))
+      .count();
+
+    // count amount of recups, Pfand (our china cups), own cup and paper cups
+    Map<String, Long> counts = currentBill
+      .getOfferedItemsFlat()
+      .stream()
+      .filter(bi -> cupNames.contains(bi
+        .getOfferedItem()
+        .getName()))
+      .collect(
+        groupingBy(o -> o
+            .getOfferedItem()
+            .getName(),
+          counting())
+      );
+
+    Long allCups = counts
+      .values()
+      .stream()
+      .collect(summingLong(l -> l));
+
+
+    if (recupProducts <= allCups) {
+      return;
+    }
+
+    String warning = "There are " + recupProducts + " to go drinks, but only " + allCups + " " +
+      "RECUP or other containers on the bill: " +
+      counts
+        .entrySet()
+        .stream()
+        .map(e -> e.getKey() + ": " + e.getValue())
+        .collect(joining(", "));
+
+
+    warnings.add(warning);
+
   }
 
   public void setGlobalTaxInfo(TaxInfo taxInfo) {
@@ -402,7 +533,7 @@ public class BillService {
   @Transactional
   public void processTodaysBills(IBillProcessor billProcessor) {
     final Collection<Bill> allBillsForToday = billRepository
-        .getBillsForTodayWithoutStaff();
+      .getBillsForTodayWithoutStaff();
 
     for (final Bill bill : allBillsForToday) {
       billProcessor.processBill(bill);
@@ -423,7 +554,7 @@ public class BillService {
 
   public Collection<Bill> getBillsForAllDay(Date day) {
     Date from = DateFactory.getDateWithTimeMidnight(day.getYear() + 1900,
-        day.getMonth() + 1, day.getDate());
+      day.getMonth() + 1, day.getDate());
 
     Calendar nextDayCalendar = Calendar.getInstance();
     nextDayCalendar.setTime(from);
@@ -431,26 +562,26 @@ public class BillService {
     Date to = nextDayCalendar.getTime();
 
     final Collection<Bill> allBillsForToday = billRepository
-        .getBillsForDayWithoutStaff(from, to);
+      .getBillsForDayWithoutStaff(from, to);
 
     return allBillsForToday;
   }
 
   /**
    * Get all bills from the whole month this day lies in.
-   * 
+   *
    * @param day
    * @return
    */
   public Collection<Bill> getBillsForMonthOf(Date day) {
     // first of "current" month (the month that the given day lies in)
     Date firstOfThisMonth = DateFactory.getDateWithTimeMidnight(day.getYear() + 1900,
-        day.getMonth() + 1, 1);
+      day.getMonth() + 1, 1);
 
     Date firstOfNextMonth = DateFactory.getFirstOfNextMonthAtMidnight(firstOfThisMonth);
 
     final Collection<Bill> allBillsOfThatMonth = billRepository
-        .getBillsForDayWithoutStaff(firstOfThisMonth, firstOfNextMonth);
+      .getBillsForDayWithoutStaff(firstOfThisMonth, firstOfNextMonth);
 
     return allBillsOfThatMonth;
   }
@@ -491,11 +622,13 @@ public class BillService {
   public void newBill() {
     currentBill = null;
     lastAddedItem = null;
+    checkForWarnings();
     fireBillChangedEvent();
   }
 
   public void loadBill(Bill bill) {
     currentBill = bill;
+    checkForWarnings();
     lastAddedItem = (bill == null ? null : bill.getLastBillItemOrNull());
     fireBillChangedEvent();
   }
@@ -521,7 +654,8 @@ public class BillService {
   }
 
   @VisibleForTesting
-  void setMultipleBillsCalculatorFactory(IMultipleBillsCalculatorFactory multipleBillsCalculatorFactory) {
+  void setMultipleBillsCalculatorFactory(
+    IMultipleBillsCalculatorFactory multipleBillsCalculatorFactory) {
     this.multipleBillsCalculatorFactory = multipleBillsCalculatorFactory;
   }
 

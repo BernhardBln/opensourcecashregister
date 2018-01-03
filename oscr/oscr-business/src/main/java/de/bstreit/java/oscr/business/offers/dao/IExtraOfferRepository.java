@@ -26,17 +26,18 @@
  */
 package de.bstreit.java.oscr.business.offers.dao;
 
-import java.util.Collection;
-
+import de.bstreit.java.oscr.business.offers.ExtraOffer;
+import de.bstreit.java.oscr.business.offers.ProductOffer;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-import de.bstreit.java.oscr.business.offers.ExtraOffer;
+import java.util.Collection;
 
 public interface IExtraOfferRepository extends JpaRepository<ExtraOffer, Long> {
 
 	@Query("FROM ExtraOffer WHERE validFrom < current_timestamp and (validTo IS NULL OR validTo > current_timestamp) " +
  		" AND offeredItem.validFrom < current_timestamp and (offeredItem.validTo IS NULL OR offeredItem.validTo > current_timestamp)")
 	public Collection<ExtraOffer> findAllActiveOffers();
+
 
 }
