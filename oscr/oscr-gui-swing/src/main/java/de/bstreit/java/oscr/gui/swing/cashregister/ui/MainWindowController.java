@@ -1,13 +1,9 @@
 package de.bstreit.java.oscr.gui.swing.cashregister.ui;
 
 import com.google.common.base.Optional;
-import de.bstreit.java.oscr.business.base.DisplayableException;
 import de.bstreit.java.oscr.business.base.finance.money.Money;
 import de.bstreit.java.oscr.business.base.finance.tax.VATClass;
-import de.bstreit.java.oscr.business.bill.Bill;
-import de.bstreit.java.oscr.business.bill.BillItem;
-import de.bstreit.java.oscr.business.bill.BillService;
-import de.bstreit.java.oscr.business.bill.IMultipleBillsCalculator;
+import de.bstreit.java.oscr.business.bill.*;
 import de.bstreit.java.oscr.business.eventbroadcasting.BillChangeListener;
 import de.bstreit.java.oscr.business.eventbroadcasting.EventBroadcaster;
 import de.bstreit.java.oscr.business.offers.ExtraOffer;
@@ -20,7 +16,6 @@ import de.bstreit.java.oscr.business.taxation.TaxInfo;
 import de.bstreit.java.oscr.business.taxation.dao.ITaxInfoRepository;
 import de.bstreit.java.oscr.text.formatting.BillFormatter;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 
 import javax.annotation.PostConstruct;
@@ -39,8 +34,7 @@ public class MainWindowController implements BillChangeListener {
 
   private final DateFormat df = SimpleDateFormat.getInstance();
 
-  @Value("#{ systemProperties['line.separator'] }")
-  private String NEWLINE;
+  private String NEWLIN = "\n";
 
   @Inject
   private IBillDisplay billDisplay;
@@ -89,24 +83,24 @@ public class MainWindowController implements BillChangeListener {
     eventBroadcaster.notifyApplicationLaunched(this);
   }
 
-  public void addToBill(ProductOffer offer) {
+  public void addToBill(final ProductOffer offer) {
     try {
       billService.addProductOffer(offer);
 
-    } catch (DisplayableException e) {
+    } catch (final CannotAddItemException e) {
       billDisplay.showError(e.getMessage());
     }
   }
 
-  public void setVariationOffer(VariationOffer variationOffer) {
+  public void setVariationOffer(final VariationOffer variationOffer) {
     billService.setVariationOffer(variationOffer);
   }
 
-  public void setPromoOffer(PromoOffer offer) {
+  public void setPromoOffer(final PromoOffer offer) {
     billService.setPromoOffer(offer);
   }
 
-  public void addExtraOffer(ExtraOffer offer) {
+  public void addExtraOffer(final ExtraOffer offer) {
     billService.addExtraOffer(offer);
   }
 
@@ -119,6 +113,11 @@ public class MainWindowController implements BillChangeListener {
   }
 
   public void printTodaysTotal() {
+    // in order to avoid confusion, remove last bill as current (it will still be shown as open)
+    // so when after printing the total, somebody pushes a product button, it appears in a new bill
+    billService.newBill();
+
+
     final StringBuilder sb = new StringBuilder();
 
     addBills(billService.getTotalForToday(), "today", sb);
@@ -159,7 +158,7 @@ public class MainWindowController implements BillChangeListener {
    * @param sb
    */
   private void addBills(final IMultipleBillsCalculator totalForToday,
-                        String date, final StringBuilder sb) {
+                        final String date, final StringBuilder sb) {
     sb.append("Bill for " + date + "\n==============\n\n");
 
     Money totalNet = null;
@@ -193,7 +192,7 @@ public class MainWindowController implements BillChangeListener {
     sb.append("\n\n");
   }
 
-  public void setBillToGo(boolean togo) {
+  public void setBillToGo(final boolean togo) {
     if (togo) {
       billService.setGlobalTaxInfo(toGoTaxInfo);
     } else {
@@ -226,7 +225,7 @@ public class MainWindowController implements BillChangeListener {
     setStaffConsumption(userService.getCurrentUser());
   }
 
-  public void setStaffConsumption(User staffMember) {
+  public void setStaffConsumption(final User staffMember) {
     billService.setStaffConsumer(staffMember);
   }
 
@@ -235,7 +234,7 @@ public class MainWindowController implements BillChangeListener {
   }
 
   @Override
-  public void billUpdated(Optional<Bill> newBill) {
+  public void billUpdated(final Optional<Bill> newBill) {
     if (newBill.isPresent()) {
       billDisplay.printBill(billFormatter.formatBill(newBill.get()));
     } else {
@@ -298,7 +297,7 @@ public class MainWindowController implements BillChangeListener {
     return new AbstractAction(label) {
 
       @Override
-      public void actionPerformed(ActionEvent e) {
+      public void actionPerformed(final ActionEvent e) {
         billService.loadBill(bill);
         openBillsFrame.setVisible(false);
       }

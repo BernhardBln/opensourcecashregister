@@ -50,7 +50,7 @@ public class TestConstants {
   private static final Money PFAND_PRICE_GROSS = new Money("2", EUR);
   private static final Money PFAND_COSTS_NET = new Money("1", EUR);
 
-  private static final Product PFAND_RETURN_PROD = product("Pfand return", NON_FOOD, true);
+  private static final Product PFAND_RETURN_PROD = product("Pfand return", NON_FOOD, true, true);
   private static final Money PFAND_RETURN_PRICE_GROSS = new Money("-2", EUR);
   private static final Money PFAND_RETURN_COSTS_NET = new Money("-1", EUR);
 
@@ -90,9 +90,20 @@ public class TestConstants {
     PAST, STILL_VALID);
 
 
-  private static Product product(final String s, final TaxInfo nonFood, final boolean b) {
+  private static Product product(final String s, final TaxInfo nonFood, final boolean noReduction) {
     final Product product = product(s, nonFood);
-    product.setNoReduction(b);
+    product.setNoReduction(noReduction);
+    return product;
+  }
+
+  private static Product product(final String s, final TaxInfo nonFood, final boolean noReduction,
+                                 final boolean pfand) {
+    final Product product = product(s, nonFood);
+    product.setNoReduction(noReduction);
+    product.setPfand(pfand);
+    if (pfand) {
+      product.setOverridingTaxInfo(NON_FOOD);
+    }
     return product;
   }
 

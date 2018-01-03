@@ -1,24 +1,5 @@
 package de.bstreit.java.oscr.text.formatting;
 
-import static org.junit.Assert.assertEquals;
-
-import java.math.BigDecimal;
-import java.util.Currency;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import javax.transaction.Transactional;
-
-import org.junit.After;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.test.context.ContextConfiguration;
-
 import de.bstreit.java.oscr.business.AbstractSpringTestWithContext;
 import de.bstreit.java.oscr.business.base.finance.money.Money;
 import de.bstreit.java.oscr.business.bill.Bill;
@@ -34,20 +15,35 @@ import de.bstreit.java.oscr.business.products.Variation;
 import de.bstreit.java.oscr.business.taxation.TaxInfo;
 import de.bstreit.java.oscr.business.taxation.dao.ITaxInfoRepository;
 import de.bstreit.java.oscr.testutils.business.bill.JUnitBillCalculatorFactory;
+import org.junit.After;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.test.context.ContextConfiguration;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+import java.math.BigDecimal;
+import java.util.Currency;
+
+import static org.junit.Assert.*;
 
 @Ignore
-@ContextConfiguration(classes = { BillFormatterTest.class })
+@ContextConfiguration(classes = {BillFormatterTest.class})
 @Configuration
 public class BillFormatterTest extends AbstractSpringTestWithContext {
 
   private static final Logger logger = LoggerFactory
-      .getLogger(BillFormatterTest.class);
+    .getLogger(BillFormatterTest.class);
 
   private TaxInfo NON_FOOD_TAX_INFO = new TaxInfo("non-food", null, null);
   private TaxInfo TO_GO_TAX_INFO = new TaxInfo("to go", null, null);
 
-  @Value("#{ systemProperties['line.separator'] }")
-  private String NEWLINE;
+  private String NEWLINE = "\n";
 
   private String sampleBill_inhouse_onlyOneVATClass_withVariation;
 
@@ -118,7 +114,7 @@ public class BillFormatterTest extends AbstractSpringTestWithContext {
     final ProductOffer espressoOffer = createOffer("Espresso", "1.07");
     final ProductOffer cappuccinoOffer = createOffer("Cappuccino", "2.38");
     final ProductOffer harioOffer = createOffer(
-        "Hario V60 Papierfilter 01 weiß", "7.10", NON_FOOD_TAX_INFO);
+      "Hario V60 Papierfilter 01 weiß", "7.10", NON_FOOD_TAX_INFO);
 
     billItem1Espresso = billService.addProductOffer(espressoOffer);
     billItem2Cappuccino = billService.addProductOffer(cappuccinoOffer);
@@ -126,44 +122,44 @@ public class BillFormatterTest extends AbstractSpringTestWithContext {
     billItem4Cappuccino = billService.addProductOffer(cappuccinoOffer);
 
     initBillCalculatorForInHouse(billItem1Espresso, billItem2Cappuccino,
-        billItem3Hario, billItem4Cappuccino);
+      billItem3Hario, billItem4Cappuccino);
 
     final String expectedOutput = ""
-        + "Rechnung                    31.01.2014 12:05"
-        + NEWLINE
-        + "============================================"
-        + NEWLINE
-        + "                     Mwst.  netto*    brutto"
-        + NEWLINE
-        + "Espresso               A    0,90 €    1,07 €"
-        + NEWLINE
-        + "Cappuccino             A    2,00 €    2,38 €"
-        + NEWLINE
-        + "Hario V60              A    5,97 €    7,10 €"
-        + NEWLINE
-        + "  Papierfilter 01"
-        + NEWLINE
-        + "  weiß"
-        + NEWLINE
-        + "Cappuccino             A    2,00 €    2,38 €"
-        + NEWLINE
-        + "--------------------------------------------"
-        + NEWLINE
-        + "Gesamtsumme (brutto):                12,93 €"
-        + NEWLINE
-        + "============================================"
-        + NEWLINE
-        + NEWLINE
-        + "A - Normaler Steuersatz (19%)"
-        + NEWLINE
-        + "      netto*  10,87 €"
-        + NEWLINE
-        + "      Mwst.*   2,06 €"
-        + NEWLINE
-        + "      brutto  12,93 €"
-        + NEWLINE
-        + NEWLINE
-        + "* gerundete Beträge" + NEWLINE;
+      + "Rechnung                    31.01.2014 12:05"
+      + NEWLINE
+      + "============================================"
+      + NEWLINE
+      + "                     Mwst.  netto*    brutto"
+      + NEWLINE
+      + "Espresso               A    0,90 €    1,07 €"
+      + NEWLINE
+      + "Cappuccino             A    2,00 €    2,38 €"
+      + NEWLINE
+      + "Hario V60              A    5,97 €    7,10 €"
+      + NEWLINE
+      + "  Papierfilter 01"
+      + NEWLINE
+      + "  weiß"
+      + NEWLINE
+      + "Cappuccino             A    2,00 €    2,38 €"
+      + NEWLINE
+      + "--------------------------------------------"
+      + NEWLINE
+      + "Gesamtsumme (brutto):                12,93 €"
+      + NEWLINE
+      + "============================================"
+      + NEWLINE
+      + NEWLINE
+      + "A - Normaler Steuersatz (19%)"
+      + NEWLINE
+      + "      netto*  10,87 €"
+      + NEWLINE
+      + "      Mwst.*   2,06 €"
+      + NEWLINE
+      + "      brutto  12,93 €"
+      + NEWLINE
+      + NEWLINE
+      + "* gerundete Beträge" + NEWLINE;
 
     // RUN
     final Bill bill = billService.closeBill();
@@ -175,13 +171,13 @@ public class BillFormatterTest extends AbstractSpringTestWithContext {
 
   @Test
   @Transactional
-  public void sampleBill_inhouse_onlyOneVATClass_withVariation() throws Exception  {
+  public void sampleBill_inhouse_onlyOneVATClass_withVariation() throws Exception {
 
     // INIT
     final ProductOffer espressoOffer = createOffer("Espresso", "1.07");
     final ProductOffer cappuccinoOffer = createOffer("Cappuccino", "2.38");
     final ProductOffer harioOffer = createOffer(
-        "Hario V60 Papierfilter 01 weiß", "7.10", NON_FOOD_TAX_INFO);
+      "Hario V60 Papierfilter 01 weiß", "7.10", NON_FOOD_TAX_INFO);
 
     billItem1Espresso = billService.addProductOffer(espressoOffer);
     billItem2Cappuccino = billService.addProductOffer(cappuccinoOffer);
@@ -189,58 +185,58 @@ public class BillFormatterTest extends AbstractSpringTestWithContext {
     billItem4Cappuccino = billService.addProductOffer(cappuccinoOffer);
 
     billItem5CappuccinoWithAlmondMilk = billService
-        .addProductOffer(createOffer("Cappuccino", "2.38"));
+      .addProductOffer(createOffer("Cappuccino", "2.38"));
     billService.toggleProductVariationOffer(createVariationOffer(
-        "Almond Milk", "0.90"));
+      "Almond Milk", "0.90"));
 
     initBillCalculatorForInHouseWithVariation(billItem1Espresso,
-        billItem2Cappuccino, billItem3Hario, billItem4Cappuccino,
-        billItem5CappuccinoWithAlmondMilk);
+      billItem2Cappuccino, billItem3Hario, billItem4Cappuccino,
+      billItem5CappuccinoWithAlmondMilk);
 
     final String expectedOutput = ""
-        + "Rechnung                    31.01.2014 12:05"
-        + NEWLINE
-        + "============================================"
-        + NEWLINE
-        + "                     Mwst.  netto*    brutto"
-        + NEWLINE
-        + "Espresso               A    0,90 €    1,07 €"
-        + NEWLINE
-        + "Cappuccino             A    2,00 €    2,38 €"
-        + NEWLINE
-        + NEWLINE
-        + "Cappuccino             A    2,00 €    2,38 €"
-        + NEWLINE
-        + " - Almond Milk         A    0,76 €    0,90 €"
-        + NEWLINE
-        + " SUBTOTAL              A    2,76 €    3,28 €"
-        + NEWLINE
-        + NEWLINE
-        + "Hario V60              A    5,97 €    7,10 €"
-        + NEWLINE
-        + "  Papierfilter 01"
-        + NEWLINE
-        + "  weiß"
-        + NEWLINE
-        + "Cappuccino             A    2,00 €    2,38 €"
-        + NEWLINE
-        + "--------------------------------------------"
-        + NEWLINE
-        + "Gesamtsumme (brutto):                12,93 €"
-        + NEWLINE
-        + "============================================"
-        + NEWLINE
-        + NEWLINE
-        + "A - Normaler Steuersatz (19%)"
-        + NEWLINE
-        + "      netto*  10,87 €"
-        + NEWLINE
-        + "      Mwst.*   2,06 €"
-        + NEWLINE
-        + "      brutto  12,93 €"
-        + NEWLINE
-        + NEWLINE
-        + "* gerundete Beträge" + NEWLINE;
+      + "Rechnung                    31.01.2014 12:05"
+      + NEWLINE
+      + "============================================"
+      + NEWLINE
+      + "                     Mwst.  netto*    brutto"
+      + NEWLINE
+      + "Espresso               A    0,90 €    1,07 €"
+      + NEWLINE
+      + "Cappuccino             A    2,00 €    2,38 €"
+      + NEWLINE
+      + NEWLINE
+      + "Cappuccino             A    2,00 €    2,38 €"
+      + NEWLINE
+      + " - Almond Milk         A    0,76 €    0,90 €"
+      + NEWLINE
+      + " SUBTOTAL              A    2,76 €    3,28 €"
+      + NEWLINE
+      + NEWLINE
+      + "Hario V60              A    5,97 €    7,10 €"
+      + NEWLINE
+      + "  Papierfilter 01"
+      + NEWLINE
+      + "  weiß"
+      + NEWLINE
+      + "Cappuccino             A    2,00 €    2,38 €"
+      + NEWLINE
+      + "--------------------------------------------"
+      + NEWLINE
+      + "Gesamtsumme (brutto):                12,93 €"
+      + NEWLINE
+      + "============================================"
+      + NEWLINE
+      + NEWLINE
+      + "A - Normaler Steuersatz (19%)"
+      + NEWLINE
+      + "      netto*  10,87 €"
+      + NEWLINE
+      + "      Mwst.*   2,06 €"
+      + NEWLINE
+      + "      brutto  12,93 €"
+      + NEWLINE
+      + NEWLINE
+      + "* gerundete Beträge" + NEWLINE;
 
     // RUN
     final Bill bill = billService.closeBill();
@@ -251,10 +247,11 @@ public class BillFormatterTest extends AbstractSpringTestWithContext {
   }
 
   private void initBillCalculatorForInHouse(final BillItem bi1,
-      final BillItem bi2, final BillItem bi3, final BillItem bi4) {
+                                            final BillItem bi2, final BillItem bi3,
+                                            final BillItem bi4) {
 
     billCalculatorFactory.addVATClassAndTotalNetAndTotalGross('A',
-        "Normaler Steuersatz", 19, "10.87", "12.93");
+      "Normaler Steuersatz", 19, "10.87", "12.93");
 
     billCalculatorFactory.setVATClassAndNetPriceFor(bi1, 'A', "0.9");
     billCalculatorFactory.setVATClassAndNetPriceFor(bi2, 'A', "2");
@@ -265,11 +262,12 @@ public class BillFormatterTest extends AbstractSpringTestWithContext {
   }
 
   private void initBillCalculatorForInHouseWithVariation(final BillItem bi1,
-      final BillItem bi2, final BillItem bi3, final BillItem bi4,
-      final BillItem bi5) {
+                                                         final BillItem bi2, final BillItem bi3,
+                                                         final BillItem bi4,
+                                                         final BillItem bi5) {
 
     billCalculatorFactory.addVATClassAndTotalNetAndTotalGross('A',
-        "Normaler Steuersatz", 19, "10.87", "12.93");
+      "Normaler Steuersatz", 19, "10.87", "12.93");
 
     billCalculatorFactory.setVATClassAndNetPriceFor(bi1, 'A', "0.9");
     billCalculatorFactory.setVATClassAndNetPriceFor(bi2, 'A', "2");
@@ -288,28 +286,28 @@ public class BillFormatterTest extends AbstractSpringTestWithContext {
     billService.setGlobalTaxInfo(TO_GO_TAX_INFO);
 
     initBillCalculatorForToGo(billItem1Espresso, billItem2Cappuccino,
-        billItem3Hario, billItem4Cappuccino);
+      billItem3Hario, billItem4Cappuccino);
 
     final String expectedOutput = "" + //
-        "Rechnung                    31.01.2014 12:05" + NEWLINE
-        + "============================================" + NEWLINE
-        + "Außer-Haus-Verzehr" + NEWLINE
-        + "                     Mwst.  netto*    brutto" + NEWLINE
-        + "Espresso               A    1,00 €    1,07 €" + NEWLINE
-        + "Cappuccino             A    2,22 €    2,38 €" + NEWLINE
-        + "Hario V60              B    5,97 €    7,10 €" + NEWLINE
-        + "  Papierfilter 01" + NEWLINE + "  weiß" + NEWLINE
-        + "Cappuccino             A    2,22 €    2,38 €" + NEWLINE
-        + "--------------------------------------------" + NEWLINE
-        + "Gesamtsumme (brutto):                12,93 €" + NEWLINE
-        + "============================================" + NEWLINE
-        + NEWLINE + "A - Ermäßigter Steuersatz (7%)" + NEWLINE
-        + "      netto*   5,44 €" + NEWLINE + "      Mwst.*   0,39 €"
-        + NEWLINE + "      brutto   5,83 €" + NEWLINE + NEWLINE
-        + "B - Normaler Steuersatz (19%)" + NEWLINE
-        + "      netto*   5,97 €" + NEWLINE + "      Mwst.*   1,13 €"
-        + NEWLINE + "      brutto   7,10 €" + NEWLINE + NEWLINE
-        + "* gerundete Beträge" + NEWLINE;
+      "Rechnung                    31.01.2014 12:05" + NEWLINE
+      + "============================================" + NEWLINE
+      + "Außer-Haus-Verzehr" + NEWLINE
+      + "                     Mwst.  netto*    brutto" + NEWLINE
+      + "Espresso               A    1,00 €    1,07 €" + NEWLINE
+      + "Cappuccino             A    2,22 €    2,38 €" + NEWLINE
+      + "Hario V60              B    5,97 €    7,10 €" + NEWLINE
+      + "  Papierfilter 01" + NEWLINE + "  weiß" + NEWLINE
+      + "Cappuccino             A    2,22 €    2,38 €" + NEWLINE
+      + "--------------------------------------------" + NEWLINE
+      + "Gesamtsumme (brutto):                12,93 €" + NEWLINE
+      + "============================================" + NEWLINE
+      + NEWLINE + "A - Ermäßigter Steuersatz (7%)" + NEWLINE
+      + "      netto*   5,44 €" + NEWLINE + "      Mwst.*   0,39 €"
+      + NEWLINE + "      brutto   5,83 €" + NEWLINE + NEWLINE
+      + "B - Normaler Steuersatz (19%)" + NEWLINE
+      + "      netto*   5,97 €" + NEWLINE + "      Mwst.*   1,13 €"
+      + NEWLINE + "      brutto   7,10 €" + NEWLINE + NEWLINE
+      + "* gerundete Beträge" + NEWLINE;
 
     // RUN
     final Bill bill = billService.closeBill();
@@ -320,12 +318,13 @@ public class BillFormatterTest extends AbstractSpringTestWithContext {
   }
 
   private void initBillCalculatorForToGo(final BillItem bi1,
-      final BillItem bi2, final BillItem bi3, final BillItem bi4) {
+                                         final BillItem bi2, final BillItem bi3,
+                                         final BillItem bi4) {
 
     billCalculatorFactory.addVATClassAndTotalNetAndTotalGross('A',
-        "Ermäßigter Steuersatz", 7, "5.44", "5.83");
+      "Ermäßigter Steuersatz", 7, "5.44", "5.83");
     billCalculatorFactory.addVATClassAndTotalNetAndTotalGross('B',
-        "Normaler Steuersatz", 19, "5.97", "7.10");
+      "Normaler Steuersatz", 19, "5.97", "7.10");
 
     billCalculatorFactory.setVATClassAndNetPriceFor(bi1, 'A', "1.00");
     billCalculatorFactory.setVATClassAndNetPriceFor(bi2, 'A', "2.22");
@@ -335,12 +334,12 @@ public class BillFormatterTest extends AbstractSpringTestWithContext {
     billCalculatorFactory.setTotalGross("12.93");
   }
 
-  private ProductOffer createOffer(String name, String price) {
+  private ProductOffer createOffer(final String name, final String price) {
     return createOffer(name, price, null);
   }
 
-  private ProductOffer createOffer(String name, String price,
-      TaxInfo taxInfo) {
+  private ProductOffer createOffer(final String name, final String price,
+                                   final TaxInfo taxInfo) {
     final Product product = new Product(name, null, null);
 
     if (taxInfo != null) {
@@ -348,19 +347,19 @@ public class BillFormatterTest extends AbstractSpringTestWithContext {
     }
 
     final Money priceAsMoney = new Money(new BigDecimal(price),
-        defaultCurrency);
+      defaultCurrency);
     final ProductOffer productOffer = new ProductOffer(product,
-        priceAsMoney, null, null, null);
+      priceAsMoney, null, null, null);
 
     return productOfferRepo.save(productOffer);
   }
 
-  private VariationOffer createVariationOffer(String name, String price) {
+  private VariationOffer createVariationOffer(final String name, final String price) {
     final Variation variation = new Variation(name, null, null);
     final Money pricesAsMoney = new Money(new BigDecimal(price),
-        defaultCurrency);
+      defaultCurrency);
     final VariationOffer variationOffer = new VariationOffer(variation,
-        pricesAsMoney, null, null, null);
+      pricesAsMoney, null, null, null);
 
     return variationOfferRepo.saveAndFlush(variationOffer);
   }

@@ -26,67 +26,71 @@
  */
 package de.bstreit.java.oscr.business.products;
 
-import java.util.Date;
-
-import javax.persistence.CascadeType;
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-
 import de.bstreit.java.oscr.business.products.category.ProductCategory;
 
+import javax.persistence.*;
+import java.util.Date;
+
 /**
- * 
  * @author streit
- * 
  */
 @Entity
 @DiscriminatorValue(value = "Product")
 public class Product extends AbstractSalesItem {
 
-	/**
-	 * Optional; not used in equals or hashcode
-	 */
-	@ManyToOne(cascade = CascadeType.ALL, optional = true)
-	private ContainerSize containerSize = null;
+  /**
+   * Optional; not used in equals or hashcode
+   */
+  @ManyToOne(cascade = CascadeType.ALL, optional = true)
+  private ContainerSize containerSize = null;
 
-	/**
-	 * Product categories (drinks, food, ...) help to visualise the buttons in
-	 * the cash register front-end better, and also provide additional
-	 * information for controlling.
-	 * <p>
-	 * Can be optional so we don't force people to define categories
-	 */
-	@ManyToOne(cascade = CascadeType.ALL, optional = true)
-	private ProductCategory productCategory;
+  @Column(nullable = false, columnDefinition = "BIT NOT NULL DEFAULT FALSE")
+  private boolean pfand = false;
 
-	private Product() {
-		super(null, null, null);
-	}
+  /**
+   * Product categories (drinks, food, ...) help to visualise the buttons in
+   * the cash register front-end better, and also provide additional
+   * information for controlling.
+   * <p>
+   * Can be optional so we don't force people to define categories
+   */
+  @ManyToOne(cascade = CascadeType.ALL, optional = true)
+  private ProductCategory productCategory;
 
-	public Product(String name, Date validFrom, Date validTo) {
-		super(name, validFrom, validTo);
-	}
+  private Product() {
+    super(null, null, null);
+  }
 
-	public ProductCategory getProductCategory() {
-		return productCategory;
-	}
+  public Product(final String name, final Date validFrom, final Date validTo) {
+    super(name, validFrom, validTo);
+  }
 
-	public ContainerSize getContainerSize() {
-		return containerSize;
-	}
+  public ProductCategory getProductCategory() {
+    return productCategory;
+  }
 
-	/**
-	 * Optional: Packungsgröße setzen
-	 * 
-	 * @param containerSize
-	 */
-	public void setPackageSize(ContainerSize containerSize) {
-		this.containerSize = containerSize;
-	}
+  public ContainerSize getContainerSize() {
+    return containerSize;
+  }
 
-	public void setProductCategory(ProductCategory productCategory) {
-		this.productCategory = productCategory;
-	}
+  /**
+   * Optional: Packungsgröße setzen
+   *
+   * @param containerSize
+   */
+  public void setPackageSize(final ContainerSize containerSize) {
+    this.containerSize = containerSize;
+  }
 
+  public void setProductCategory(final ProductCategory productCategory) {
+    this.productCategory = productCategory;
+  }
+
+  public void setPfand(final boolean pfand) {
+    this.pfand = pfand;
+  }
+
+  public boolean isPfand() {
+    return pfand;
+  }
 }

@@ -26,16 +26,16 @@
  */
 package de.bstreit.java.oscr.business.base.finance.tax;
 
-import java.math.BigDecimal;
-import java.util.Date;
-
-import javax.persistence.Entity;
-
+import de.bstreit.java.oscr.business.base.persistence.AbstractPersistentObjectWithContinuance;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.hibernate.annotations.NaturalId;
 
-import de.bstreit.java.oscr.business.base.persistence.AbstractPersistentObjectWithContinuance;
+import javax.persistence.Entity;
+import java.math.BigDecimal;
+import java.util.Date;
+
+import static java.math.RoundingMode.HALF_EVEN;
 
 /**
  * <p>
@@ -49,52 +49,54 @@ import de.bstreit.java.oscr.business.base.persistence.AbstractPersistentObjectWi
  * office or loose money because you pay more VAT to the tax office than you
  * actually need!
  * </p>
- * 
+ *
  * @author streit
  */
 @Entity
 public class VATClass extends AbstractPersistentObjectWithContinuance<VATClass> {
 
-	@NaturalId
-	private String designation;
+  @NaturalId
+  private String designation;
 
-	/** the tax rate, e.g. "19" for 19% */
-	private BigDecimal taxRate;
+  /**
+   * the tax rate, e.g. "19" for 19%
+   */
+  private BigDecimal taxRate;
 
-	@SuppressWarnings("unused")
-	private VATClass() {
-		// for hibernate
-	}
+  @SuppressWarnings("unused")
+  private VATClass() {
+    // for hibernate
+  }
 
-	public VATClass(String designation, BigDecimal rate, Date validFrom,
-			Date validTo) {
-		super(validFrom, validTo);
-		this.designation = designation;
-		this.taxRate = rate;
-	}
+  public VATClass(final String designation, final BigDecimal rate, final Date validFrom,
+                  final Date validTo) {
+    super(validFrom, validTo);
+    this.designation = designation;
+    this.taxRate = rate.setScale(4, HALF_EVEN);
+  }
 
-	public String getName() {
-		return designation;
-	}
+  public String getName() {
+    return designation;
+  }
 
-	public BigDecimal getRate() {
-		return taxRate;
-	}
+  public BigDecimal getRate() {
+    return taxRate;
+  }
 
-	@Override
-	protected void additionalEqualsForSubclasses(EqualsBuilder equalsBuilder,
-			VATClass otherObject) {
-		equalsBuilder.append(designation, otherObject.designation);
-	}
+  @Override
+  protected void additionalEqualsForSubclasses(final EqualsBuilder equalsBuilder,
+                                               final VATClass otherObject) {
+    equalsBuilder.append(designation, otherObject.designation);
+  }
 
-	@Override
-	protected void additionalHashcodeForSubclasses(HashCodeBuilder builder) {
-		builder.append(designation);
-	}
+  @Override
+  protected void additionalHashcodeForSubclasses(final HashCodeBuilder builder) {
+    builder.append(designation);
+  }
 
-	@Override
-	public String toString() {
-		return getName() + " (" + getRate() + "%)";
-	}
+  @Override
+  public String toString() {
+    return getName() + " (" + getRate() + "%)";
+  }
 
 }

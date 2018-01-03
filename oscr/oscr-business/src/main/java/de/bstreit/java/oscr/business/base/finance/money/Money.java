@@ -37,6 +37,7 @@ import java.util.Currency;
 import java.util.Objects;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static java.math.RoundingMode.HALF_EVEN;
 
 public class Money implements Serializable {
 
@@ -56,20 +57,14 @@ public class Money implements Serializable {
    * @param currencyCode The ISO 4217 code of the currency
    */
   public Money(final String amount, final String currencyCode) {
-    Preconditions.checkNotNull(amount);
-    Preconditions.checkNotNull(currencyCode);
-
-    this.amount = resetAmountScale(new BigDecimal(amount));
-
-    this.currency = Currency.getInstance(currencyCode);
+    this(amount, Currency.getInstance(currencyCode));
   }
 
   public Money(final BigDecimal amount, final Currency currency) {
     Preconditions.checkNotNull(amount);
     Preconditions.checkNotNull(currency);
 
-    this.amount = resetAmountScale(amount);
-
+    this.amount = amount.setScale(4, HALF_EVEN);
     this.currency = currency;
   }
 
@@ -77,11 +72,11 @@ public class Money implements Serializable {
     Preconditions.checkNotNull(amount);
     Preconditions.checkNotNull(currency);
 
-    this.amount = resetAmountScale(new BigDecimal(amount
+    this.amount = new BigDecimal(amount
       .trim()
       .replace(
-        ",", ".")));
-
+        ",", "."))
+      .setScale(4, HALF_EVEN);
     this.currency = currency;
   }
 
@@ -93,15 +88,6 @@ public class Money implements Serializable {
     return new Money("0", c);
   }
 
-  /**
-   * We always reset the scale, as the scale influences equals and hashcode.
-   *
-   * @param amount
-   * @return the amount with scale set to 2
-   */
-  private BigDecimal resetAmountScale(final BigDecimal amount) {
-    return amount.setScale(2, RoundingMode.HALF_EVEN);
-  }
 
   public BigDecimal getAmount() {
     return amount;
@@ -118,7 +104,7 @@ public class Money implements Serializable {
 
   @Override
   public int hashCode() {
-    return Objects.hash(amount, currency);
+    return Objects.hash(amount.setScale(2, HALF_EVEN), currency);
   }
 
   @Override
@@ -132,7 +118,10 @@ public class Money implements Serializable {
 
     final Money otherObj = (Money) obj;
 
-    final boolean sameAmount = Objects.equals(amount, otherObj.getAmount());
+    // need to use compare for big decimal
+    final boolean sameAmount = amount == null ? otherObj.getAmount() == null : amount.compareTo
+      (otherObj.getAmount()) == 0;
+
     final boolean sameCurrency = Objects.equals(currency,
       otherObj.getCurrency());
 
@@ -230,20 +219,5 @@ public class Money implements Serializable {
     return new Money(amount, currency);
   }
 
-  /**
-   * Round the amount, to one decimal place after the comma, e.g.
-   * <ul>
-   * <li>1.13 -> 1.10</li>
-   * <li>1.15 -> 1.20</li>
-   * </ul>
-   *
-   * @return the rounded amount
-   */
-  public Money roundToTenCents() {
-
-    return money(amount
-      .setScale(1, BigDecimal.ROUND_HALF_UP)
-      .setScale(2, BigDecimal.ROUND_UNNECESSARY));
-  }
 
 }

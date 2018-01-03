@@ -163,15 +163,18 @@ public class BillService {
    * @return the bill item which was created and added to the bill with the
    * given offer. Can be null if the item could not be added to the bill, for whatever constraints
    */
-  public BillItem addProductOffer(ProductOffer productOffer) throws CannotAddItemException {
+  public BillItem addProductOffer(final ProductOffer productOffer) throws CannotAddItemException {
 
 
     if (currentBill != null && productOffer
       .getOfferedItem()
       .isNoReduction() && currentBill.isFreePromotionOffer()) {
       // no-reduction items cannot be added to bills which are totally free
-      throw new CannotAddItemException("Cannot add this item to a bill which is free/promo! Use a" +
-        " new bill to charge this!");
+      throw new CannotAddItemException("Cannot add " + productOffer
+        .getOfferedItem()
+        .getName() +
+        " to a bill which is free/promo! Instead, use a separate" +
+        " new bill in order to add, make it NOT free and let the guest pay for it!");
     }
 
     initBillIfEmpty();
@@ -188,7 +191,7 @@ public class BillService {
     return billItem;
   }
 
-  public void toggleProductVariationOffer(VariationOffer variationOffer) {
+  public void toggleProductVariationOffer(final VariationOffer variationOffer) {
     if (lastAddedItem == null) {
       return;
     }
@@ -199,7 +202,7 @@ public class BillService {
     fireBillChangedEvent();
   }
 
-  public void setStaffConsumer(User consumer) {
+  public void setStaffConsumer(final User consumer) {
     if (currentBill == null) {
       return;
     }
@@ -286,6 +289,7 @@ public class BillService {
       lastAddedItem = null;
     } else {
       lastAddedItem = currentBill.getLastBillItemOrNull();
+      saveBill();
     }
 
 
@@ -341,7 +345,7 @@ public class BillService {
    * @param extraOffer
    * @throws NoOpenBillException when there is no open bill or the bill is empty
    */
-  public void addExtraOffer(ExtraOffer extraOffer) {
+  public void addExtraOffer(final ExtraOffer extraOffer) {
     final String errorMessage = "Cannot add extra offer '" + extraOffer
       + "' - no bill available!";
     assertCurrentBillNotNull(errorMessage);
@@ -360,7 +364,7 @@ public class BillService {
    * @param variationOffer
    * @throws NoOpenBillException when there is no open bill or the bill is empty
    */
-  public void setVariationOffer(VariationOffer variationOffer) {
+  public void setVariationOffer(final VariationOffer variationOffer) {
     final String errorMessage = "Cannot set variation '" + variationOffer
       + "' - no bill available!";
 
@@ -375,7 +379,7 @@ public class BillService {
     fireBillChangedEvent();
   }
 
-  public void setPromoOffer(PromoOffer promoOffer) {
+  public void setPromoOffer(final PromoOffer promoOffer) {
     final String errorMessage = "Cannot set promo  offer '" + promoOffer
       + "' - no bill available!";
 
@@ -384,7 +388,7 @@ public class BillService {
 
     checkNotNull(promoOffer);
 
-    boolean hasAlreadyPromoOffer = lastAddedItem
+    final boolean hasAlreadyPromoOffer = lastAddedItem
       .getExtraAndVariationOffers()
       .stream()
       .anyMatch(o -> o instanceof PromoOffer);
@@ -418,7 +422,7 @@ public class BillService {
     return currentBillForFurtherReference;
   }
 
-  private void assertCurrentBillNotNull(String errorMessage) {
+  private void assertCurrentBillNotNull(final String errorMessage) {
     if (currentBill == null) {
       throw new NoOpenBillException(errorMessage);
     }
@@ -505,7 +509,7 @@ public class BillService {
 
   }
 
-  public void setGlobalTaxInfo(TaxInfo taxInfo) {
+  public void setGlobalTaxInfo(final TaxInfo taxInfo) {
     // At the moment, we only support one tax info, might change in the
     // future
     assertCurrentBillNotNull("Cannot set tax info - no bill available");
@@ -531,7 +535,7 @@ public class BillService {
   }
 
   @Transactional
-  public void processTodaysBills(IBillProcessor billProcessor) {
+  public void processTodaysBills(final IBillProcessor billProcessor) {
     final Collection<Bill> allBillsForToday = billRepository
       .getBillsForTodayWithoutStaff();
 
@@ -542,7 +546,7 @@ public class BillService {
   }
 
   @Transactional
-  public void processBillsAt(IBillProcessor billProcessor, Date day) {
+  public void processBillsAt(final IBillProcessor billProcessor, final Date day) {
 
     final Collection<Bill> allBillsForToday = getBillsForAllDay(day);
 
@@ -552,14 +556,14 @@ public class BillService {
 
   }
 
-  public Collection<Bill> getBillsForAllDay(Date day) {
-    Date from = DateFactory.getDateWithTimeMidnight(day.getYear() + 1900,
+  public Collection<Bill> getBillsForAllDay(final Date day) {
+    final Date from = DateFactory.getDateWithTimeMidnight(day.getYear() + 1900,
       day.getMonth() + 1, day.getDate());
 
-    Calendar nextDayCalendar = Calendar.getInstance();
+    final Calendar nextDayCalendar = Calendar.getInstance();
     nextDayCalendar.setTime(from);
     nextDayCalendar.add(Calendar.DAY_OF_MONTH, 1);
-    Date to = nextDayCalendar.getTime();
+    final Date to = nextDayCalendar.getTime();
 
     final Collection<Bill> allBillsForToday = billRepository
       .getBillsForDayWithoutStaff(from, to);
@@ -573,12 +577,12 @@ public class BillService {
    * @param day
    * @return
    */
-  public Collection<Bill> getBillsForMonthOf(Date day) {
+  public Collection<Bill> getBillsForMonthOf(final Date day) {
     // first of "current" month (the month that the given day lies in)
-    Date firstOfThisMonth = DateFactory.getDateWithTimeMidnight(day.getYear() + 1900,
+    final Date firstOfThisMonth = DateFactory.getDateWithTimeMidnight(day.getYear() + 1900,
       day.getMonth() + 1, 1);
 
-    Date firstOfNextMonth = DateFactory.getFirstOfNextMonthAtMidnight(firstOfThisMonth);
+    final Date firstOfNextMonth = DateFactory.getFirstOfNextMonthAtMidnight(firstOfThisMonth);
 
     final Collection<Bill> allBillsOfThatMonth = billRepository
       .getBillsForDayWithoutStaff(firstOfThisMonth, firstOfNextMonth);
@@ -586,9 +590,27 @@ public class BillService {
     return allBillsOfThatMonth;
   }
 
+  /**
+   * Get all bills from the whole month this day lies in.
+   *
+   * @param day
+   * @return
+   */
+  public Collection<Bill> getBillsForYear(final int year) {
+    // first of "current" month (the month that the given day lies in)
+    final Date firstOfThisYear = DateFactory.getDateWithTimeMidnight(year, 1, 1);
+    final Date firstOfNextYear = DateFactory.getDateWithTimeMidnight(year + 1, 1, 1);
+
+
+    final Collection<Bill> allBillsOfThatYear = billRepository
+      .getBillsForDayWithoutStaff(firstOfThisYear, firstOfNextYear);
+
+    return allBillsOfThatYear;
+  }
+
 
   public void notifyShutdown() {
-    for (IService service : services) {
+    for (final IService service : services) {
       logger.info("Killing " + service);
       service.stopService();
     }
@@ -603,7 +625,7 @@ public class BillService {
     return openBills;
   }
 
-  private void initialise(List<Bill> openBills) {
+  private void initialise(final List<Bill> openBills) {
     for (final Bill bill : openBills) {
 
       Hibernate.initialize(bill);
@@ -612,7 +634,7 @@ public class BillService {
     }
   }
 
-  private void initialise(Collection<BillItem> billItems) {
+  private void initialise(final Collection<BillItem> billItems) {
     for (final BillItem billItem : billItems) {
       Hibernate.initialize(billItem);
       Hibernate.initialize(billItem.getExtraAndVariationOffers());
@@ -626,7 +648,7 @@ public class BillService {
     fireBillChangedEvent();
   }
 
-  public void loadBill(Bill bill) {
+  public void loadBill(final Bill bill) {
     currentBill = bill;
     checkForWarnings();
     lastAddedItem = (bill == null ? null : bill.getLastBillItemOrNull());
@@ -634,38 +656,37 @@ public class BillService {
   }
 
   @VisibleForTesting
-  void setBillRepository(IBillRepository billRepository) {
+  void setBillRepository(final IBillRepository billRepository) {
     this.billRepository = billRepository;
   }
 
   @VisibleForTesting
-  void setUserProvider(IUserService userProvider) {
+  void setUserProvider(final IUserService userProvider) {
     this.userProvider = userProvider;
   }
 
   @VisibleForTesting
-  void setDefaultTaxInfoForNewBills(TaxInfo defaultTaxInfoForNewBills) {
+  void setDefaultTaxInfoForNewBills(final TaxInfo defaultTaxInfoForNewBills) {
     this.defaultTaxInfoForNewBills = defaultTaxInfoForNewBills;
   }
 
   @VisibleForTesting
-  void setCurrentDateProvider(ICurrentDateProvider currentDateProvider) {
+  void setCurrentDateProvider(final ICurrentDateProvider currentDateProvider) {
     this.currentDateProvider = currentDateProvider;
   }
 
   @VisibleForTesting
-  void setMultipleBillsCalculatorFactory(
-    IMultipleBillsCalculatorFactory multipleBillsCalculatorFactory) {
+  void setMultipleBillsCalculatorFactory(final IMultipleBillsCalculatorFactory multipleBillsCalculatorFactory) {
     this.multipleBillsCalculatorFactory = multipleBillsCalculatorFactory;
   }
 
   @VisibleForTesting
-  void setServices(Set<IService> services) {
+  void setServices(final Set<IService> services) {
     this.services = services;
   }
 
   @VisibleForTesting
-  void setEventBroadcaster(EventBroadcaster eventBroadcaster) {
+  void setEventBroadcaster(final EventBroadcaster eventBroadcaster) {
     this.eventBroadcaster = eventBroadcaster;
   }
 

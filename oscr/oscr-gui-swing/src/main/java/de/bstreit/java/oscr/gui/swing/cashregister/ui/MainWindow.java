@@ -3,14 +3,21 @@ package de.bstreit.java.oscr.gui.swing.cashregister.ui;
 import de.bstreit.java.oscr.gui.swing.cashregister.ui.factories.ButtonPanelFactory;
 import de.bstreit.java.oscr.text.formatting.BillItemWrapper;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.w3c.dom.views.AbstractView;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTextPane;
+import javax.swing.WindowConstants;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Frame;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.List;
@@ -31,8 +38,7 @@ public class MainWindow implements IBillDisplay {
   private ButtonPanelFactory buttonPanelFactory;
 
 
-  @Value("#{ systemProperties['line.separator'] }")
-  private String NEWLINE;
+  private String NEWLINE = "\n";
 
 
   private BillItemWrapper billItemWrapper = new BillItemWrapper(MAX_LINE_LENGTH,
@@ -44,7 +50,7 @@ public class MainWindow implements IBillDisplay {
   private JScrollPane scrollPane;
 
   @Override
-  public void printBill(String billAsText) {
+  public void printBill(final String billAsText) {
     billView.setText(billAsText);
   }
 
@@ -99,7 +105,7 @@ public class MainWindow implements IBillDisplay {
     jFrame.addWindowListener(new WindowAdapter() {
 
       @Override
-      public void windowClosed(WindowEvent arg0) {
+      public void windowClosed(final WindowEvent arg0) {
         appController.notifyShutdown();
       }
 
@@ -131,11 +137,13 @@ public class MainWindow implements IBillDisplay {
   }
 
   @Override
-  public void showError(String message) {
+  public void showError(final String message) {
+
+    billView.select(0, 0);
 
     billItemWrapper.wrapText(message);
 
-    String messageFormatted = "\n"
+    final String messageFormatted = "\n"
       + StringUtils.repeat("#", MAX_LINE_LENGTH) + "\n"
       + StringUtils.repeat("!", MAX_LINE_LENGTH) + "\n" + "\n"
       + billItemWrapper.getFirstLine() + "\n"
@@ -143,12 +151,14 @@ public class MainWindow implements IBillDisplay {
       + StringUtils.repeat("!", MAX_LINE_LENGTH) + "\n"
       + StringUtils.repeat("#", MAX_LINE_LENGTH) + "\n" + "\n" + "\n";
 
+    billView.replaceSelection(messageFormatted);
+    scrollToBeginning();
+
     displayMessageOnTop(messageFormatted);
   }
 
   @Override
   public void showWarnings(List<String> warnings) {
-
 
     Optional<String> warningsAsString = warnings
       .stream()

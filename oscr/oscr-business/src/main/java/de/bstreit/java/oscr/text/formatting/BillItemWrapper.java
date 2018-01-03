@@ -13,13 +13,13 @@ public class BillItemWrapper {
   private String furtherLines;
 
 
-  public BillItemWrapper(int maxLen, String newline) {
+  public BillItemWrapper(final int maxLen, final String newline) {
     checkArgument(maxLen > 2);
     this.maxLen = maxLen;
     this.newline = newline;
   }
 
-  public BillItemWrapper wrapText(String originalText) {
+  public BillItemWrapper wrapText(final String originalText) {
 
     if (originalText.length() <= maxLen) {
       firstLine = originalText;
@@ -27,9 +27,9 @@ public class BillItemWrapper {
       return this;
     }
 
-    final String wrappedLinesLong = WordUtils.wrap(originalText, maxLen, "\n", true);
+    final String wrappedLinesLong = WordUtils.wrap(originalText, maxLen, newline, true);
 
-    final int firstLineBreakIdx = wrappedLinesLong.indexOf("\n");
+    final int firstLineBreakIdx = wrappedLinesLong.indexOf(newline);
 
     firstLine = wrappedLinesLong.substring(0, firstLineBreakIdx);
 

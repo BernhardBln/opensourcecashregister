@@ -8,7 +8,7 @@
 	<parent>
 		<groupId>de.bstreit.java.oscr</groupId>
 		<artifactId>oscr</artifactId>
-		<version>0.1.29-SNAPSHOT</version>
+		<version>0.1.37-SNAPSHOT</version>
 	</parent>
 
 	<dependencies>
