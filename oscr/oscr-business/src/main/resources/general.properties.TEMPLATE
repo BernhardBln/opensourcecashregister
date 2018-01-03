@@ -3,6 +3,10 @@
 # leave empty to disable export
 exportDir=
 
+
+# categoriesForRecup                                  = Espresso Drinks;Hot Drinks
+# cupNames                                            = Pfand;Paper Cup;RECUP;Own Cup
+
 # Weekly category
 # one of the categories can be marked as "weekly" or "special" and
 # is displayed in a separate part.
