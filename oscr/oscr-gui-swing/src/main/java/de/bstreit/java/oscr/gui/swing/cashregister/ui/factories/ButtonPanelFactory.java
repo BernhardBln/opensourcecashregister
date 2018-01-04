@@ -22,6 +22,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static javax.swing.SwingConstants.LEFT;
@@ -166,14 +167,25 @@ public class ButtonPanelFactory {
     allActiveOffers.addAll(variationOfferRepository.findAllActiveOffers());
     allActiveOffers.addAll(extraOfferRepository.findAllActiveOffers());
 
-    allActiveOffers
+    selectedFavourites
       .stream()
-      .filter(o -> selectedFavourites.contains(o
-        .getOfferedItem()
-        .getName()))
+      .map(f -> findOffer(f, allActiveOffers))
+      .filter(Objects::nonNull)
       .map(buttonFactory::createButtonFor)
       .forEach(favouritesPanel::add);
 
+  }
+
+  private AbstractOffer findOffer(String offerName, List<AbstractOffer> allActiveOffers) {
+
+    return allActiveOffers
+      .stream()
+      .filter(o -> o
+        .getOfferedItem()
+        .getName()
+        .equals(offerName))
+      .findFirst()
+      .orElse(null);
   }
 
   private void buildAndAddDrinksPanelToMainPanel() {
