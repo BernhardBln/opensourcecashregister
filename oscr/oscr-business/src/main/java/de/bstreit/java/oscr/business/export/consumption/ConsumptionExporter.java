@@ -1,5 +1,24 @@
 package de.bstreit.java.oscr.business.export.consumption;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import de.bstreit.java.oscr.business.base.finance.money.Money;
+import de.bstreit.java.oscr.business.base.finance.tax.VATClass;
+import de.bstreit.java.oscr.business.bill.Bill;
+import de.bstreit.java.oscr.business.bill.IMultipleBillsCalculator;
+import de.bstreit.java.oscr.business.bill.IMultipleBillsCalculatorFactory;
+import de.bstreit.java.oscr.business.bill.calculator.WhatToCount;
+import de.bstreit.java.oscr.business.bill.dao.IBillRepository;
+import de.bstreit.java.oscr.business.staff.User;
+import de.bstreit.java.oscr.business.util.DateFactory;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.transaction.Transactional;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.MessageFormat;
@@ -11,28 +30,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import javax.transaction.Transactional;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Service;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
-import de.bstreit.java.oscr.business.base.finance.money.Money;
-import de.bstreit.java.oscr.business.base.finance.tax.VATClass;
-import de.bstreit.java.oscr.business.bill.Bill;
-import de.bstreit.java.oscr.business.bill.IMultipleBillsCalculator;
-import de.bstreit.java.oscr.business.bill.IMultipleBillsCalculatorFactory;
-import de.bstreit.java.oscr.business.bill.calculator.WhatToCount;
-import de.bstreit.java.oscr.business.bill.dao.IBillRepository;
-import de.bstreit.java.oscr.business.staff.User;
-import de.bstreit.java.oscr.business.util.DateFactory;
 
 
 @Scope("prototype")
@@ -206,7 +203,7 @@ public class ConsumptionExporter {
 
       for (VATClass vatClass : calculator.getAllVatClasses()) {
         Money totalGross = calculator.getTotalGrossFor(vatClass);
-        appendable.append("\t- Getränke zu " + vatClass.getRate() + "% MwSt.: \t"
+        appendable.append("\t- " + vatClass.getRate() + "% MwSt.: \t\t"
             + totalGross.getNet(vatClass) + " netto\t"
             + totalGross + " brutto" + "\n");
       }
