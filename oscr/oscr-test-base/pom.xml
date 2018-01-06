@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>de.bstreit.java.oscr</groupId>
 		<artifactId>oscr</artifactId>
-		<version>0.1.39</version>
+		<version>0.1.40-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>oscr-test-base</artifactId>
