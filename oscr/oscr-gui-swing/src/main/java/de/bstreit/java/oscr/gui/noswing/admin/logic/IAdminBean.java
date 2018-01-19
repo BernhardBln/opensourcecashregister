@@ -4,7 +4,7 @@ import java.util.Scanner;
 
 public interface IAdminBean {
 
-	public void performTask();
+	public void performTask() throws Exception;
 
 	public void setScanner(Scanner scanner);
 

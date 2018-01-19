@@ -545,10 +545,28 @@ public class BillService {
 
   }
 
+
+
   @Transactional
   public void processBillsAt(final IBillProcessor billProcessor, final Date day) {
 
     final Collection<Bill> allBillsForToday = getBillsForAllDay(day);
+
+    for (final Bill bill : allBillsForToday) {
+      billProcessor.processBill(bill);
+    }
+
+  }
+
+  /**
+   * Including tab customers and employees
+   * @param billProcessor
+   * @param day
+   */
+  @Transactional
+  public void processAllBillsAt(final IBillProcessor billProcessor, final Date day) {
+
+    final Collection<Bill> allBillsForToday = getAllBillsForAllDay(day);
 
     for (final Bill bill : allBillsForToday) {
       billProcessor.processBill(bill);
@@ -567,6 +585,26 @@ public class BillService {
 
     final Collection<Bill> allBillsForToday = billRepository
       .getBillsForDayWithoutStaff(from, to);
+
+    return allBillsForToday;
+  }
+
+  /**
+   * Return all bills, including staff and customers
+   * @param day
+   * @return
+   */
+  public Collection<Bill> getAllBillsForAllDay(final Date day) {
+    final Date from = DateFactory.getDateWithTimeMidnight(day.getYear() + 1900,
+      day.getMonth() + 1, day.getDate());
+
+    final Calendar nextDayCalendar = Calendar.getInstance();
+    nextDayCalendar.setTime(from);
+    nextDayCalendar.add(Calendar.DAY_OF_MONTH, 1);
+    final Date to = nextDayCalendar.getTime();
+
+    final Collection<Bill> allBillsForToday = billRepository
+      .getAllBills(from, to);
 
     return allBillsForToday;
   }

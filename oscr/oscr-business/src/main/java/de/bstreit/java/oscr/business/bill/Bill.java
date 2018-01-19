@@ -30,12 +30,21 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import de.bstreit.java.oscr.business.offers.AbstractOffer;
 import de.bstreit.java.oscr.business.offers.ProductOffer;
-import de.bstreit.java.oscr.business.products.AbstractSalesItem;
 import de.bstreit.java.oscr.business.staff.User;
 import de.bstreit.java.oscr.business.taxation.TaxInfo;
 
-import javax.persistence.*;
-import java.util.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -280,6 +289,9 @@ public class Bill implements Iterable<BillItem> {
         .isPfand());
   }
 
+  public String getId() {
+    return id;
+  }
 
   public int getReduction() {
     return reduction == null ? 0 : reduction;

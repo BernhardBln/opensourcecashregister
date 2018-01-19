@@ -41,6 +41,10 @@ public class NoswingAdminController {
           adminBean.performTask();
         } catch (final AbortedException e) {
 
+        } catch (Exception e) {
+          e.printStackTrace();
+          System.out.println("\n\n");
+          e.getMessage();
         }
       }
     }

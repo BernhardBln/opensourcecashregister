@@ -62,4 +62,7 @@ public interface IBillRepository extends JpaRepository<Bill, String> {
   @Query("from Bill where billOpened >= ?1 and billOpened < ?2 and internalConsumer is NULL order by billOpened desc")
   public Collection<Bill> getBillsForDayWithoutStaff(Date from, Date to);
 
+  @Query("from Bill where billOpened >= ?1 and billOpened < ?2 order by billOpened asc")
+  public Collection<Bill> getAllBills(Date from, Date to);
+
 }
