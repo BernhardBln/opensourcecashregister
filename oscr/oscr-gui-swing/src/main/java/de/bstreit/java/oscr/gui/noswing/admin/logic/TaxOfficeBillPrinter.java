@@ -1,11 +1,15 @@
 package de.bstreit.java.oscr.gui.noswing.admin.logic;
 
+import com.google.common.base.Preconditions;
+import de.bstreit.java.oscr.business.base.finance.money.Money;
 import de.bstreit.java.oscr.business.base.finance.tax.VATClass;
 import de.bstreit.java.oscr.business.bill.Bill;
+import de.bstreit.java.oscr.business.bill.BillItem;
 import de.bstreit.java.oscr.business.bill.BillService;
 import de.bstreit.java.oscr.business.bill.IBillProcessor;
 import de.bstreit.java.oscr.business.bill.IMultipleBillsCalculator;
 import de.bstreit.java.oscr.business.bill.IMultipleBillsCalculatorFactory;
+import de.bstreit.java.oscr.business.bill.calculator.WhatToCount;
 import de.bstreit.java.oscr.business.bill.dao.IBillRepository;
 import de.bstreit.java.oscr.business.offers.AbstractOffer;
 import de.bstreit.java.oscr.business.offers.PromoOffer;
@@ -23,8 +27,10 @@ import javax.inject.Named;
 import java.io.File;
 import java.io.PrintStream;
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Currency;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -67,6 +73,10 @@ public class TaxOfficeBillPrinter implements IAdminBean {
 
   private DateFormat dateFormat;
 
+  @Inject
+  private Currency defaultCurrency;
+
+
   @PostConstruct
   public void init() {
 
@@ -96,16 +106,21 @@ public class TaxOfficeBillPrinter implements IAdminBean {
 
     File yearExportFolder = new File(taxexportOutputDir, yearAsStr);
     FileUtils.forceMkdir(yearExportFolder);
-    File yearExportFile = new File(yearExportFolder, yearAsStr + ".tsv");
 
-    try (PrintStream yearPrintStream = new PrintStream(yearExportFile)) {
+    File yearExportFile = new File(yearExportFolder, yearAsStr + ".tsv");
+    File yearExportFileSingle = new File(yearExportFolder, yearAsStr + "_single.tsv");
+
+    try (PrintStream yearPrintStream = new PrintStream(yearExportFile);
+         PrintStream yearPrintStreamSingle = new PrintStream(yearExportFileSingle)) {
       yearPrintStream.print(billFormatter.getHeader());
+      yearPrintStreamSingle.print(billFormatter.getHeader());
 
       for (Calendar firstOfMonth : months) {
 
         String monthAsString = String.valueOf(firstOfMonth.get(Calendar.MONTH) + 1);
 
         File monthExportFile = new File(yearExportFolder, monthAsString + ".tsv");
+        File monthExportFileSingle = new File(yearExportFolder, monthAsString + "_single.tsv");
         File monthExportFolder = new File(yearExportFolder, monthAsString);
 
         FileUtils.forceMkdir(monthExportFolder);
@@ -114,21 +129,28 @@ public class TaxOfficeBillPrinter implements IAdminBean {
 
         System.out.println("Exporting " + dateFormat.format(current.getTime()));
 
-        try (PrintStream monthPrintStream = new PrintStream(monthExportFile)) {
+        try (PrintStream monthPrintStream = new PrintStream(monthExportFile);
+             PrintStream monthPrintStreamSingle = new PrintStream(monthExportFileSingle)) {
 
           monthPrintStream.print(billFormatter.getHeader());
+          monthPrintStreamSingle.print(billFormatter.getHeader());
 
           while (current.get(Calendar.MONTH) == firstOfMonth.get(Calendar.MONTH)) {
 
             String dayAsString = String.valueOf(current.get(Calendar.DAY_OF_MONTH));
 
             File dayExportFile = new File(monthExportFolder, dayAsString + ".tsv");
+            File dayExportFileSingle = new File(monthExportFolder, dayAsString + "_single.tsv");
 
-            try (PrintStream dayPrintStream = new PrintStream(dayExportFile)) {
+            try (PrintStream dayPrintStream = new PrintStream(dayExportFile);
+                 PrintStream dayPrintStreamSingle = new PrintStream(dayExportFileSingle)) {
+
               dayPrintStream.print(billFormatter.getHeader());
+              dayPrintStreamSingle.print(billFormatter.getHeader());
 
-              txService.doInTx(() -> processDay(current, yearPrintStream, monthPrintStream,
-                dayPrintStream));
+              txService.doInTx(() -> processDay(current, yearPrintStream, yearPrintStreamSingle,
+                monthPrintStream, monthPrintStreamSingle,
+                dayPrintStream, dayPrintStreamSingle));
 
               current.add(Calendar.DAY_OF_MONTH, 1);
             }
@@ -152,7 +174,10 @@ public class TaxOfficeBillPrinter implements IAdminBean {
   }
 
   private void processDay(Calendar day, PrintStream yearPrintStream,
-                          PrintStream monthPrintStream, PrintStream dayPrintStream) {
+                          PrintStream yearPrintStreamSingle,
+                          PrintStream monthPrintStream, PrintStream monthPrintStreamSingle,
+                          PrintStream dayPrintStream,
+                          PrintStream dayPrintStreamSingle) {
 
     billService.processAllBillsAt(new IBillProcessor() {
 
@@ -165,10 +190,150 @@ public class TaxOfficeBillPrinter implements IAdminBean {
         monthPrintStream.print(billInOneLine);
         dayPrintStream.print(billInOneLine);
 
+        // individual line items
+
+        List<Bill> bills = splitBillInSingleLineItemBills(bill);
+
+        bills.forEach(
+          b -> {
+            String splitBillInOneLine = billFormatter.formatBill(b);
+
+            yearPrintStreamSingle.print(splitBillInOneLine);
+            monthPrintStreamSingle.print(splitBillInOneLine);
+            dayPrintStreamSingle.print(splitBillInOneLine);
+          }
+        );
+
+
       }
 
     }, day.getTime());
 
+
+  }
+
+  private List<Bill> splitBillInSingleLineItemBills(Bill bill) {
+    List<Bill> bills = newArrayList();
+
+    bill
+      .getBillItems()
+      .stream()
+      .map(billItem -> toIndividualBill(billItem, bill))
+      .forEach(bills::add);
+
+    sanityCheck(bill, bills);
+
+    return bills;
+  }
+
+  private void sanityCheck(Bill bill, List<Bill> bills) {
+
+    for (WhatToCount w : WhatToCount.values()) {
+      sanityCheck(bill, bills, w);
+    }
+
+  }
+
+  private void sanityCheck(Bill bill, List<Bill> bills, WhatToCount w) {
+
+    Collection<Bill> billWrapped = new ArrayList<>();
+    billWrapped.add(bill);
+
+    IMultipleBillsCalculator calculatorOriginalBill = multipleBillsCalculatorFactory.create
+      (billWrapped, w);
+
+    IMultipleBillsCalculator splittedBill = multipleBillsCalculatorFactory.create
+      (bills, w);
+
+    Preconditions.checkState(
+      calculatorOriginalBill
+        .getTotalGross()
+        .equals(splittedBill.getTotalGross()),
+
+      "Expected the same total gross on full and on union of all split bills. Bill: " + bill
+        .getId() + "; counting: " + w +
+        "; original: " + calculatorOriginalBill.getTotalGross() +
+        "; union: " + splittedBill.getTotalGross());
+
+    if (calculatorOriginalBill
+      .getTotalGross()
+      .equals(Money.NULL(defaultCurrency))) {
+      // both null, nothing to check
+      return;
+    }
+
+    Preconditions.checkState(
+      calculatorOriginalBill
+        .getAllVatClasses()
+        .equals(splittedBill.getAllVatClasses()),
+
+      "Expected the same VAT classes on full and on union of all split bills. Bill: " + bill
+        .getId() + "; counting: " + w +
+        "; original: " + calculatorOriginalBill.getAllVatClasses() +
+        "; union: " + splittedBill.getAllVatClasses());
+
+    calculatorOriginalBill
+      .getAllVatClasses()
+      .forEach(v ->
+        Preconditions.checkState(
+          calculatorOriginalBill
+            .getTotalGrossFor(v)
+            .equals(splittedBill.getTotalGrossFor(v)),
+
+          "Expected the same total gross for " + v + " on full and on union of all split bills. " +
+            "Bill: " + bill
+            .getId() + "; counting: " + w +
+            "; original: " + calculatorOriginalBill.getTotalGrossFor(v) +
+            "; union: " + splittedBill.getTotalGrossFor(v)));
+
+    calculatorOriginalBill
+      .getAllVatClasses()
+      .forEach(v ->
+        Preconditions.checkState(
+          calculatorOriginalBill
+            .getTotalNetFor(v)
+            .equals(splittedBill.getTotalNetFor(v)),
+
+          "Expected the same total net for " + v + " on full and on union of all split bills. " +
+            "Bill: " + bill
+            .getId() + "; counting: " + w +
+            "; original: " + calculatorOriginalBill.getTotalNetFor(v) +
+            "; union: " + splittedBill.getTotalNetFor(v)));
+
+
+    calculatorOriginalBill
+      .getAllVatClasses()
+      .forEach(v ->
+        Preconditions.checkState(
+          calculatorOriginalBill
+            .getTotalVATFor(v)
+            .equals(splittedBill.getTotalVATFor(v)),
+
+          "Expected the same total vat for " + v + " full and on union of all split bills. Bill: " +
+            "" + bill
+            .getId() + "; counting: " + w +
+            "; original: " + calculatorOriginalBill.getTotalVATFor(v) +
+            "; union: " + splittedBill.getTotalVATFor(v)));
+
+
+  }
+
+  private Bill toIndividualBill(BillItem billItem, Bill bill) {
+
+    Bill initialisedBill = Bill
+      .builder()
+      .billOpened(bill.getBillOpened())
+      .billClosed(bill.getBillClosed())
+      .freePromotionOffer(bill.isFreePromotionOffer())
+      .globalTaxInfo(bill.getGlobalTaxInfo())
+      .cashier(bill.getCashier())
+      .internalConsumer(bill.getStaffConsumer())
+      .reduction(bill.getReduction())
+      // add bill item
+      .billItems(newArrayList(billItem))
+      .build();
+
+    return initialisedBill;
 
   }
 

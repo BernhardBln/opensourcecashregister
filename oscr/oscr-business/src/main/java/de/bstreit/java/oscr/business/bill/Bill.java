@@ -32,6 +32,10 @@ import de.bstreit.java.oscr.business.offers.AbstractOffer;
 import de.bstreit.java.oscr.business.offers.ProductOffer;
 import de.bstreit.java.oscr.business.staff.User;
 import de.bstreit.java.oscr.business.taxation.TaxInfo;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -53,6 +57,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 /**
  * @author streit
  */
+@Getter
+@Builder
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Entity
 public class Bill implements Iterable<BillItem> {
 
@@ -70,7 +77,7 @@ public class Bill implements Iterable<BillItem> {
   private String description;
 
   @OneToMany(cascade = CascadeType.ALL)
-  private final List<BillItem> billItems = new ArrayList<>();
+  private  List<BillItem> billItems = new ArrayList<>();
 
   /**
    * The date when the bill was opened.
